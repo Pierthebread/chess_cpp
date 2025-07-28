@@ -6,12 +6,22 @@ $ git clone git@github.com:Pierthebread/chess_cpp.git
 
 $ cd chess_cpp 
 
-#creare branch
+#CREARE BRANCH
 
 $ git branch <nome>
 
 $ git checkout <nome>
 
-#per caricare i salvataggi:
+#CARICARE I SALVATAGGI (la mia filosofia):
 
-$ git add <nome file>
+$ git add <nome file> (oppure git add .)
+
+$ git commit -m "commento"
+
+$ git push
+
+$ git checkout main
+
+$ git merge <nome branch dove hai lavorato>
+
+$ git push
