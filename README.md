@@ -14,14 +14,14 @@ $ git checkout <nome>
 
 #CARICARE I SALVATAGGI (la mia filosofia):
 
-$ git add <nome file> (oppure git add .)
+$ git add "nome file" (oppure git add .)
 
 $ git commit -m "commento"
 
-$ git push
+$ git push 
 
 $ git checkout main
 
-$ git merge <nome branch dove hai lavorato>
+$ git merge "nome branch su cui hai lavorato"
 
 $ git push
