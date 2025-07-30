@@ -2,7 +2,7 @@
 #include "Board.hpp"
 
 // Costruttore
-Board::Board() {
+Board::Board(sf::RenderWindow& window) : window_(window) {
   for (auto& column : board) {
     for (auto& cell : column) {
       cell = nullptr;
