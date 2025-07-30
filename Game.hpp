@@ -6,6 +6,7 @@
 
 class Game {
  private:
+  sf::RenderWindow& window_;
   Board board_;
   Player whitePlayer_;
   Player blackPlayer_;
@@ -13,7 +14,7 @@ class Game {
   bool gameOver_;
 
  public:
-  Game(std::string nameWhite, std::string nameBlack);
+  Game(std::string nameWhite, std::string nameBlack, sf::RenderWindow& window);
 
   // metodi per accedere alle variabili private
   Board& getBoard();  // non posso copiare unique_ptr
@@ -30,11 +31,10 @@ class Game {
   bool validMove(Point from, Point to);
   void playMove(Point from, Point to);
 
-  // // funzioni per lo scacco
+  // funzioni per lo scacco
   bool isCheck(Color color);                           // è scaccco
   bool isChecking(Point pezzoipotetico, Color color);  // punta al re?
-  bool createCheck(Point from, Point to);              // questa mossa
-  // genera uno scacco?
+  bool createCheck(Point from, Point to);              // questa mossa genera uno scacco?
 }
 
 #endif
