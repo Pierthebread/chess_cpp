@@ -1,0 +1,40 @@
+#ifndef GAME_HPP
+#define GAME_HPP
+#include "Board.hpp"
+#include "Pieces.hpp"
+#include "Player.hpp"
+
+class Game {
+ private:
+  Board board_;
+  Player whitePlayer_;
+  Player blackPlayer_;
+  Color playerTurn_;
+  bool gameOver_;
+
+ public:
+  Game(std::string nameWhite, std::string nameBlack);
+
+  // metodi per accedere alle variabili private
+  Board& getBoard();  // non posso copiare unique_ptr
+  Color getPlayerTurn();
+  bool getGameOver();
+
+  // metodi per modificare le variabili private
+  void setPlayerTurn_(Color color);
+  void setGameOver(bool p);
+
+  // funzioni per il movimento pezzi
+  bool rightStarting(Point from);
+  bool rightArrival(Point to);
+  bool validMove(Point from, Point to);
+  void playMove(Point from, Point to);
+
+  // // funzioni per lo scacco
+  bool isCheck(Color color);                           // è scaccco
+  bool isChecking(Point pezzoipotetico, Color color);  // punta al re?
+  bool createCheck(Point from, Point to);              // questa mossa
+  // genera uno scacco?
+}
+
+#endif

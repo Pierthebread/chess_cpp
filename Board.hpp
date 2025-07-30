@@ -27,7 +27,6 @@ class Board {
   void draw(sf::RenderWindow& window);
   void renderBoard(sf::RenderWindow& window);  // la dimensione della finestra
                                                // (si mette nel main)
-                                            
 
   // Movimento dei pezzi
   Piece* selectPiece(Point p);  // resistuisce un puntatore data la posizione
