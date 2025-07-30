@@ -22,19 +22,25 @@ class Game {
   bool getGameOver();
 
   // metodi per modificare le variabili private
-  void setPlayerTurn_(Color color);
+  void setPlayerTurn(Color color);
   void setGameOver(bool p);
 
-  // funzioni per il movimento pezzi
-  bool rightStarting(Point from);
-  bool rightArrival(Point to);
+  // funzioni per il movimento pezzi (DA IMPLEMENTARE I TEST)
+  bool rightStarting(Point from);  // ho tolto i throw
+  bool rightArrival(Point to);     // ho tolto i throw
   bool validMove(Point from, Point to);
-  void playMove(Point from, Point to);
 
-  // funzioni per lo scacco
+  // funzioni per arrocco
+
+  // funzioni per enPassant
+
+  // funzioni per lo scacco (DA FINIRE + IMPLEMENTARE TEST)
   bool isCheck(Color color);                           // è scaccco
   bool isChecking(Point pezzoipotetico, Color color);  // punta al re?
-  bool createCheck(Point from, Point to);              // questa mossa genera uno scacco?
-}
+  bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?
+
+  // funzione definitiva
+  void playMove(Point from, Point to);
+};
 
 #endif
