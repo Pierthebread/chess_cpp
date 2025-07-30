@@ -3,20 +3,23 @@
 
 #include "Pieces.hpp"
 
-class player {
+class Player {
  private:
   std::string name_;
   Color color_;
   int moves_;
 
  public:
- //metodi per accedere alle variabili private
-const std::string getName();
-const Color getColor();
-const int getMoves();
+  // costruttore
+  Player(std::string name, Color color);
 
- //metodi per modificare le variabili private
- void incrementMoves();
-}
+  // metodi per accedere alle variabili private
+  const std::string getName();
+  const Color getColor();
+  const int getMoves();
+
+  // metodi per modificare le variabili private
+  void incrementMoves();
+};
 
 #endif
