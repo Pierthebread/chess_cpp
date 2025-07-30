@@ -131,7 +131,6 @@ void Board::renderBoard(
 //
 //////////
 ////////// Movimento dei pezzi
-//
 Piece* Board::selectPiece(Point p) {
   // int c = static_cast<int>(p.c);
   if (p.c < 0 or p.c >= 8 or p.r < 0 or p.r >= 8) {
@@ -164,7 +163,6 @@ void Board::movePiece(Point from, Point to) {
 }
 /////////
 /////////// Controllo della scacchiera (clearPath e kingPosition)
-//
 bool Board::clearPath(Point from, Point to) {
   if (from.r == to.r) {
     return clearOrizzontalPath(from, to);
