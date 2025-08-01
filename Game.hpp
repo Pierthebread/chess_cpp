@@ -31,12 +31,15 @@ class Game {
   bool validMove(Point from, Point to);
 
   // funzioni per arrocco
-  bool validCastling(Point from, Point to);
+  bool isCastlingValid(Point from, Point to);
+  void executeCastling(Point from, Point to);
+  
   // funzioni per enPassant
 
   // funzioni per lo scacco (DA FINIRE + IMPLEMENTARE TEST)
-  bool isCheck(Color color);                           // è scaccco
-  bool isChecking(Point pezzoipotetico, Color color);  // punta al re?
+  bool isCheck(Color color);  // color è sotto scacco?
+  bool isChecking(Point pezzoipotetico,
+                  Color color);  // pezzoipotetico punta al re di color?
   bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?
 
   // funzione definitiva

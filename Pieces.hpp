@@ -58,6 +58,8 @@ class Piece {
   inline virtual bool validPieceMove(Point move_to) = 0;  // mosse dei pezzi
   virtual void loadTexture() = 0;                         // immagini dei pezzi
   virtual void draw(sf::RenderWindow& window) = 0;        // disegna i pezzi
+  virtual const std::unique_ptr<Piece>
+  pieceClone() = 0;  //"copia" degli unique ptr
 };
 
 // LE CLASSI DERIVATE: I SINGOLI PEZZI
@@ -73,6 +75,7 @@ class King : public Piece {
   void setMoved(bool has_moved);
   void loadTexture() override;
   void draw(sf::RenderWindow& window) override;
+  const std::unique_ptr<Piece> pieceClone() override;
 };
 
 // REGINA
@@ -84,6 +87,7 @@ class Queen : public Piece {
 
   void loadTexture() override;
   void draw(sf::RenderWindow& window) override;
+  const std::unique_ptr<Piece> pieceClone() override;
 };
 
 // CAVALLO
@@ -95,6 +99,7 @@ class Knight : public Piece {
   bool validPieceMove(Point move_to) override;
   void loadTexture() override;
   void draw(sf::RenderWindow& window) override;
+  const std::unique_ptr<Piece> pieceClone() override;
 };
 
 // ALFIERE
@@ -106,6 +111,7 @@ class Bishop : public Piece {
   bool validPieceMove(Point p_to) override;
   void loadTexture() override;
   void draw(sf::RenderWindow& window) override;
+  const std::unique_ptr<Piece> pieceClone() override;
 };
 
 // TORRE
@@ -117,6 +123,7 @@ class Rook : public Piece {
   bool validPieceMove(Point point_to) override;
   void loadTexture() override;
   void draw(sf::RenderWindow& window) override;
+  const std::unique_ptr<Piece> pieceClone() override;
 };
 
 // PEDONE
@@ -128,6 +135,7 @@ class Pawn : public Piece {
 
   void loadTexture() override;
   void draw(sf::RenderWindow& window) override;
+  const std::unique_ptr<Piece> pieceClone() override;
 };
 
 #endif

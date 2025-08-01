@@ -46,10 +46,8 @@ bool Game::rightArrival(Point to) {
 bool Game::validMove(Point from, Point to) {  // non specifico il tipo di pezzo
   Piece* piece = board_.selectPiece(from);
   if (!rightArrival(to) && !rightStarting(from)) {
-    std::cout << "2" << '\n';
     return false;
   } else if (!piece->validPieceMove(to)) {
-    std::cout << "3" << '\n';
     return false;
   } else if (!board_.clearPath(from, to)) {
     std::cout << "4" << '\n';
@@ -84,22 +82,33 @@ bool Game::isCheck(Color color) {
   return false;
 }
 
-bool Game::isChecking(Point p, Color color) {}
+bool Game::isChecking(Point p, Color color) {
+  Piece* piece = board_.selectPiece(p);
+  Point king_pos = board_.kingPosition(color);
+  if (piece->getColor() != color && validMove(p, king_pos) == true) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
-void Game::setGameOver(bool p) { gameOver_ = p; }
+bool Game::createCheck(Point from, Point to) {}
 
 // funzioni per arrocco
-bool Game::validCastling(Point from, Point to) {
-  Piece* piece = board_.selectPiece(from);
-  if (piece->getName() == king) {
-    if (from.r == 0) {
-      if () }
-    if (from.r == 7) {
+bool Game::isCastlingValid(Point from, Point to) {
+  Piece* king_piece = board_.selectPiece(from);
+  Piece* rook_piece = board_.selectPiece(to);
+  if (king_piece->getName() == king && !king_piece->getMoved() &&
+      rook_piece->getName() == rook && !rook_piece->getMoved() &&
+      king_piece->getColor() == rook_piece->getColor()) {
+    if ((from.r == 0 or from.r == 7) && (to.c == H or to.c == A) &&
+        board_.clearPath(from, to)) {
+      return true;
     }
   }
-
   return false;
 }
+
 // funzioni per enPassant
 
 // funzioni per il movimento dei pezzi
