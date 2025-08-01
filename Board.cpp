@@ -2,7 +2,7 @@
 #include "Board.hpp"
 
 // Costruttore
-Board::Board() {
+Board::Board(sf::RenderWindow& window) : window_(window) {
   for (auto& column : board) {
     for (auto& cell : column) {
       cell = nullptr;
@@ -42,7 +42,7 @@ void Board::setPiece(Name type, Color color, Point p) {
       break;
   }
   Board::selectPiece({p.c, p.r})
-      ->setPosition({p.c, p.r});  /////////aaaaaaaaaaaaaaaa
+      ->setPosition({p.c, p.r});  //aaaaaaaaa
 }
 
 void Board::setPieces() {
