@@ -6,9 +6,9 @@ Game::Game(std::string nameWhite, std::string nameBlack,
            sf::RenderWindow& window)
     : window_(window),
       board_(Board()),
-      whitePlayer__(nameWhite, White),
-      blackPlayer__(nameBlack, Black),
-      playerTurn__{White},
+      whitePlayer_(nameWhite, White),
+      blackPlayer_(nameBlack, Black),
+      playerTurn_{White},
       gameOver_(false) {}
 
 // metodi per accedere alle variabili private
@@ -21,19 +21,27 @@ void Game::setPlayerTurn_(Color newTurn) { playerTurn_ = newTurn; };
 void Game::setGameOver(bool the_end) { gameOver_ = the_end; }
 
 // funzioni per il movimento dei pezzi
-void Game::playMove(Point from, Point to){}
+void Game::playMove(Point from, Point to) {}
 
-bool Game::rightStarting(Point from){
+bool Game::rightStarting(Point from) {
   Piece* piece_from = board_.selectPiece(from);
-  if (!piece_from){return false;}
-  if (piece_from->getColor() != playerTurn_){return false;}
+  if (!piece_from) {
+    return false;
+  }
+  if (piece_from->getColor() != playerTurn_) {
+    return false;
+  }
   return true;
 }
 
-bool Game::rightArrival(Point to){
+bool Game::rightArrival(Point to) {
   Piece* piece_to = board_.selectPiece(to);
-  if(!piece_to){return true;}
-  if(piece_to->getColor() != playerTurn_){return true;}
+  if (!piece_to) {
+    return true;
+  }
+  if (piece_to->getColor() != playerTurn_) {
+    return true;
+  }
   return false;
 }
 
@@ -76,7 +84,6 @@ bool Game::validMove(Point from, Point to) {
   }
   return true;
 }
-
 
 // metodi per accedere alle variabili private
 Board& Game::getBoard() { return board_; }
@@ -88,19 +95,27 @@ void Game::setPlayerTurn_(Color newTurn) { playerTurn_ = newTurn; };
 void Game::setGameOver(bool the_end) { gameOver_ = the_end; }
 
 // funzioni per il movimento dei pezzi
-void Game::playMove(Point from, Point to){}
+void Game::playMove(Point from, Point to) {}
 
-bool Game::rightStarting(Point from){
+bool Game::rightStarting(Point from) {
   Piece* piece_from = board_.selectPiece(from);
-  if (!piece_from){return false;}
-  if (piece_from->getColor() != playerTurn_){return false;}
+  if (!piece_from) {
+    return false;
+  }
+  if (piece_from->getColor() != playerTurn_) {
+    return false;
+  }
   return true;
 }
 
-bool Game::rightArrival(Point to){
+bool Game::rightArrival(Point to) {
   Piece* piece_to = board_.selectPiece(to);
-  if(!piece_to){return true;}
-  if(piece_to->getColor() != playerTurn_){return true;}
+  if (!piece_to) {
+    return true;
+  }
+  if (piece_to->getColor() != playerTurn_) {
+    return true;
+  }
   return false;
 }
 
@@ -143,7 +158,6 @@ bool Game::validMove(Point from, Point to) {
   }
   return true;
 }
-
 
 // metodi per accedere alle variabili private
 Color Game::getPlayerTurn() { return playerTurn_; }
@@ -181,8 +195,7 @@ bool Game::validMove(Point from, Point to) {
   if (rightStarting(from) != true or rightArrival(to) != true) {
     return false;
   }
-  if (rightArrival)
-  }
+  if (rightArrival) }
 }
 
 // funzioni per lo scacco
