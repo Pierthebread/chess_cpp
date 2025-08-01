@@ -47,10 +47,10 @@ bool Game::validMove(Point from, Point to) {
   if (rightStarting(from) != true or rightArrival(to) != true) {
     return false;
   }
-  if (rightArrival)
+  if (board_.clearPath(from, to) == false) {
+    return false;
   }
 }
-
 // funzioni per lo scacco
 bool Game::isCheck(Color color) {
   for (int c = 0; c < 8; ++c) {
@@ -65,4 +65,6 @@ bool Game::isCheck(Color color) {
   return false;
 }
 
-bool Game::isChecking(Point p, Color color) {}
+bool Game::isChecking(Point p, Color color) {
+  
+}
