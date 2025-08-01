@@ -31,7 +31,7 @@ class Game {
   bool validMove(Point from, Point to);
 
   // funzioni per arrocco
-
+  bool validCastling(Point from, Point to);
   // funzioni per enPassant
 
   // funzioni per lo scacco (DA FINIRE + IMPLEMENTARE TEST)
