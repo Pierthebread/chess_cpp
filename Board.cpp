@@ -11,7 +11,6 @@ Board::Board(sf::RenderWindow& window) : window_(window) {
 }
 
 // questa funzione mi permette di posizionare pezzi sulla scacchiera
-// IMPORTANTE manca l'assegnazione dell'immagine
 void Board::setPiece(Name type, Color color, Point p) {
   switch (type) {
     case Name::queen:
@@ -89,7 +88,7 @@ void Board::setPieces() {
 }
 
 //////////// Creazione dell'interfaccia grafica
-// traduzione point - pixel 
+// traduzione point - pixel per posizionare le celle
 void Piece::setPositionImage(Point p) {
   sprite_.setPosition(static_cast<float>(p.c) * 80.f + 40.f -
                           sprite_.getGlobalBounds().width / 2,
@@ -97,21 +96,9 @@ void Piece::setPositionImage(Point p) {
                           sprite_.getGlobalBounds().height / 2);
 }
 
-// disegna i pezzi sulla window
-void Board::draw(sf::RenderWindow& window) {
-  for (int c = 0; c < 8; ++c) {
-    for (int r = 0; r < 8; ++r) {
-      if (board[c][r]) {
-        board[c][r]->drawPiece(window);
-      }
-    }
-  }
-}
-
-void Board::renderBoard(
+void Board::drawBoard(
     sf::RenderWindow& window) {  // questa è la finestra grafica SFML
-  const float cellSize =
-      80.f;  // dimensione della casella
+  const float cellSize = 80.f;   // dimensione della casella
   sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
@@ -127,6 +114,16 @@ void Board::renderBoard(
   }
 }
 
+// disegna i pezzi sulla window
+void Board::drawPieces(sf::RenderWindow& window) {
+  for (int c = 0; c < 8; ++c) {
+    for (int r = 0; r < 8; ++r) {
+      if (board[c][r]) {
+        board[c][r]->drawPiece(window);
+      }
+    }
+  }
+}
 
 ////////// Movimento dei pezzi
 Piece* Board::selectPiece(Point p) {

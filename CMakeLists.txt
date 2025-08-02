@@ -37,7 +37,7 @@ find_package(SFML 2.6 COMPONENTS graphics window system REQUIRED)
 
 # dichiara un eseguibile chiamato "progetto", prodotto a partire dai file sorgente indicati
 # sostituire "progetto" con il nome del proprio eseguibile e i file sorgente con i propri (con nomi sensati!)
-add_executable(chess main.cpp Board.cpp Pieces.cpp)
+add_executable(chess main.cpp Board.cpp Pieces.cpp Game.cpp Player.cpp)
 # nel caso si usi SFML. analogamente per eventuali altre librerie
 target_link_libraries(chess PRIVATE sfml-graphics sfml-window sfml-system)
 
@@ -48,10 +48,13 @@ target_link_libraries(chess PRIVATE sfml-graphics sfml-window sfml-system)
 if (BUILD_TESTING)
 
   # aggiungi l'eseguibile progetto.t
-  add_executable(chess.t test.cpp Board.cpp Pieces.cpp)
+  add_executable(chess.t test.cpp Board.cpp Pieces.cpp Game.cpp Player.cpp)
   # aggiungi le librerie necessarie per il test (lho aggiunto io quindi boh)
   target_link_libraries(chess.t PRIVATE sfml-graphics sfml-window sfml-system)
   # aggiungi l'eseguibile progetto.t alla lista dei test
   add_test(NAME chess.t COMMAND chess.t)
+
+# per caricare la cartella contenente le texture dei pezzi
+file(COPY Image DESTINATION ${CMAKE_BINARY_DIR})
 
 endif()

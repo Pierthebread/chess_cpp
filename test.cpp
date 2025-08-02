@@ -318,7 +318,7 @@ TEST_CASE("Testing isPromotion and Promote") {
   }
 };
 
-*/ 
+
 
 // test Game
 TEST_CASE("Testing  rightStarting") {
@@ -643,3 +643,5 @@ TEST_SUITE("Test validMove") {
     }
   }
 }
+
+*/ 

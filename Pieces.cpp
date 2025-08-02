@@ -6,18 +6,15 @@ bool operator==(const Point& lp, const Point& rp) {
 
 // LA CLASSE MADRE
 // Costructor
-Piece::Piece(Name name, Color color) : name_(name), color_(color) {}
+Piece::Piece(Name name, Color color) : name_(name), color_(color) { }
 
 // costruttore di copia
-Piece::Piece(const Piece& other)
-    : name_(other.name_), color_(other.color_), pos_(other.pos_) {
-  // Copy constructor
-}
+Piece::Piece(const Piece& other) : name_(other.name_), color_(other.color_) {}
 
 // metodi per accedere alle variabili protette
 Name Piece::getName() { return name_; }
 Color Piece::getColor() { return color_; }  // PERCHE' NE ABBIAMO DUE?
-bool Piece::isWhite() const { return color_ == Color::White; } 
+bool Piece::isWhite() const { return color_ == Color::White; }
 bool Piece::getMoved() { return moved_; };
 
 // metodi per modificare le variabili protette
@@ -33,22 +30,21 @@ void Piece::setMoved(bool has_moved) { moved_ = has_moved; };
 
 // RE
 // Constructor
-
 King::King(Color color) : Piece(king, color) { loadTexture(); };
 
 // le mosse del re
-bool King::validPieceMove(Point point_to) {
-  int delta_column{abs(point_to.c - pos_.c)};
-  int delta_row{abs(point_to.r - pos_.r)};
+bool King::validPieceMove(Point cell_from, Point cell_to) {
+  int delta_column{abs(cell_from.c - cell_to.c)};
+  int delta_row{abs(cell_from.r - cell_to.r)};
 
   return delta_column <= 1 && delta_row <= 1;
 };
 
 void King::loadTexture() {
   std::string colorPiece =
-      (color_ == Color::White) ? "whiteKing.png" : "blackKing.png";
+      (color_ == Color::White) ? "Image/whiteKing.png" : "Image/blackKing.png";
   if (texture_.loadFromFile(colorPiece)) {
-    sprite_.setTexture(texture_);
+    sprite_.setTexture(texture_);  // inserisce come sprite la texture caricata
   } else {
     std::cerr << "Error " << colorPiece << '\n';
   }
@@ -61,15 +57,16 @@ void King::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 Queen::Queen(Color color) : Piece(queen, color) { loadTexture(); };
 
 // le mosse della regina
-bool Queen::validPieceMove(Point point_to) {
+bool Queen::validPieceMove(Point cell_from, Point cell_to) {
   int delta_column{
-      abs(point_to.c - pos_.c)};            // per muoversi in diagonale colonna
-  int delta_row{abs(point_to.r - pos_.r)};  // per muoversi in diagonale riga
+      abs(cell_from.c - cell_to.c)};  // per muoversi in diagonale colonna
+  int delta_row{
+      abs(cell_from.r - cell_to.r)};  // per muoversi in diagonale riga
 
   if (delta_column == delta_row) {
     return true;
   }
-  if (point_to.r == pos_.r || point_to.c == pos_.c) {
+  if (cell_from.r == cell_to.r || cell_from.c == cell_to.c) {
     return true;
   }
   return false;
@@ -77,7 +74,7 @@ bool Queen::validPieceMove(Point point_to) {
 
 void Queen::loadTexture() {
   std::string colorPiece =
-      (color_ == Color::White) ? "whiteQueen.png" : "blackQueen.png";
+      (color_ == Color::White) ? "Image/whiteQueen.png" : "Image/blackQueen.png";
   if (texture_.loadFromFile(colorPiece)) {
     sprite_.setTexture(texture_);
   } else {
@@ -92,16 +89,16 @@ void Queen::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 Knight::Knight(Color color) : Piece(knight, color) { loadTexture(); };
 
 // le mosse del cavallo
-bool Knight::validPieceMove(Point point_to) {
-  int delta_column{abs(point_to.c - pos_.c)};
-  int delta_row{abs(point_to.r - pos_.r)};
+bool Knight::validPieceMove(Point cell_from, Point cell_to) {
+  int delta_column{abs(cell_from.c - cell_to.c)};
+  int delta_row{abs(cell_from.r - cell_to.r)};
 
   return delta_column * delta_row == 2;
 };
 
 void Knight::loadTexture() {
   std::string colorPiece =
-      (color_ == Color::White) ? "whiteKnight.png" : "blackKnight.png";
+      (color_ == Color::White) ? "Image/whiteKnight.png" : "Image/blackKnight.png";
   if (texture_.loadFromFile(colorPiece)) {
     sprite_.setTexture(texture_);
   } else {
@@ -116,16 +113,16 @@ void Knight::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 Bishop::Bishop(Color color) : Piece(bishop, color) { loadTexture(); };
 
 // le mosse dell'alfiere
-bool Bishop::validPieceMove(Point p_to) {
-  int delta_column{abs(p_to.c - pos_.c)};
-  int delta_row{abs(p_to.r - pos_.r)};
+bool Bishop::validPieceMove(Point cell_from, Point cell_to) {
+  int delta_column{abs(cell_from.c - cell_to.c)};
+  int delta_row{abs(cell_from.r - cell_to.r)};
 
   return delta_column == delta_row;
 };
 
 void Bishop::loadTexture() {
   std::string colorPiece =
-      (color_ == Color::White) ? "whiteBishop.png" : "blackBishop.png";
+      (color_ == Color::White) ? "Image/whiteBishop.png" : "Image/blackBishop.png";
   if (texture_.loadFromFile(colorPiece)) {
     sprite_.setTexture(texture_);
   } else {
@@ -140,13 +137,13 @@ void Bishop::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 Rook::Rook(Color color) : Piece(rook, color) { loadTexture(); };
 
 // le mosse della torre
-bool Rook::validPieceMove(Point p_to) {
-  return p_to.r == pos_.r || p_to.c == pos_.c;
+bool Rook::validPieceMove(Point cell_from, Point cell_to) {
+  return cell_from.r == cell_to.r || cell_from.c == cell_to.c;
 };
 
 void Rook::loadTexture() {
   std::string colorPiece =
-      (color_ == Color::White) ? "whiteRook.png" : "blackRook.png";
+      (color_ == Color::White) ? "Image/whiteRook.png" : "Image/blackRook.png";
   if (texture_.loadFromFile(colorPiece)) {
     sprite_.setTexture(texture_);
   } else {
@@ -161,21 +158,22 @@ void Rook::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 Pawn::Pawn(Color color) : Piece(pawn, color) { loadTexture(); };
 
 // le mosse del pedone
-bool Pawn::validPieceMove(Point point_to) {
+bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
   int direction = (color_ == White) ? -1 : +1;
 
-  if (pos_.c == point_to.c && point_to.r == pos_.r + direction) {
+  if (cell_from.c == cell_to.c && cell_from.r == cell_to.r + direction) {
     return true;
   }
 
   // solo mossa
-  if (pos_.c == point_to.c && moved_ == false &&
-      point_to.r == pos_.r + 2 * direction) {
+  if (cell_from.c == cell_to.c && moved_ == false &&
+      cell_from.r == cell_to.r + 2 * direction) {
     return true;
   }
 
   // per mangiare
-  if (abs(pos_.c - point_to.c) == 1 && point_to.r == pos_.r + direction) {
+  if (abs(cell_from.c - cell_to.c) == 1 &&
+      cell_from.r == cell_from.r + direction) {
     return true;
   }
 
@@ -184,7 +182,7 @@ bool Pawn::validPieceMove(Point point_to) {
 
 void Pawn::loadTexture() {
   std::string colorPiece =
-      (color_ == Color::White) ? "whitePawn.png" : "blackPawn.png";
+      (color_ == Color::White) ? "Image/whitePawn.png" : "Image/blackPawn.png";
   if (texture_.loadFromFile(colorPiece)) {
     sprite_.setTexture(texture_);
   } else {

@@ -47,7 +47,7 @@ bool Game::validMove(Point from, Point to) {  // non specifico il tipo di pezzo
   Piece* piece = board_.selectPiece(from);
   if (!rightArrival(to) && !rightStarting(from)) {
     return false;
-  } else if (!piece->validPieceMove(to)) {
+  } else if (!piece->validPieceMove(from, to)) {
     return false;
   } else if (!board_.clearPath(from, to)) {
     std::cout << "4" << '\n';

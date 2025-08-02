@@ -24,10 +24,8 @@ bool operator==(const Point& lp, const Point& rp);
 // LA CLASSE MADRE
 class Piece {
  protected:  // così potrà essere usato anche dalle classi derivate
-             // sf::Sprite sprite_;  // classe di SFML, rappresetna l'immagine
   Name name_;
   Color color_;
-  Point pos_;
   bool moved_{false};
   sf::Texture texture_;
   sf::Sprite sprite_;
@@ -53,11 +51,9 @@ class Piece {
   void setPositionImage(Point p);  // definita in board
 
   // puramente virtuali (riguardano i singoli pezzi)
-  inline virtual bool validPieceMove(Point move_to) = 0;  // mosse dei pezzi
+  inline virtual bool validPieceMove(Point cell_from, Point cell_to) = 0;  // mosse dei pezzi
   virtual void loadTexture() = 0;                         // immagini dei pezzi
-  virtual void drawPiece(sf::RenderWindow& window) = 0;   // disegna i pezzi
-  virtual const std::unique_ptr<Piece>
-  clonePiece() = 0;  //"copia" degli unique ptr
+  virtual void drawPiece(sf::RenderWindow& window) = 0;   // disegna i pezzi PUO ESSERE GENERALIZZATA?
 };
 
 // LE CLASSI DERIVATE: I SINGOLI PEZZI
@@ -68,12 +64,11 @@ class King : public Piece {
   // Constructor
   King(Color color);
 
-  bool validPieceMove(Point point_to) override;
+  bool validPieceMove(Point cell_from, Point cell_to) override;
   inline bool getMoved();
   void setMoved(bool has_moved);
   void loadTexture() override;
   void drawPiece(sf::RenderWindow& window) override;
-  const std::unique_ptr<Piece> clonePiece() override;
 };
 
 // REGINA
@@ -81,11 +76,10 @@ class Queen : public Piece {
  public:
   // Constructor
   Queen(Color color);
-  bool validPieceMove(Point to) override;
+  bool validPieceMove(Point cell_from, Point cell_to) override;
 
   void loadTexture() override;
   void drawPiece(sf::RenderWindow& window) override;
-  const std::unique_ptr<Piece> clonePiece() override;
 };
 
 // CAVALLO
@@ -94,10 +88,9 @@ class Knight : public Piece {
   // Constructor
   Knight(Color color);
 
-  bool validPieceMove(Point move_to) override;
+  bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
   void drawPiece(sf::RenderWindow& window) override;
-  const std::unique_ptr<Piece> clonePiece() override;
 };
 
 // ALFIERE
@@ -106,10 +99,9 @@ class Bishop : public Piece {
   // Constructor
   Bishop(Color color);
 
-  bool validPieceMove(Point p_to) override;
+  bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
   void drawPiece(sf::RenderWindow& window) override;
-  const std::unique_ptr<Piece> clonePiece() override;
 };
 
 // TORRE
@@ -118,10 +110,9 @@ class Rook : public Piece {
   // Constructor
   Rook(Color color);
 
-  bool validPieceMove(Point point_to) override;
+  bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
   void drawPiece(sf::RenderWindow& window) override;
-  const std::unique_ptr<Piece> clonePiece() override;
 };
 
 // PEDONE
@@ -129,11 +120,10 @@ class Pawn : public Piece {
  public:
   Pawn(Color color);
 
-  bool validPieceMove(Point move_to) override;
+  bool validPieceMove(Point cell_from, Point cell_to) override;
 
   void loadTexture() override;
   void drawPiece(sf::RenderWindow& window) override;
-  const std::unique_ptr<Piece> clonePiece() override;
 };
 
 #endif

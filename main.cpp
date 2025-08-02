@@ -41,7 +41,8 @@ int main() {
         window.close();
       }
       window.clear();
-      board.renderBoard(window);
+      board.drawBoard(window);
+      board.drawPieces(window);
       window.display();
     }
   } catch (const std::exception& e) {
