@@ -5,8 +5,8 @@ Player::Player(std::string name, Color color)
 
 const std::string Player::getName() { return name_; }
 
-const Color Player::getColor() { return color_; }
+Color Player::getColor() { return color_; }
 
-const int Player::getMoves() { return moves_; }
+int Player::getMoves() { return moves_; }
 
 void Player::incrementMoves() { ++moves_; }

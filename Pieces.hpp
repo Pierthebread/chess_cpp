@@ -42,13 +42,11 @@ class Piece {
   Name getName();
   Color getColor();
   bool isWhite() const;
-  Point getPosition();
   bool getMoved();
 
   // metodi per modificare le variabili protette
   inline void setName(Name new_name);
   inline void setColor(Color new_color);
-  void setPosition(Point new_position);
   void setMoved(bool has_moved);
   void setTexture(const sf::Texture& texture);
 
@@ -57,7 +55,7 @@ class Piece {
   // puramente virtuali (riguardano i singoli pezzi)
   inline virtual bool validPieceMove(Point move_to) = 0;  // mosse dei pezzi
   virtual void loadTexture() = 0;                         // immagini dei pezzi
-  virtual void draw(sf::RenderWindow& window) = 0;        // disegna i pezzi
+  virtual void drawPiece(sf::RenderWindow& window) = 0;        // disegna i pezzi
   virtual const std::unique_ptr<Piece>
   pieceClone() = 0;  //"copia" degli unique ptr
 };
@@ -74,7 +72,7 @@ class King : public Piece {
   inline bool getMoved();
   void setMoved(bool has_moved);
   void loadTexture() override;
-  void draw(sf::RenderWindow& window) override;
+  void drawPiece(sf::RenderWindow& window) override;
   const std::unique_ptr<Piece> pieceClone() override;
 };
 
@@ -86,7 +84,7 @@ class Queen : public Piece {
   bool validPieceMove(Point to) override;
 
   void loadTexture() override;
-  void draw(sf::RenderWindow& window) override;
+  void drawPiece(sf::RenderWindow& window) override;
   const std::unique_ptr<Piece> pieceClone() override;
 };
 
@@ -98,7 +96,7 @@ class Knight : public Piece {
 
   bool validPieceMove(Point move_to) override;
   void loadTexture() override;
-  void draw(sf::RenderWindow& window) override;
+  void drawPiece(sf::RenderWindow& window) override;
   const std::unique_ptr<Piece> pieceClone() override;
 };
 
@@ -110,7 +108,7 @@ class Bishop : public Piece {
 
   bool validPieceMove(Point p_to) override;
   void loadTexture() override;
-  void draw(sf::RenderWindow& window) override;
+  void drawPiece(sf::RenderWindow& window) override;
   const std::unique_ptr<Piece> pieceClone() override;
 };
 
@@ -122,7 +120,7 @@ class Rook : public Piece {
 
   bool validPieceMove(Point point_to) override;
   void loadTexture() override;
-  void draw(sf::RenderWindow& window) override;
+  void drawPiece(sf::RenderWindow& window) override;
   const std::unique_ptr<Piece> pieceClone() override;
 };
 
@@ -134,7 +132,7 @@ class Pawn : public Piece {
   bool validPieceMove(Point move_to) override;
 
   void loadTexture() override;
-  void draw(sf::RenderWindow& window) override;
+  void drawPiece(sf::RenderWindow& window) override;
   const std::unique_ptr<Piece> pieceClone() override;
 };
 

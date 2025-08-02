@@ -41,8 +41,6 @@ void Board::setPiece(Name type, Color color, Point p) {
     default:
       break;
   }
-  Board::selectPiece({p.c, p.r})
-      ->setPosition({p.c, p.r});  //aaaaaaaaa
 }
 
 void Board::setPieces() {
@@ -89,7 +87,9 @@ void Board::setPieces() {
   board[4][0] = std::make_unique<King>(Black);
   board[4][0]->setPositionImage({E, 0});
 }
-//////////// Creazione dell'interfaccia
+
+//////////// Creazione dell'interfaccia grafica
+// traduzione point - pixel 
 void Piece::setPositionImage(Point p) {
   sprite_.setPosition(static_cast<float>(p.c) * 80.f + 40.f -
                           sprite_.getGlobalBounds().width / 2,
@@ -97,13 +97,12 @@ void Piece::setPositionImage(Point p) {
                           sprite_.getGlobalBounds().height / 2);
 }
 
+// disegna i pezzi sulla window
 void Board::draw(sf::RenderWindow& window) {
-  for (unsigned int c = 0; c < 8; ++c) {
-    for (unsigned int r = 0; r < 8; ++r) {
-      if (board[c][r] != nullptr) {
-        board[c][r]->setPosition({static_cast<Column>(static_cast<float>(c)),
-                                  static_cast<int>(static_cast<float>(r))});
-        board[c][r]->draw(window);
+  for (int c = 0; c < 8; ++c) {
+    for (int r = 0; r < 8; ++r) {
+      if (board[c][r]) {
+        board[c][r]->drawPiece(window);
       }
     }
   }
@@ -112,11 +111,10 @@ void Board::draw(sf::RenderWindow& window) {
 void Board::renderBoard(
     sf::RenderWindow& window) {  // questa è la finestra grafica SFML
   const float cellSize =
-      80.f;  // do la dimensione della casella, ho usato 100.f
-             // così da disegnare una casella 100x100 pixel
+      80.f;  // dimensione della casella
   sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
-  for (unsigned int c = 0; c < 8; ++c) {
-    for (unsigned int r = 0; r < 8; ++r) {
+  for (int c = 0; c < 8; ++c) {
+    for (int r = 0; r < 8; ++r) {
       if ((c + r) % 2 == 0)  // se pari è bianca, se è dispari è nera
         cell.setFillColor(sf::Color(245, 245, 220));
       else
@@ -128,8 +126,8 @@ void Board::renderBoard(
     }
   }
 }
-//
-//////////
+
+
 ////////// Movimento dei pezzi
 Piece* Board::selectPiece(Point p) {
   // int c = static_cast<int>(p.c);

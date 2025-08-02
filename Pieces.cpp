@@ -17,21 +17,17 @@ Piece::Piece(const Piece& other)
 // metodi per accedere alle variabili protette
 Name Piece::getName() { return name_; }
 Color Piece::getColor() { return color_; }  // PERCHE' NE ABBIAMO DUE?
-bool Piece::isWhite() const { return color_ == Color::White; }  //
-Point Piece::getPosition() { return pos_; }
+bool Piece::isWhite() const { return color_ == Color::White; } 
 bool Piece::getMoved() { return moved_; };
 
 // metodi per modificare le variabili protette
 void Piece::setName(Name new_name) { name_ = new_name; }
 void Piece::setColor(Color new_color) { color_ = new_color; }
-void Piece::setPosition(Point new_position) { pos_ = new_position; }
 void Piece::setMoved(bool has_moved) { moved_ = has_moved; };
 
 // void Piece::setTexture(const sf::Texture& texture) {
 //   sprite_.setTexture(texture);
 // }
-
-// void Piece::draw(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // LE CLASSI DERIVATE: I SINGOLI PEZZI
 
@@ -58,7 +54,7 @@ void King::loadTexture() {
   }
 }
 
-void King::draw(sf::RenderWindow& window) { window.draw(sprite_); }
+void King::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // REGINA
 // Constructor
@@ -89,7 +85,7 @@ void Queen::loadTexture() {
   }
 }
 
-void Queen::draw(sf::RenderWindow& window) { window.draw(sprite_); }
+void Queen::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // CAVALLO
 // Constructor
@@ -113,7 +109,7 @@ void Knight::loadTexture() {
   }
 }
 
-void Knight::draw(sf::RenderWindow& window) { window.draw(sprite_); }
+void Knight::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // ALFIERE
 // Constructor
@@ -137,7 +133,7 @@ void Bishop::loadTexture() {
   }
 }
 
-void Bishop::draw(sf::RenderWindow& window) { window.draw(sprite_); }
+void Bishop::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // TORRE
 // Constructor
@@ -158,7 +154,7 @@ void Rook::loadTexture() {
   }
 }
 
-void Rook::draw(sf::RenderWindow& window) { window.draw(sprite_); }
+void Rook::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // PEDONE
 // Costructor
@@ -196,4 +192,4 @@ void Pawn::loadTexture() {
   }
 }
 
-void Pawn::draw(sf::RenderWindow& window) { window.draw(sprite_); }
+void Pawn::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }

@@ -15,8 +15,8 @@ class Player {
 
   // metodi per accedere alle variabili private
   const std::string getName();
-  const Color getColor();
-  const int getMoves();
+  Color getColor();
+  int getMoves();
 
   // metodi per modificare le variabili private
   void incrementMoves();
