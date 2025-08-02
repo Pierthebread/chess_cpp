@@ -10,7 +10,26 @@ Board::Board(sf::RenderWindow& window) : window_(window) {
   }
 }
 
-// questa funzione mi permette di posizionare pezzi sulla scacchiera
+// clona la board attuale
+Board Board::cloneBoard(Board& other_board) {
+  Board temporary_board(other_board.window_);
+  for (int c = 0; c < 8; ++c) {
+    for (int r = 0; r < 8; ++r) {
+      if (other_board.board[c][r]) {
+        Name name_piece = other_board.board[c][r]->getName();
+        Color color_piece = other_board.board[c][r]->getColor();
+        Point p{static_cast<Column>(c), r};
+        temporary_board.setPiece(name_piece, color_piece, p);
+      } else {
+        temporary_board.board[c][r] = nullptr;
+      }
+    }
+  }
+  return temporary_board;
+}
+
+// questa funzione mi permette di posizionare pezzi sulla scacchiera DA
+// AGGIUSTARE MADONNA CANE
 void Board::setPiece(Name type, Color color, Point p) {
   switch (type) {
     case Name::queen:
@@ -96,6 +115,7 @@ void Piece::setPositionImage(Point p) {
                           sprite_.getGlobalBounds().height / 2);
 }
 
+// disegna la scacchiera vuota sulla window
 void Board::drawBoard(
     sf::RenderWindow& window) {  // questa è la finestra grafica SFML
   const float cellSize = 80.f;   // dimensione della casella
@@ -127,7 +147,6 @@ void Board::drawPieces(sf::RenderWindow& window) {
 
 ////////// Movimento dei pezzi
 Piece* Board::selectPiece(Point p) {
-  // int c = static_cast<int>(p.c);
   if (p.c < 0 or p.c >= 8 or p.r < 0 or p.r >= 8) {
     throw std::runtime_error{"Point out of board"};
   } else if (board[static_cast<std::size_t>(p.c)]

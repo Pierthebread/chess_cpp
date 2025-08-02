@@ -10,13 +10,16 @@ enum castleType { Long, Short };
 
 class Board {
   std::array<std::array<std::unique_ptr<Piece>, 8>, 8> board;
-  
+
   std::string pieceType_[8][8];
   sf::RenderWindow& window_;
 
  public:
   // Costruttore
   Board(sf::RenderWindow& window);
+
+  // clone board
+  Board cloneBoard(Board& other_board);
 
   // Crea il pezzo indicato e lo fa puntare dal puntatore indicato
   void setPiece(Name type, Color color, Point p);

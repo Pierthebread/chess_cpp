@@ -33,27 +33,23 @@ class Piece {
  public:
   // costruttore
   Piece(Name name_, Color color);
-
-  Piece(const Piece& other);
-
+  
   // metodi per accedere alle variabili protette
   Name getName();
   Color getColor();
-  bool isWhite() const;
   bool getMoved();
 
   // metodi per modificare le variabili protette
   inline void setName(Name new_name);
   inline void setColor(Color new_color);
   void setMoved(bool has_moved);
-  void setTexture(const sf::Texture& texture);
+  virtual void drawPiece(sf::RenderWindow& window);   // disegna il pezzo 
 
   void setPositionImage(Point p);  // definita in board
 
   // puramente virtuali (riguardano i singoli pezzi)
   inline virtual bool validPieceMove(Point cell_from, Point cell_to) = 0;  // mosse dei pezzi
   virtual void loadTexture() = 0;                         // immagini dei pezzi
-  virtual void drawPiece(sf::RenderWindow& window) = 0;   // disegna i pezzi PUO ESSERE GENERALIZZATA?
 };
 
 // LE CLASSI DERIVATE: I SINGOLI PEZZI
@@ -68,7 +64,6 @@ class King : public Piece {
   inline bool getMoved();
   void setMoved(bool has_moved);
   void loadTexture() override;
-  void drawPiece(sf::RenderWindow& window) override;
 };
 
 // REGINA
@@ -76,10 +71,9 @@ class Queen : public Piece {
  public:
   // Constructor
   Queen(Color color);
-  bool validPieceMove(Point cell_from, Point cell_to) override;
 
+  bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
-  void drawPiece(sf::RenderWindow& window) override;
 };
 
 // CAVALLO
@@ -90,7 +84,6 @@ class Knight : public Piece {
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
-  void drawPiece(sf::RenderWindow& window) override;
 };
 
 // ALFIERE
@@ -101,7 +94,6 @@ class Bishop : public Piece {
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
-  void drawPiece(sf::RenderWindow& window) override;
 };
 
 // TORRE
@@ -112,7 +104,6 @@ class Rook : public Piece {
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
-  void drawPiece(sf::RenderWindow& window) override;
 };
 
 // PEDONE
@@ -121,9 +112,7 @@ class Pawn : public Piece {
   Pawn(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
-
   void loadTexture() override;
-  void drawPiece(sf::RenderWindow& window) override;
 };
 
 #endif

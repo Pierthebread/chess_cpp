@@ -6,25 +6,19 @@ bool operator==(const Point& lp, const Point& rp) {
 
 // LA CLASSE MADRE
 // Costructor
-Piece::Piece(Name name, Color color) : name_(name), color_(color) { }
-
-// costruttore di copia
-Piece::Piece(const Piece& other) : name_(other.name_), color_(other.color_) {}
+Piece::Piece(Name name, Color color) : name_(name), color_(color) {}
 
 // metodi per accedere alle variabili protette
-Name Piece::getName() { return name_; }
-Color Piece::getColor() { return color_; }  // PERCHE' NE ABBIAMO DUE?
-bool Piece::isWhite() const { return color_ == Color::White; }
-bool Piece::getMoved() { return moved_; };
+Name Piece::getName() { return name_; } 
+Color Piece::getColor() { return color_; }  
+bool Piece::getMoved() { return moved_; }; 
 
 // metodi per modificare le variabili protette
 void Piece::setName(Name new_name) { name_ = new_name; }
 void Piece::setColor(Color new_color) { color_ = new_color; }
 void Piece::setMoved(bool has_moved) { moved_ = has_moved; };
 
-// void Piece::setTexture(const sf::Texture& texture) {
-//   sprite_.setTexture(texture);
-// }
+void Piece::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // LE CLASSI DERIVATE: I SINGOLI PEZZI
 
@@ -49,8 +43,6 @@ void King::loadTexture() {
     std::cerr << "Error " << colorPiece << '\n';
   }
 }
-
-void King::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // REGINA
 // Constructor
@@ -82,8 +74,6 @@ void Queen::loadTexture() {
   }
 }
 
-void Queen::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
-
 // CAVALLO
 // Constructor
 Knight::Knight(Color color) : Piece(knight, color) { loadTexture(); };
@@ -105,8 +95,6 @@ void Knight::loadTexture() {
     std::cerr << "Error " << colorPiece << '\n';
   }
 }
-
-void Knight::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // ALFIERE
 // Constructor
@@ -130,8 +118,6 @@ void Bishop::loadTexture() {
   }
 }
 
-void Bishop::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
-
 // TORRE
 // Constructor
 Rook::Rook(Color color) : Piece(rook, color) { loadTexture(); };
@@ -150,8 +136,6 @@ void Rook::loadTexture() {
     std::cerr << "Error " << colorPiece << '\n';
   }
 }
-
-void Rook::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
 
 // PEDONE
 // Costructor
@@ -189,5 +173,3 @@ void Pawn::loadTexture() {
     std::cerr << "Error " << colorPiece << '\n';
   }
 }
-
-void Pawn::drawPiece(sf::RenderWindow& window) { window.draw(sprite_); }
