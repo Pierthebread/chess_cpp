@@ -28,8 +28,8 @@ class Board {
   void setPieces();
 
   // Creazione dell'interfaccia
-  void drawPieces(sf::RenderWindow& window);
-  void drawBoard(sf::RenderWindow& window);
+  void drawPieces();
+  void drawBoard();
 
   // Movimento dei pezzi
   Piece* selectPiece(Point p);  // resistuisce un puntatore data la posizione

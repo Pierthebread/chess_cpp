@@ -43,7 +43,7 @@ bool Game::rightArrival(Point to) {
   return false;
 }
 
-bool Game::validMove(Point from, Point to) {  // non specifico il tipo di pezzo
+bool Game::validMove(Point from, Point to) {  
   Piece* piece = board_.selectPiece(from);
   if (!rightArrival(to) && !rightStarting(from)) {
     return false;
@@ -52,9 +52,9 @@ bool Game::validMove(Point from, Point to) {  // non specifico il tipo di pezzo
   } else if (!board_.clearPath(from, to)) {
     std::cout << "4" << '\n';
     return false;
-  } else if (isCheck(playerTurn_) == true) {
-    std::cout << "in questo modo ti poni in scacco" << '\n';
-    return false;
+  //} else if (isCheck(playerTurn_) == true) {
+  //  std::cout << "in questo modo ti poni in scacco" << '\n';
+  //  return false;
   }
   if (piece->getName() == pawn) {
     if (from.c == to.c && board_.selectPiece(to) != nullptr) {
@@ -72,9 +72,9 @@ bool Game::validMove(Point from, Point to) {  // non specifico il tipo di pezzo
 bool Game::isCheck(Color color) {
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
-      Piece* piece{board_.selectPiece({static_cast<Column>(c), r})};
+      Piece* piece{board_.selectPiece({c, r})};
       if (piece != nullptr &&
-          isChecking({static_cast<Column>(c), r}, color) == true) {
+          isChecking({c, r}, color) == true) {
         return true;
       }
     }
@@ -101,7 +101,7 @@ bool Game::isCastlingValid(Point from, Point to) {
   if (king_piece->getName() == king && !king_piece->getMoved() &&
       rook_piece->getName() == rook && !rook_piece->getMoved() &&
       king_piece->getColor() == rook_piece->getColor()) {
-    if ((from.r == 0 or from.r == 7) && (to.c == H or to.c == A) &&
+    if ((from.r == 0 or from.r == 7) && (to.c == 7 or to.c == 0) &&
         board_.clearPath(from, to)) {
       return true;
     }
@@ -112,4 +112,22 @@ bool Game::isCastlingValid(Point from, Point to) {
 // funzioni per enPassant
 
 // funzioni per il movimento dei pezzi
-void Game::playMove(Point from, Point to) {}
+void Game::playMove(Point from, Point to) {
+//  if (validMove(from, to) == true) {
+//  //    if (piece->getName() == "King") {
+//  //     if (isCastlingValid(from, to) == true) {
+//  //        castling(from, to);
+//  //        piece->setMoved(true);
+//  //        return true; //ovviamente da modificare peché la funzione è void
+//  //      }
+//
+//  // if (board_.isPromotion(to, from) ==
+//  //     true) {  // PROBABILMENTE MESSA QUI DARÀ PROBLEMI, TESTARE
+//  //   board_.promote(to, queen);
+//  //}
+//
+//  board_.movePiece(from, to);
+//  board_.selectPiece(from)->setMoved(true);  
+//  playerTurn_ = (playerTurn_ == White) ? Black : White;  // cambio turno
+//}
+}

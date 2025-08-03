@@ -18,7 +18,7 @@ Board Board::cloneBoard(Board& other_board) {
       if (other_board.board[c][r]) {
         Name name_piece = other_board.board[c][r]->getName();
         Color color_piece = other_board.board[c][r]->getColor();
-        Point p{static_cast<Column>(c), r};
+        Point p{c, r};
         temporary_board.setPiece(name_piece, color_piece, p);
       } else {
         temporary_board.board[c][r] = nullptr;
@@ -28,8 +28,7 @@ Board Board::cloneBoard(Board& other_board) {
   return temporary_board;
 }
 
-// questa funzione mi permette di posizionare pezzi sulla scacchiera DA
-// AGGIUSTARE MADONNA CANE
+// questa funzione mi permette di posizionare pezzi sulla scacchiera
 void Board::setPiece(Name type, Color color, Point p) {
   switch (type) {
     case Name::queen:
@@ -59,66 +58,43 @@ void Board::setPiece(Name type, Color color, Point p) {
     default:
       break;
   }
+  board[p.c][p.r]->setPositionImage({p.c, p.r});
 }
 
 void Board::setPieces() {
-  for (unsigned int c = 0; c < 8; ++c) {
-    board[c][6] = std::make_unique<Pawn>(White);
-    board[c][6]->setPositionImage({static_cast<Column>(c), 6});
-    board[c][1] = std::make_unique<Pawn>(Black);
-    board[c][1]->setPositionImage({static_cast<Column>(c), 1});
+  for (int c = 0; c < 8; ++c) {
+    setPiece(pawn, White, {c, 6});
+    setPiece(pawn, Black, {c, 1});
   }
-  board[0][7] = std::make_unique<Rook>(White);
-  board[0][7]->setPositionImage({A, 7});
-  board[7][7] = std::make_unique<Rook>(White);
-  board[7][7]->setPositionImage({H, 7});
-  board[0][0] = std::make_unique<Rook>(Black);
-  board[0][0]->setPositionImage({A, 0});
-  board[7][0] = std::make_unique<Rook>(Black);
-  board[7][0]->setPositionImage({H, 0});
-
-  board[1][7] = std::make_unique<Knight>(White);
-  board[1][7]->setPositionImage({B, 7});
-  board[6][7] = std::make_unique<Knight>(White);
-  board[6][7]->setPositionImage({G, 7});
-  board[1][0] = std::make_unique<Knight>(Black);
-  board[1][0]->setPositionImage({B, 0});
-  board[6][0] = std::make_unique<Knight>(Black);
-  board[6][0]->setPositionImage({G, 0});
-
-  board[2][7] = std::make_unique<Bishop>(White);
-  board[2][7]->setPositionImage({C, 7});
-  board[5][7] = std::make_unique<Bishop>(White);
-  board[5][7]->setPositionImage({F, 7});
-  board[2][0] = std::make_unique<Bishop>(Black);
-  board[2][0]->setPositionImage({C, 0});
-  board[5][0] = std::make_unique<Bishop>(Black);
-  board[5][0]->setPositionImage({F, 0});
-
-  board[3][7] = std::make_unique<Queen>(White);
-  board[3][7]->setPositionImage({D, 7});
-  board[3][0] = std::make_unique<Queen>(Black);
-  board[3][0]->setPositionImage({D, 0});
-
-  board[4][7] = std::make_unique<King>(White);
-  board[4][7]->setPositionImage({E, 7});
-  board[4][0] = std::make_unique<King>(Black);
-  board[4][0]->setPositionImage({E, 0});
+  setPiece(rook, White, {0, 7});
+  setPiece(rook, White, {7, 7});
+  setPiece(bishop, White, {2, 7});
+  setPiece(bishop, White, {5, 7});
+  setPiece(knight, White, {1, 7});
+  setPiece(knight, White, {6, 7});
+  setPiece(queen, White, {4, 7});
+  setPiece(king, White, {3, 7});
+  setPiece(rook, Black, {0, 0});
+  setPiece(rook, Black, {7, 0});
+  setPiece(rook, Black, {2, 0});
+  setPiece(bishop, Black, {5, 0});
+  setPiece(bishop, Black, {1, 0});
+  setPiece(knight, Black, {6, 0});
+  setPiece(knight, Black, {4, 0});
+  setPiece(queen, Black, {3, 0});
+  setPiece(king, Black, {0, 0});
 }
 
 //////////// Creazione dell'interfaccia grafica
 // traduzione point - pixel per posizionare le celle
 void Piece::setPositionImage(Point p) {
-  sprite_.setPosition(static_cast<float>(p.c) * 80.f + 40.f -
-                          sprite_.getGlobalBounds().width / 2,
-                      static_cast<float>(p.r) * 80.f + 40.f -
-                          sprite_.getGlobalBounds().height / 2);
+  sprite_.setPosition(p.c * 80.f + 40.f - sprite_.getGlobalBounds().width / 2,
+                      p.r * 80.f + 40.f - sprite_.getGlobalBounds().height / 2);
 }
 
 // disegna la scacchiera vuota sulla window
-void Board::drawBoard(
-    sf::RenderWindow& window) {  // questa è la finestra grafica SFML
-  const float cellSize = 80.f;   // dimensione della casella
+void Board::drawBoard() {       // questa è la finestra grafica SFML
+  const float cellSize = 80.f;  // dimensione della casella
   sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
@@ -129,17 +105,17 @@ void Board::drawBoard(
       cell.setPosition(static_cast<float>(c) * cellSize,
                        static_cast<float>(r) * cellSize);
       // disegna la casella nella posizione giusta
-      window.draw(cell);
+      window_.draw(cell);
     }
   }
 }
 
-// disegna i pezzi sulla window
-void Board::drawPieces(sf::RenderWindow& window) {
+ //disegna i pezzi sulla window
+ void Board::drawPieces() {
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
       if (board[c][r]) {
-        board[c][r]->drawPiece(window);
+        board[c][r]->drawPiece(window_);
       }
     }
   }
@@ -161,7 +137,7 @@ void Board::movePiece(Point from, Point to) {
   // std::move sposta l'oggetto da from a to, distruggendo l'oggetto che
   // conteneva in precedenza to.
   if (selectPiece(from) != nullptr) {
-    selectPiece(from)->setPositionImage({static_cast<Column>(to.c), to.r});
+    selectPiece(from)->setPositionImage({to.c, to.r});
     board[static_cast<std::size_t>(to.c)][static_cast<std::size_t>(to.r)] =
         std::move(board[static_cast<std::size_t>(from.c)]
                        [static_cast<std::size_t>(from.r)]);
@@ -191,7 +167,7 @@ bool Board::clearPath(Point from, Point to) {
 bool Board::clearOrizzontalPath(Point from, Point to) {
   int x = (to.c - from.c > 0) ? +1 : -1;
   for (int column = from.c + x; column != to.c; column += x) {
-    Point p{static_cast<Column>(column), to.r};
+    Point p{column, to.r};
     if (selectPiece({p}) != nullptr) {
       return false;
     }
@@ -216,7 +192,7 @@ bool Board::clearDiagonalPath(Point from, Point to) {
   int column = from.c + x;
   int row = from.r + y;
   while (column != to.c && row != to.r) {
-    Point p{static_cast<Column>(column), row};
+    Point p{column, row};
     if (selectPiece(p) != nullptr) {
       return false;
     }
@@ -230,10 +206,10 @@ bool Board::clearDiagonalPath(Point from, Point to) {
 Point Board::kingPosition(Color color) {
   for (int c{0}; c < 8; ++c) {
     for (int r{0}; r < 8; ++r) {
-      Piece* piece = selectPiece({static_cast<Column>(c), r});
+      Piece* piece = selectPiece({c, r});
       if (piece != nullptr && piece->getName() == king &&
           piece->getColor() == color) {
-        return {static_cast<Column>(c), r};
+        return {c, r};
       }
     }
   }

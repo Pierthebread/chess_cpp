@@ -11,11 +11,10 @@
 // la classe pezzo sarà usata come base
 
 enum Color { White, Black };
-enum Column { A = 0, B, C, D, E, F, G, H };
 enum Name { king, queen, bishop, knight, rook, pawn };
 
 struct Point {
-  Column c;
+  int c; // 0-7 (colonna da 1-8)
   int r;  // 0-7 (riga da 1-8)
 };
 

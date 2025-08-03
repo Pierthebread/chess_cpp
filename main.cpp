@@ -22,16 +22,16 @@ int main() {
       while (window.pollEvent(event)) {
         if (event.type == sf::Event::MouseButtonPressed &&
             event.mouseButton.button == sf::Mouse::Left &&
-            game.rightStarting({static_cast<Column>(event.mouseButton.x / 80),
+            game.rightStarting({event.mouseButton.x / 80,
                                 event.mouseButton.y / 80}) &&
             firstClick == true) {
-          starting_cell = {static_cast<Column>(event.mouseButton.x / 80),
+          starting_cell = {event.mouseButton.x / 80,
                            event.mouseButton.y / 80};
           firstClick = false;
         } else if (event.type == sf::Event::MouseButtonPressed &&
                    event.mouseButton.button == sf::Mouse::Left &&
                    firstClick == false) {
-          arrival_cell = {static_cast<Column>(event.mouseButton.x / 80),
+          arrival_cell = {event.mouseButton.x / 80,
                           event.mouseButton.y / 80};
         }
         game.playMove(starting_cell, arrival_cell);
@@ -41,8 +41,8 @@ int main() {
         window.close();
       }
       window.clear();
-      board.drawBoard(window);
-      board.drawPieces(window);
+      board.drawBoard();
+      board.drawPieces();
       window.display();
     }
   } catch (const std::exception& e) {
