@@ -1,4 +1,3 @@
-#include "Board.hpp"
 #include "Game.hpp"
 
 int main() {
@@ -20,26 +19,27 @@ int main() {
       sf::Event event;
 
       while (window.pollEvent(event)) {
-        if (event.type == sf::Event::MouseButtonPressed &&
-            event.mouseButton.button == sf::Mouse::Left &&
-            game.rightStarting({event.mouseButton.x / 80,
-                                event.mouseButton.y / 80}) &&
-            firstClick == true) {
-          starting_cell = {event.mouseButton.x / 80,
-                           event.mouseButton.y / 80};
-          firstClick = false;
-        } else if (event.type == sf::Event::MouseButtonPressed &&
-                   event.mouseButton.button == sf::Mouse::Left &&
-                   firstClick == false) {
-          arrival_cell = {event.mouseButton.x / 80,
-                          event.mouseButton.y / 80};
+        if (event.type == sf::Event::Closed) {
+          window.close();
         }
-        game.playMove(starting_cell, arrival_cell);
-        firstClick = true;
+
+        if (event.type == sf::Event::MouseButtonPressed &&
+            event.mouseButton.button == sf::Mouse::Left) {
+          int c = event.mouseButton.x / 80;
+          int r = event.mouseButton.y / 80;
+          if (firstClick) {
+            if (game.rightStarting({c, r})) {
+              starting_cell = {c, r};
+              firstClick = false;
+            }
+          } else  {
+            arrival_cell = {c, r};
+            game.playMove(starting_cell, arrival_cell);
+            firstClick = true;
+          }
+        }
       }
-      if (event.type == sf::Event::Closed) {
-        window.close();
-      }
+
       window.clear();
       board.drawBoard();
       board.drawPieces();
