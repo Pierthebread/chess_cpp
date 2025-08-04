@@ -9,9 +9,9 @@ bool operator==(const Point& lp, const Point& rp) {
 Piece::Piece(Name name, Color color) : name_(name), color_(color) {}
 
 // metodi per accedere alle variabili protette
-Name Piece::getName() { return name_; } 
-Color Piece::getColor() { return color_; }  
-bool Piece::getMoved() { return moved_; }; 
+Name Piece::getName() { return name_; }
+Color Piece::getColor() { return color_; }
+bool Piece::getMoved() { return moved_; };
 
 // metodi per modificare le variabili protette
 void Piece::setName(Name new_name) { name_ = new_name; }
@@ -65,8 +65,8 @@ bool Queen::validPieceMove(Point cell_from, Point cell_to) {
 };
 
 void Queen::loadTexture() {
-  std::string colorPiece =
-      (color_ == Color::White) ? "Image/whiteQueen.png" : "Image/blackQueen.png";
+  std::string colorPiece = (color_ == Color::White) ? "Image/whiteQueen.png"
+                                                    : "Image/blackQueen.png";
   if (texture_.loadFromFile(colorPiece)) {
     sprite_.setTexture(texture_);
   } else {
@@ -87,8 +87,8 @@ bool Knight::validPieceMove(Point cell_from, Point cell_to) {
 };
 
 void Knight::loadTexture() {
-  std::string colorPiece =
-      (color_ == Color::White) ? "Image/whiteKnight.png" : "Image/blackKnight.png";
+  std::string colorPiece = (color_ == Color::White) ? "Image/whiteKnight.png"
+                                                    : "Image/blackKnight.png";
   if (texture_.loadFromFile(colorPiece)) {
     sprite_.setTexture(texture_);
   } else {
@@ -109,8 +109,8 @@ bool Bishop::validPieceMove(Point cell_from, Point cell_to) {
 };
 
 void Bishop::loadTexture() {
-  std::string colorPiece =
-      (color_ == Color::White) ? "Image/whiteBishop.png" : "Image/blackBishop.png";
+  std::string colorPiece = (color_ == Color::White) ? "Image/whiteBishop.png"
+                                                    : "Image/blackBishop.png";
   if (texture_.loadFromFile(colorPiece)) {
     sprite_.setTexture(texture_);
   } else {
@@ -157,7 +157,7 @@ bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
 
   // per mangiare
   if (abs(cell_from.c - cell_to.c) == 1 &&
-      cell_from.r == cell_from.r + direction) {
+      cell_to.r == cell_from.r + direction) {
     return true;
   }
 

@@ -11,6 +11,7 @@ class Game {
   Player whitePlayer_;
   Player blackPlayer_;
   Color playerTurn_;
+  Point enPassantTarget_;  // Point su casella di Enpassant
   bool gameOver_;
 
  public:
@@ -25,16 +26,20 @@ class Game {
   void setPlayerTurn(Color color);
   void setGameOver(bool p);
 
-  // funzioni per il movimento pezzi (DA IMPLEMENTARE I TEST)
+  // funzioni per il movimento pezzi (IMPLEMENTARE TEST)
   bool rightStarting(Point from);  // ho tolto i throw
   bool rightArrival(Point to);     // ho tolto i throw
   bool validMove(Point from, Point to);
 
-  // funzioni per arrocco
+  // funzioni per arrocco (IMPLEMENTARE TEST)
   bool isCastlingValid(Point from, Point to);
   void executeCastling(Point from, Point to);
-  
-  // funzioni per enPassant
+
+  // funzioni per enPassant (IMPLEMENTARE TEST)
+  void setEnPassantTarget(Point from,
+                          Point to);  // pedone si muove di due caselle
+  bool isEnPassantValid(Point from, Point to);  // questo enPassant si può fare?
+  void executeEnPassant(Point from, Point to);  // esegue l'enPassant
 
   // funzioni per lo scacco (DA FINIRE + IMPLEMENTARE TEST)
   bool isCheck(Color color);  // color è sotto scacco?

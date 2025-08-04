@@ -43,7 +43,7 @@ bool Game::rightArrival(Point to) {
   return false;
 }
 
-bool Game::validMove(Point from, Point to) {  
+bool Game::validMove(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);
   if (!rightArrival(to) && !rightStarting(from)) {
     return false;
@@ -52,9 +52,9 @@ bool Game::validMove(Point from, Point to) {
   } else if (!board_.clearPath(from, to)) {
     std::cout << "4" << '\n';
     return false;
-  //} else if (isCheck(playerTurn_) == true) {
-  //  std::cout << "in questo modo ti poni in scacco" << '\n';
-  //  return false;
+    //} else if (isCheck(playerTurn_) == true) {
+    //  std::cout << "in questo modo ti poni in scacco" << '\n';
+    //  return false;
   }
   if (piece->getName() == pawn) {
     if (from.c == to.c && board_.selectPiece(to) != nullptr) {
@@ -73,8 +73,7 @@ bool Game::isCheck(Color color) {
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
       Piece* piece{board_.selectPiece({c, r})};
-      if (piece != nullptr &&
-          isChecking({c, r}, color) == true) {
+      if (piece != nullptr && isChecking({c, r}, color) == true) {
         return true;
       }
     }
@@ -109,25 +108,92 @@ bool Game::isCastlingValid(Point from, Point to) {
   return false;
 }
 
+void Game::executeCastling(Point from, Point to) {
+  if (to.r == 0) {  // caso bianco
+    switch (to.c) {
+      case 0:
+        board_.movePiece(from, {2, 0});
+        board_.movePiece(to, {3, 0});
+        return;
+      case 7:
+        board_.movePiece(from, {6, 0});
+        board_.movePiece(to, {5, 0});
+        return;
+    }
+  } else {  // caso nero
+    switch (to.c) {
+      case 0:
+        board_.movePiece(from, {2, 7});
+        board_.movePiece(to, {3, 7});
+        return;
+      case 7:
+        board_.movePiece(from, {6, 7});
+        board_.movePiece(to, {5, 7});
+        return;
+    }
+  }
+}
+
 // funzioni per enPassant
+void Game::setEnPassantTarget(Point from, Point to) {
+  Piece* piece = board_.selectPiece(from);
+  if (piece->getName() == pawn && abs(to.r - from.r) == 2) {
+    enPassantTarget_ = {to.c, (to.r + from.r) / 2};
+  } else
+    enPassantTarget_ = {8, 8};
+}
+
+bool Game::isEnPassantValid(Point from, Point to) {
+  Piece* piece = board_.selectPiece(from);
+  if (piece->getName() == pawn && to == enPassantTarget_ &&
+      piece->validPieceMove(from, to) == true &&
+      board_.selectPiece(to) == nullptr) {
+    return true;
+  }
+  return false;
+}
+
+void Game::executeEnPassant(Point from, Point to) {  // serve davvero?
+  board_.movePiece(from, to);
+}
 
 // funzioni per il movimento dei pezzi
 void Game::playMove(Point from, Point to) {
-//  if (validMove(from, to) == true) {
-//  //    if (piece->getName() == "King") {
-//  //     if (isCastlingValid(from, to) == true) {
-//  //        castling(from, to);
-//  //        piece->setMoved(true);
-//  //        return true; //ovviamente da modificare peché la funzione è void
-//  //      }
-//
-//  // if (board_.isPromotion(to, from) ==
-//  //     true) {  // PROBABILMENTE MESSA QUI DARÀ PROBLEMI, TESTARE
-//  //   board_.promote(to, queen);
-//  //}
-//
-//  board_.movePiece(from, to);
-//  board_.selectPiece(from)->setMoved(true);  
-//  playerTurn_ = (playerTurn_ == White) ? Black : White;  // cambio turno
-//}
+  Piece* piece = board_.selectPiece(from);
+  bool moveExecuted = false;
+  // verifichiamo che la mossia sia valida
+  if (!validMove(from, to)) {
+    return;
+  }
+  // casi particolari
+  switch (piece->getName()) {
+    case king: {
+      if (isCastlingValid(from, to) == true) {
+        executeCastling(from, to);
+        moveExecuted = true;
+        // cambio turno
+      }
+      break;
+    }
+    case pawn: {
+      if (isEnPassantValid(from, to) == true) {
+        executeEnPassant(from, to);
+        moveExecuted = true;
+      }
+      setEnPassantTarget(from, to);
+      if (board_.isPromotion(to, from) == true) {
+        // qualcosa per scegliere a quale pezzo sostituire il pedone
+        Name promotePiece;
+        board_.promote(to, promotePiece);
+        moveExecuted = true;
+      }
+      break;
+    }
+  }
+  // caso generale
+  if (!moveExecuted) {
+    board_.movePiece(from, to);
+  }
+  piece->setMoved(true);
+  playerTurn_ = (playerTurn_ == White) ? Black : White;  // cambio turno
 }

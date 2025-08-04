@@ -14,7 +14,7 @@ enum Color { White, Black };
 enum Name { king, queen, bishop, knight, rook, pawn };
 
 struct Point {
-  int c; // 0-7 (colonna da 1-8)
+  int c;  // 0-7 (colonna da 1-8)
   int r;  // 0-7 (riga da 1-8)
 };
 
@@ -32,7 +32,7 @@ class Piece {
  public:
   // costruttore
   Piece(Name name_, Color color);
-  
+
   // metodi per accedere alle variabili protette
   Name getName();
   Color getColor();
@@ -42,12 +42,13 @@ class Piece {
   inline void setName(Name new_name);
   inline void setColor(Color new_color);
   void setMoved(bool has_moved);
-  virtual void drawPiece(sf::RenderWindow& window);   // disegna il pezzo 
+  virtual void drawPiece(sf::RenderWindow& window);  // disegna il pezzo
 
   void setPositionImage(Point p);  // definita in board
 
   // puramente virtuali (riguardano i singoli pezzi)
-  inline virtual bool validPieceMove(Point cell_from, Point cell_to) = 0;  // mosse dei pezzi
+  inline virtual bool validPieceMove(Point cell_from,
+                                     Point cell_to) = 0;  // mosse dei pezzi
   virtual void loadTexture() = 0;                         // immagini dei pezzi
 };
 
@@ -109,7 +110,6 @@ class Rook : public Piece {
 class Pawn : public Piece {
  public:
   Pawn(Color color);
-
   bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
 };
