@@ -43,57 +43,61 @@ bool Game::rightArrival(Point to) {
   return false;
 }
 
-bool Game::validMove(Point from, Point to) {
-  Piece* piece = board_.selectPiece(from);
+bool Game::validMove(Point from, Point to, Board& board) {
+  Piece* piece = board.selectPiece(from);
   if (!rightArrival(to) && !rightStarting(from)) {
     return false;
   } else if (!piece->validPieceMove(from, to)) {
     return false;
-  } else if (!board_.clearPath(from, to)) {
+  } else if (!board.clearPath(from, to)) {
     std::cout << "4" << '\n';
     return false;
-    //} else if (isCheck(playerTurn_) == true) {
-    //  std::cout << "in questo modo ti poni in scacco" << '\n';
-    //  return false;
+  } else if (isCheck(playerTurn_, board) == true) {
+    std::cout << "in questo modo ti poni in scacco" << '\n';
+    return false;
   }
   if (piece->getName() == pawn) {
-    if (from.c == to.c && board_.selectPiece(to) != nullptr) {
+    if (from.c == to.c && board.selectPiece(to)) {
       std::cout << "5" << '\n';
       return false;
     }
-    if (from.c != to.c && board_.selectPiece(to) == nullptr) {
+    if (from.c != to.c && board.selectPiece(to)) {
       return false;
     }
   }
   return true;
 }
 
-// funzioni per lo scacco
-bool Game::isCheck(Color color) {
+//// funzioni per lo scacco
+// è scacco per il colore selezionato?
+bool Game::isCheck(Color color, Board& board) {
+  Point king_pos = board.kingPosition(color);
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
-      Piece* piece{board_.selectPiece({c, r})};
-      if (piece != nullptr && isChecking({c, r}, color) == true) {
-        return true;
+      Piece* piece = board.selectPiece({c, r});
+      if (piece && piece->getColor() != color) {
+        if (!rightArrival({c, r}) && !rightStarting(king_pos) &&
+                !piece->validPieceMove({c, r}, king_pos),
+            !board.clearPath({c, r}, king_pos)) {
+          return true;
+        }
       }
     }
   }
   return false;
 }
 
-bool Game::isChecking(Point p, Color color) {
-  Piece* piece = board_.selectPiece(p);
-  Point king_pos = board_.kingPosition(color);
-  if (piece->getColor() != color && validMove(p, king_pos) == true) {
-    return true;
-  } else {
-    return false;
-  }
+// la mossa genera uno scacco a se stessi?
+bool Game::createCheck(Point from, Point to) {
+  Piece* piece = board_.selectPiece(from);  // pezzo che voglio spostare
+  if (!piece) return false;
+  Board temporary_board = board_.cloneBoard(board_);
+  temporary_board.movePiece(from, to);
+  bool createCheck = isCheck(piece->getColor(), temporary_board);
+  return createCheck;
 }
 
-bool Game::createCheck(Point from, Point to) {}
-
-// funzioni per arrocco
+//// funzioni per arrocco
 bool Game::isCastlingValid(Point from, Point to) {
   Piece* king_piece = board_.selectPiece(from);
   Piece* rook_piece = board_.selectPiece(to);
@@ -162,7 +166,7 @@ void Game::playMove(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);
   bool moveExecuted = false;
   // verifichiamo che la mossia sia valida
-  if (!validMove(from, to)) {
+  if (!validMove(from, to, board_)) {
     return;
   }
   // casi particolari

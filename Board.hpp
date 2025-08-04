@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "Pieces.hpp"
+#include "Player.hpp"
 
 enum castleType { Long, Short };
 
@@ -34,6 +35,11 @@ class Board {
   // Movimento dei pezzi
   Piece* selectPiece(Point p);  // resistuisce un puntatore data la posizione
   void movePiece(Point from, Point to);  // muovo un pezzo
+
+  // funzioni per il movimento pezzi (DA IMPLEMENTARE I TEST)
+  bool rightStarting(Point from);  // ho tolto i throw
+  bool rightArrival(Point to);     // ho tolto i throw
+  bool validMove(Point from, Point to);
 
   // controllo della scacchiera
   bool clearPath(Point from, Point to);
