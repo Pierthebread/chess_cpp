@@ -13,12 +13,12 @@ Board::Board(sf::RenderWindow& window) : window_(window) {
 // clona la board attuale
 Board Board::cloneBoard(Board& other_board) {
   Board temporary_board(other_board.window_);
-  for (int c = 0; c < 8; ++c) {
-    for (int r = 0; r < 8; ++r) {
+  for (std::size_t c = 0; c < 8; ++c) {
+    for (std::size_t r = 0; r < 8; ++r) {
       if (other_board.board[c][r]) {
         Name name_piece = other_board.board[c][r]->getName();
         Color color_piece = other_board.board[c][r]->getColor();
-        Point p{c, r};
+        Point p{static_cast<int>(c), static_cast<int>(r)};
         temporary_board.setPiece(name_piece, color_piece, p);
       } else {
         temporary_board.board[c][r] = nullptr;
@@ -58,7 +58,8 @@ void Board::setPiece(Name type, Color color, Point p) {
     default:
       break;
   }
-  board[p.c][p.r]->setPositionImage({p.c, p.r});
+  board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)]
+      ->setPositionImage({p.c, p.r});
 }
 
 void Board::setPieces() {
@@ -88,8 +89,10 @@ void Board::setPieces() {
 //////////// Creazione dell'interfaccia grafica
 // traduzione point - pixel per posizionare le celle
 void Piece::setPositionImage(Point p) {
-  sprite_.setPosition(p.c * 80.f + 40.f - sprite_.getGlobalBounds().width / 2,
-                      p.r * 80.f + 40.f - sprite_.getGlobalBounds().height / 2);
+  sprite_.setPosition(static_cast<float>(p.c) * 80.0f + 40.0f -
+                          sprite_.getGlobalBounds().width / 2,
+                      static_cast<float>(p.r) * 80.0f + 40.0f -
+                          sprite_.getGlobalBounds().height / 2);
 }
 
 // disegna la scacchiera vuota sulla window
@@ -110,10 +113,10 @@ void Board::drawBoard() {       // questa è la finestra grafica SFML
   }
 }
 
- //disegna i pezzi sulla window
- void Board::drawPieces() {
-  for (int c = 0; c < 8; ++c) {
-    for (int r = 0; r < 8; ++r) {
+// disegna i pezzi sulla window
+void Board::drawPieces() {
+  for (std::size_t c = 0; c < 8; ++c) {
+    for (std::size_t r = 0; r < 8; ++r) {
       if (board[c][r]) {
         board[c][r]->drawPiece(window_);
       }

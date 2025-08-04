@@ -28,18 +28,17 @@ class Game {
   // funzioni per il movimento pezzi (DA IMPLEMENTARE I TEST)
   bool rightStarting(Point from);  // ho tolto i throw
   bool rightArrival(Point to);     // ho tolto i throw
-  bool validMove(Point from, Point to);
+  bool validMove(Point from, Point to, Board& board);
 
   // funzioni per arrocco
   bool isCastlingValid(Point from, Point to);
   void executeCastling(Point from, Point to);
-  
+
   // funzioni per enPassant
 
   // funzioni per lo scacco (DA FINIRE + IMPLEMENTARE TEST)
-  bool isCheck(Color color);  // color è sotto scacco?
-  bool isChecking(Point pezzoipotetico,
-                  Color color);  // pezzoipotetico punta al re di color?
+  bool isChecking(Point p, Color color, Board& board);
+  bool isCheck(Color color, Board& board);  // color è sotto scacco?
   bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?
 
   // funzione definitiva
