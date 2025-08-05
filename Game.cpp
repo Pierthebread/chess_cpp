@@ -161,7 +161,7 @@ bool Game::isEnPassantValid(Point to) {
 }
 
 void Game::executeEnPassant(Point from, Point to) {  // serve davvero?
-  board_.movePiece(to, {to.c, from.r});
+  board_.clearPieceAt({to.c, from.r});
   board_.movePiece(from, to);
 }
 

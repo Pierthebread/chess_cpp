@@ -82,7 +82,7 @@ void Board::setPieces() {
   setPiece(bishop, Black, {5, 0});
   setPiece(knight, Black, {6, 0});
   setPiece(rook, Black, {7, 0});
-  setPiece(rook, White, {0, 7});  
+  setPiece(rook, White, {0, 7});
   setPiece(knight, White, {1, 7});
   setPiece(bishop, White, {2, 7});
   setPiece(queen, White, {3, 7});
@@ -124,6 +124,8 @@ void Board::drawPieces() {
     }
   }
 }
+
+void Board::clearPieceAt(Point x) { board[x.c][x.r] = nullptr; }
 
 ////////// Movimento dei pezzi
 Piece* Board::selectPiece(Point p) {

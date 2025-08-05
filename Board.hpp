@@ -27,6 +27,9 @@ class Board {
   // Crea il pezzo indicato e lo fa puntare dal puntatore indicato
   void setPiece(Name type, Color color, Point p);
 
+  // Metodo per accedere all'array di array
+  void clearPieceAt(Point x);
+
   // crea i pezzi e li assegna ai puntatori iniziali insieme alle immagini
   void setPieces();
 
