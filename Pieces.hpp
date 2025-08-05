@@ -61,6 +61,7 @@ class King : public Piece {
   King(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
+  bool isCastling(Point cell_to);
   inline bool getMoved();
   void setMoved(bool has_moved);
   void loadTexture() override;

@@ -79,9 +79,12 @@ bool Game::isCheck(Color color, Board& board) {
     for (int r = 0; r < 8; ++r) {
       Piece* piece = board.selectPiece({c, r});
       if (piece && piece->getColor() != color) {
-        if (piece->validPieceMove(
-                {c, r}, king_pos) &&  // probabilmente altri casi da considerare
+        if (piece->getName() != pawn &&
+            piece->validPieceMove({c, r}, king_pos) &&
             board.clearPath({c, r}, king_pos)) {
+          return true;
+        }
+        if (piece->getName() == pawn && piece->validPieceMove({c, r}, king_pos) && c != king_pos.c) {
           return true;
         }
       }
@@ -106,7 +109,7 @@ bool Game::createCheck(Point from, Point to) {
 bool Game::isCastlingValid(Point from, Point to) {
   Piece* king_piece = board_.selectPiece(from);
   Piece* rook_piece = board_.selectPiece(to);
-  if (king_piece->getName() == king && !king_piece->getMoved() &&
+  if (rook_piece && king_piece->getName() == king && !king_piece->getMoved() &&
       rook_piece->getName() == rook && !rook_piece->getMoved() &&
       king_piece->getColor() == rook_piece->getColor()) {
     if ((from.r == 0 or from.r == 7) && (to.c == 7 or to.c == 0) &&
@@ -118,18 +121,7 @@ bool Game::isCastlingValid(Point from, Point to) {
 }
 
 void Game::executeCastling(Point from, Point to) {
-  if (to.r == 0) {  // caso bianco
-    switch (to.c) {
-      case 0:
-        board_.movePiece(from, {2, 0});
-        board_.movePiece(to, {3, 0});
-        return;
-      case 7:
-        board_.movePiece(from, {6, 0});
-        board_.movePiece(to, {5, 0});
-        return;
-    }
-  } else {  // caso nero
+  if (to.r == 7) {  // caso bianco
     switch (to.c) {
       case 0:
         board_.movePiece(from, {2, 7});
@@ -138,6 +130,17 @@ void Game::executeCastling(Point from, Point to) {
       case 7:
         board_.movePiece(from, {6, 7});
         board_.movePiece(to, {5, 7});
+        return;
+    }
+  } else {  // caso nero
+    switch (to.c) {
+      case 0:
+        board_.movePiece(from, {2, 0});
+        board_.movePiece(to, {3, 0});
+        return;
+      case 7:
+        board_.movePiece(from, {6, 0});
+        board_.movePiece(to, {5, 0});
         return;
     }
   }
@@ -175,14 +178,14 @@ void Game::playMove(Point from, Point to) {
   }
   // casi particolari
   switch (piece->getName()) {
-    case king: {
-      if (isCastlingValid(from, to) == true) {
-        executeCastling(from, to);
-        moveExecuted = true;
-        // cambio turno
-      }
-      break;
-    }
+     case king: {
+       if (isCastlingValid(from, to) == true) {
+         executeCastling(from, to);
+         moveExecuted = true;
+         // cambio turno
+       }
+       break;
+     }
     case pawn: {
       if (isEnPassantValid(to)) {
         executeEnPassant(from, to);

@@ -32,6 +32,7 @@ class Game {
   bool validMove(Point from, Point to, Board& board);
 
   // funzioni per arrocco (IMPLEMENTARE TEST)
+  bool isCastling(Point to);
   bool isCastlingValid(Point from, Point to);
   void executeCastling(Point from, Point to);
 
