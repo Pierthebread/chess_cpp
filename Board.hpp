@@ -14,6 +14,8 @@ class Board {
 
   std::string pieceType_[8][8];
   sf::RenderWindow& window_;
+  sf::RectangleShape cellWhite_;
+  sf::RectangleShape cellBlack_;
 
  public:
   // Costruttore

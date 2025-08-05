@@ -23,7 +23,7 @@ void Game::setGameOver(bool the_end) { gameOver_ = the_end; }
 // funzioni per il movimento pezzi
 bool Game::rightStarting(Point from) {
   Piece* piece_from = board_.selectPiece(from);
-  if (piece_from == nullptr) {
+  if (!piece_from) {
     return false;
   }
   if (piece_from->getColor() != playerTurn_) {
@@ -52,7 +52,7 @@ bool Game::validMove(Point from, Point to, Board& board) {
   } else if (!board.clearPath(from, to)) {
     std::cout << "4" << '\n';
     return false;
-  } else if (isCheck(playerTurn_, board) == true) {
+  } else if (createCheck(from, to) == true) {
     std::cout << "in questo modo ti poni in scacco" << '\n';
     return false;
   }
@@ -61,7 +61,7 @@ bool Game::validMove(Point from, Point to, Board& board) {
       std::cout << "5" << '\n';
       return false;
     }
-    if (from.c != to.c && board.selectPiece(to)) {
+    if (from.c != to.c && !board.selectPiece(to)) {
       return false;
     }
   }
@@ -76,9 +76,8 @@ bool Game::isCheck(Color color, Board& board) {
     for (int r = 0; r < 8; ++r) {
       Piece* piece = board.selectPiece({c, r});
       if (piece && piece->getColor() != color) {
-        if (!rightArrival({c, r}) && !rightStarting(king_pos) &&
-                !piece->validPieceMove({c, r}, king_pos),
-            !board.clearPath({c, r}, king_pos)) {
+        if (piece->validPieceMove({c, r}, king_pos) && // probabilmente altri casi da considerare
+            board.clearPath({c, r}, king_pos)) {
           return true;
         }
       }
@@ -90,7 +89,9 @@ bool Game::isCheck(Color color, Board& board) {
 // la mossa genera uno scacco a se stessi?
 bool Game::createCheck(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);  // pezzo che voglio spostare
-  if (!piece) return false;
+  if (!piece) {
+    return false;
+  }  // potrebbe essere tolto forse
   Board temporary_board = board_.cloneBoard(board_);
   temporary_board.movePiece(from, to);
   bool createCheck = isCheck(piece->getColor(), temporary_board);
@@ -164,7 +165,7 @@ void Game::executeEnPassant(Point from, Point to) {  // serve davvero?
 // funzioni per il movimento dei pezzi
 void Game::playMove(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);
-  bool moveExecuted = false;
+  bool moveExecuted{false};
   // verifichiamo che la mossia sia valida
   if (!validMove(from, to, board_)) {
     return;

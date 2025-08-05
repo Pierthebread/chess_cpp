@@ -8,6 +8,12 @@ Board::Board(sf::RenderWindow& window) : window_(window) {
       cell = nullptr;
     }
   }
+  const float cellSize = 80.f;
+  cellWhite_.setSize(sf::Vector2f(cellSize, cellSize));
+  cellWhite_.setFillColor(sf::Color(245, 245, 220));
+
+  cellBlack_.setSize(sf::Vector2f(cellSize, cellSize));
+  cellBlack_.setFillColor(sf::Color(139, 69, 19));
 }
 
 // clona la board attuale
@@ -62,28 +68,28 @@ void Board::setPiece(Name type, Color color, Point p) {
       ->setPositionImage({p.c, p.r});
 }
 
+// posiziona tutti i pezzi sulla scacchiera
 void Board::setPieces() {
   for (int c = 0; c < 8; ++c) {
     setPiece(pawn, White, {c, 6});
     setPiece(pawn, Black, {c, 1});
   }
-  setPiece(rook, White, {0, 7});
-  setPiece(rook, White, {7, 7});
-  setPiece(bishop, White, {2, 7});
-  setPiece(bishop, White, {5, 7});
-  setPiece(knight, White, {1, 7});
-  setPiece(knight, White, {6, 7});
-  setPiece(queen, White, {4, 7});
-  setPiece(king, White, {3, 7});
   setPiece(rook, Black, {0, 0});
-  setPiece(rook, Black, {7, 0});
-  setPiece(rook, Black, {2, 0});
-  setPiece(bishop, Black, {5, 0});
-  setPiece(bishop, Black, {1, 0});
-  setPiece(knight, Black, {6, 0});
-  setPiece(knight, Black, {4, 0});
+  setPiece(knight, Black, {1, 0});
+  setPiece(bishop, Black, {2, 0});
   setPiece(queen, Black, {3, 0});
-  setPiece(king, Black, {0, 0});
+  setPiece(king, Black, {4, 0});
+  setPiece(bishop, Black, {5, 0});
+  setPiece(knight, Black, {6, 0});
+  setPiece(rook, Black, {7, 0});
+  setPiece(rook, White, {0, 7});  
+  setPiece(knight, White, {1, 7});
+  setPiece(bishop, White, {2, 7});
+  setPiece(queen, White, {3, 7});
+  setPiece(king, White, {4, 7});
+  setPiece(bishop, White, {5, 7});
+  setPiece(knight, White, {6, 7});
+  setPiece(rook, White, {7, 7});
 }
 
 //////////// Creazione dell'interfaccia grafica
@@ -98,16 +104,11 @@ void Piece::setPositionImage(Point p) {
 // disegna la scacchiera vuota sulla window
 void Board::drawBoard() {       // questa è la finestra grafica SFML
   const float cellSize = 80.f;  // dimensione della casella
-  sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
-      if ((c + r) % 2 == 0)  // se pari è bianca, se è dispari è nera
-        cell.setFillColor(sf::Color(245, 245, 220));
-      else
-        cell.setFillColor(sf::Color(139, 69, 19));
+      sf::RectangleShape& cell = ((c + r) % 2 == 0) ? cellWhite_ : cellBlack_;
       cell.setPosition(static_cast<float>(c) * cellSize,
                        static_cast<float>(r) * cellSize);
-      // disegna la casella nella posizione giusta
       window_.draw(cell);
     }
   }

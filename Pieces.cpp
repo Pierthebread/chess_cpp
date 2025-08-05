@@ -143,7 +143,7 @@ Pawn::Pawn(Color color) : Piece(pawn, color) { loadTexture(); };
 
 // le mosse del pedone
 bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
-  int direction = (color_ == White) ? -1 : +1;
+  int direction = (color_ == White) ? +1 : -1;
 
   if (cell_from.c == cell_to.c && cell_from.r == cell_to.r + direction) {
     return true;

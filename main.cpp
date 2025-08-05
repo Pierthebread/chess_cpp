@@ -32,10 +32,18 @@ int main() {
               starting_cell = {c, r};
               firstClick = false;
             }
-          } else  {
-            arrival_cell = {c, r};
-            game.playMove(starting_cell, arrival_cell);
-            firstClick = true;
+          } else {
+            if (game.rightArrival({c, r})) {
+              arrival_cell = {c, r};
+              game.playMove(starting_cell, arrival_cell);
+              if (game.getBoard().selectPiece(arrival_cell)) {
+                std::cout
+                    << game.getBoard().selectPiece(arrival_cell)->getName();
+              } else {
+                std::cout << "mannaggia dio";
+              }
+              firstClick = true;
+            }
           }
         }
       }
