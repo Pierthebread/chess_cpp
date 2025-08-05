@@ -140,7 +140,7 @@ Piece* Board::selectPiece(Point p) {
 void Board::movePiece(Point from, Point to) {
   // std::move sposta l'oggetto da from a to, distruggendo l'oggetto che
   // conteneva in precedenza to.
-  if (selectPiece(from) != nullptr) {
+  if (selectPiece(from)) {
     selectPiece(from)->setPositionImage({to.c, to.r});
     board[static_cast<std::size_t>(to.c)][static_cast<std::size_t>(to.r)] =
         std::move(board[static_cast<std::size_t>(from.c)]

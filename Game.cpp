@@ -57,6 +57,9 @@ bool Game::validMove(Point from, Point to, Board& board) {
     return false;
   }
   if (piece->getName() == pawn) {
+    if (to == enPassantTarget_) {
+      return true;
+    }
     if (from.c == to.c && board.selectPiece(to)) {
       std::cout << "5" << '\n';
       return false;
@@ -76,7 +79,8 @@ bool Game::isCheck(Color color, Board& board) {
     for (int r = 0; r < 8; ++r) {
       Piece* piece = board.selectPiece({c, r});
       if (piece && piece->getColor() != color) {
-        if (piece->validPieceMove({c, r}, king_pos) && // probabilmente altri casi da considerare
+        if (piece->validPieceMove(
+                {c, r}, king_pos) &&  // probabilmente altri casi da considerare
             board.clearPath({c, r}, king_pos)) {
           return true;
         }
@@ -142,23 +146,22 @@ void Game::executeCastling(Point from, Point to) {
 // funzioni per enPassant
 void Game::setEnPassantTarget(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);
-  if (piece->getName() == pawn && abs(to.r - from.r) == 2) {
+  if (piece && piece->getName() == pawn && abs(to.r - from.r) == 2) {
     enPassantTarget_ = {to.c, (to.r + from.r) / 2};
-  } else
+  } else {
     enPassantTarget_ = {8, 8};
+  }
 }
 
-bool Game::isEnPassantValid(Point from, Point to) {
-  Piece* piece = board_.selectPiece(from);
-  if (piece->getName() == pawn && to == enPassantTarget_ &&
-      piece->validPieceMove(from, to) == true &&
-      board_.selectPiece(to) == nullptr) {
+bool Game::isEnPassantValid(Point to) {
+  if (to == enPassantTarget_ && !board_.selectPiece(to)) {
     return true;
   }
   return false;
 }
 
 void Game::executeEnPassant(Point from, Point to) {  // serve davvero?
+  board_.movePiece(to, {to.c, from.r});
   board_.movePiece(from, to);
 }
 
@@ -181,11 +184,12 @@ void Game::playMove(Point from, Point to) {
       break;
     }
     case pawn: {
-      if (isEnPassantValid(from, to) == true) {
+      if (isEnPassantValid(to)) {
         executeEnPassant(from, to);
         moveExecuted = true;
       }
       setEnPassantTarget(from, to);
+
       if (board_.isPromotion(to, from) == true) {
         // qualcosa per scegliere a quale pezzo sostituire il pedone
         Name promotePiece;
@@ -194,11 +198,14 @@ void Game::playMove(Point from, Point to) {
       }
       break;
     }
+    default:
+      break;
   }
   // caso generale
   if (!moveExecuted) {
     board_.movePiece(from, to);
   }
+
   piece->setMoved(true);
   playerTurn_ = (playerTurn_ == White) ? Black : White;  // cambio turno
 }

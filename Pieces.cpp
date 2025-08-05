@@ -157,7 +157,7 @@ bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
 
   // per mangiare
   if (abs(cell_from.c - cell_to.c) == 1 &&
-      cell_to.r == cell_from.r + direction) {
+      cell_from.r == cell_to.r + direction) {
     return true;
   }
 

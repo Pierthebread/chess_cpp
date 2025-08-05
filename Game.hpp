@@ -38,7 +38,7 @@ class Game {
   // funzioni per enPassant (IMPLEMENTARE TEST)
   void setEnPassantTarget(Point from,
                           Point to);  // pedone si muove di due caselle
-  bool isEnPassantValid(Point from, Point to);  // questo enPassant si può fare?
+  bool isEnPassantValid( Point to);  // questo enPassant si può fare?
   void executeEnPassant(Point from, Point to);  // esegue l'enPassant
 
   // funzioni per lo scacco (DA FINIRE + IMPLEMENTARE TEST)
