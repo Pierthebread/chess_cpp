@@ -259,3 +259,43 @@ Name Game::pieceToPromote() {
   }
   return promotedPiece;
 }
+
+bool Game::insufficientMaterial() {
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 8; ++j) {
+      Piece* piece = board_.selectPiece({i, j});
+      if (piece != nullptr or piece->getName() != king) {
+        return false;
+      }
+      return true;
+    }
+  }
+}
+
+bool Game::canMove(Color color) {
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 8; ++j) {
+      Piece* piece = board_.selectPiece({i, j});
+      Point p_from{i, j};
+      if (piece->getColor() == color && piece != nullptr)
+        for (int k = 0; i < 8; ++i) {
+          for (int l = 0; j < 8; ++j) {
+            Point p_to{k, l};
+            if (validMove(p_from, p_to, board_)) {
+              if (!createCheck(p_from, p_to)) {
+                return true;
+              }
+            }
+          }
+        }
+    }
+  }
+  return false;
+}
+
+bool Game::isCheckmate(Color color) {
+  if (isCheck(color, board_)) {
+  }
+}
+
+bool Game::isStalemate() {}

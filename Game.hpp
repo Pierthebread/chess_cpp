@@ -47,6 +47,10 @@ class Game {
   bool isChecking(Point p, Color color, Board& board);
   bool isCheck(Color color, Board& board);  // color è sotto scacco?
   bool createCheck(Point from, Point to);   // questa mossa genera uno scacco?
+  bool canMove(Color color);      // ci sono mosse disponibili per color?
+  bool isCheckmate(Color color);  // color è in scacco matto? (!color vince)
+  bool isStalemate();
+  bool insufficientMaterial();
 
   // funzione definitiva
   void switchTurn();
