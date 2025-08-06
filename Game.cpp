@@ -16,6 +16,8 @@ Game::Game(std::string nameWhite, std::string nameBlack,
 Board& Game::getBoard() { return board_; }
 bool Game::getGameOver() { return gameOver_; }
 Color Game::getPlayerTurn() { return playerTurn_; }
+Player Game::getWhitePlayer() { return whitePlayer_; }
+Player Game::getBlackPlayer() { return blackPlayer_; }
 
 // metodi per modificare variabili private
 void Game::setPlayerTurn(Color newTurn) { playerTurn_ = newTurn; };
@@ -109,42 +111,29 @@ bool Game::createCheck(Point from, Point to) {
 
 //// funzioni per arrocco
 bool Game::isCastlingValid(Point from, Point to) {
-  Piece* king_piece = board_.selectPiece(from);
-  Piece* rook_piece = board_.selectPiece(to);
-  if (rook_piece && king_piece->getName() == king && !king_piece->getMoved() &&
-      rook_piece->getName() == rook && !rook_piece->getMoved() &&
-      king_piece->getColor() == rook_piece->getColor()) {
-    if ((from.r == 0 or from.r == 7) && (to.c == 7 or to.c == 0) &&
-        board_.clearPath(from, to)) {
-      return true;
-    }
+  int rook_c = (to.c == 2) ? 0 : 7;
+  Piece* rook_pos = board_.selectPiece({rook_c, to.r});
+
+  if (!rook_pos || rook_pos->getName() != rook || rook_pos->getMoved()) {
+    return false;
   }
-  return false;
+  if (!board_.clearPath(from, to)) {
+    return false;
+  }
+  return true;
 }
 
 void Game::executeCastling(Point from, Point to) {
-  if (to.r == 7) {  // caso bianco
-    switch (to.c) {
-      case 0:
-        board_.movePiece(from, {2, 7});
-        board_.movePiece(to, {3, 7});
-        return;
-      case 7:
-        board_.movePiece(from, {6, 7});
-        board_.movePiece(to, {5, 7});
-        return;
-    }
-  } else {  // caso nero
-    switch (to.c) {
-      case 0:
-        board_.movePiece(from, {2, 0});
-        board_.movePiece(to, {3, 0});
-        return;
-      case 7:
-        board_.movePiece(from, {6, 0});
-        board_.movePiece(to, {5, 0});
-        return;
-    }
+  const int row = to.r;
+  // Arrocco lungo (sinistra)
+  if (to.c == 2) {
+    board_.movePiece(from, {2, row});      // Muove il re
+    board_.movePiece({0, row}, {3, row});  // Muove la torre sinistra
+  }
+  // Arrocco corto (destra)
+  else if (to.c == 6) {
+    board_.movePiece(from, {6, row});      // Muove il re
+    board_.movePiece({7, row}, {5, row});  // Muove la torre destra
   }
 }
 
@@ -158,31 +147,27 @@ void Game::setEnPassantTarget(Point from, Point to) {
   }
 }
 
-bool Game::isEnPassantValid(Point to) {
-  if (to == enPassantTarget_ && !board_.selectPiece(to)) {
-    return true;
-  }
-  return false;
+bool Game::isEnPassantValid(Point from, Point to) {
+  return (to == enPassantTarget_ && !board_.selectPiece(to) &&
+      board_.selectPiece(from)->validPieceMove(from, to)); 
 }
 
-void Game::executeEnPassant(Point from, Point to) {  // serve davvero?
+void Game::executeEnPassant(Point from, Point to) { 
   board_.clearPieceAt({to.c, from.r});
   board_.movePiece(from, to);
 }
 
 // funzioni per il movimento dei pezzi
-void Game::playMove(Point from, Point to) {
+void Game::processMove(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);
 
   bool moveExecuted{false};
-  // verifichiamo che la mossia sia valida
-  if (!validMove(from, to, board_)) {
-    return;
-  }
+
   // casi particolari
   switch (piece->getName()) {
     case king: {
-      if (isCastlingValid(from, to) == true) {
+      King* kingPiece = dynamic_cast<King*>(piece);
+      if (kingPiece->isCastling(to) && isCastlingValid(from, to)) {
         executeCastling(from, to);
         moveExecuted = true;
         // cambio turno
@@ -190,7 +175,7 @@ void Game::playMove(Point from, Point to) {
       break;
     }
     case pawn: {
-      if (isEnPassantValid(to)) {
+      if (isEnPassantValid(from, to)) {
         executeEnPassant(from, to);
         moveExecuted = true;
       }
@@ -209,12 +194,14 @@ void Game::playMove(Point from, Point to) {
     default:
       break;
   }
+
   // caso generale
-  if (!moveExecuted) {
+  if (validMove(from, to, board_) && !moveExecuted) {
     board_.movePiece(from, to);
   }
   piece->setMoved(true);
   switchTurn();
+  return;
 }
 
 void Game::switchTurn() {
@@ -277,9 +264,10 @@ bool Game::canMove(Color color) {
     for (int j = 0; j < 8; ++j) {
       Piece* piece = board_.selectPiece({i, j});
       Point p_from{i, j};
-      if (piece->getColor() == color && piece != nullptr)
-        for (int k = 0; i < 8; ++i) {
-          for (int l = 0; j < 8; ++j) {
+
+      if (piece->getColor() == color)
+        for (int k{0}; k < 8; ++k) {
+          for (int l{0}; l < 8; ++l) {
             Point p_to{k, l};
             if (validMove(p_from, p_to, board_)) {
               return true;
@@ -292,8 +280,37 @@ bool Game::canMove(Color color) {
 }
 
 bool Game::isCheckmate(Color color) {
-  if (isCheck(color, board_)) {
+  if (isCheck(color, board_) && !canMove(color)) {
+    setGameOver(true);
+    return true;
+  } else {
+    return false;
   }
 }
 
-bool Game::isStalemate() {}
+bool Game::isStalemate() {
+  if (!canMove(getPlayerTurn()) && !isCheck(getPlayerTurn(), board_)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void Game::playMove(Point from, Point to) {
+  processMove(from, to);
+  Color loser = getPlayerTurn();
+  // dopo 75 mosse c'è patta
+
+  // controllo che, dopo questa mossa, l'avversario non è in scacco matto
+
+  if (isCheckmate(loser)) {
+    setGameOver(true);
+    std::string winner = (loser == White) ? "Black" : "White";
+    std::cout << " Ha vinto " << winner << std::endl;
+  }
+  // è patta?
+  // if (isStalemate()) {
+  //  setGameOver(true);
+  //  std::cout << "Patta !" << '\n';
+  //}
+}

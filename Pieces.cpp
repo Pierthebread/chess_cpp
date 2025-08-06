@@ -31,12 +31,7 @@ bool King::validPieceMove(Point cell_from, Point cell_to) {
   int delta_column{abs(cell_from.c - cell_to.c)};
   int delta_row{abs(cell_from.r - cell_to.r)};
 
-  if (delta_column <= 1 && delta_row <= 1) {
-    return true;
-  } else if (isCastling(cell_to) && !moved_) {
-    return true;
-  }
-  return false;
+  return delta_column <= 1 && delta_row <= 1;
 };
 
 bool King::isCastling(Point cell_to) {
@@ -44,13 +39,16 @@ bool King::isCastling(Point cell_to) {
   Point point_shortWhiteCastle{6, 7};
   Point point_longBlackCastle{2, 0};
   Point point_shortBlackCastle{6, 0};
-  if (color_ == White) {
-    return (cell_to == point_longWhiteCastle ||
-            cell_to == point_shortWhiteCastle);
-  } else {
-    return (cell_to == point_longBlackCastle ||
-            cell_to == point_shortBlackCastle);
+  if (!moved_) {
+    if (color_ == White) {
+      return (cell_to == point_longWhiteCastle ||
+              cell_to == point_shortWhiteCastle);
+    } else {
+      return (cell_to == point_longBlackCastle ||
+              cell_to == point_shortBlackCastle);
+    }
   }
+  return false;
 };
 
 void King::loadTexture() {

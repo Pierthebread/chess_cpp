@@ -21,10 +21,13 @@ class Game {
   Board& getBoard();  // non posso copiare unique_ptr
   Color getPlayerTurn();
   bool getGameOver();
+  Player getWhitePlayer();
+  Player getBlackPlayer();
 
   // metodi per modificare le variabili private
   void setPlayerTurn(Color color);
   void setGameOver(bool p);
+  void setPlayerWinner(Player player);
 
   // funzioni per il movimento pezzi (IMPLEMENTARE TEST)
   bool rightStarting(Point from);  // ho tolto i throw
@@ -40,20 +43,21 @@ class Game {
   // funzioni per enPassant (IMPLEMENTARE TEST)
   void setEnPassantTarget(Point from,
                           Point to);  // pedone si muove di due caselle
-  bool isEnPassantValid(Point to);    // questo enPassant si può fare?
+  bool isEnPassantValid(Point from, Point to);    // questo enPassant si può fare?
   void executeEnPassant(Point from, Point to);  // esegue l'enPassant
 
-  // funzioni per lo scacco (DA FINIRE + IMPLEMENTARE TEST)
+  // funzioni per lo scacco
   bool isChecking(Point p, Color color, Board& board);
   bool isCheck(Color color, Board& board);  // color è sotto scacco?
   bool createCheck(Point from, Point to);   // questa mossa genera uno scacco?
   bool canMove(Color color);      // ci sono mosse disponibili per color?
   bool isCheckmate(Color color);  // color è in scacco matto? (!color vince)
-  bool isStalemate();
-  bool insufficientMaterial();
+  bool isStalemate();             // è patta?
+  bool insufficientMaterial();    // il materiale è sufficiente?
 
   // funzione definitiva
   void switchTurn();
+  void processMove(Point from, Point to);
   void playMove(Point from, Point to);
 };
 
