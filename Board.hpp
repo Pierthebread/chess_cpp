@@ -55,7 +55,7 @@ class Board {
 
   // per la promozione
   bool isPromotion(Point to, Point from);
-  void promote(Point p_pawn, Name piece);
+  void promote(Point p_pawn, Name piece, Color color);
 };
 
 #endif

@@ -164,7 +164,7 @@ bool Board::clearPath(Point from, Point to) {
     return clearOrizzontalPath(from, to);
   } else if (from.c == to.c) {
     return clearVerticalPath(from, to);
-  } else if (from.r - to.r == from.c - to.c) {
+  } else if (abs(from.r - to.r) == abs(from.c - to.c)) {
     return clearDiagonalPath(from, to);
   }
   return true;
@@ -234,15 +234,10 @@ bool Board::isPromotion(Point from, Point to) {
 };
 
 // promuove il pedone a pezzo desiderato
-void Board::promote(Point p_pawn, Name piece) {
+void Board::promote(Point p_pawn, Name piece, Color color) {
   if (piece != king) {
-    if (selectPiece(p_pawn) != nullptr &&
-        selectPiece(p_pawn)->getName() == pawn) {
-      setPiece(piece, selectPiece(p_pawn)->getColor(), p_pawn);
-    } else {
-      throw std::runtime_error("There is no pawn in here");
+    {
+      setPiece(piece, color, p_pawn);
     }
-  } else {
-    throw std::runtime_error("You can't promote to king");
   }
-};
+}

@@ -1,6 +1,7 @@
 #include "Game.hpp"
 
 #include <iostream>
+#include <limits>
 
 Game::Game(std::string nameWhite, std::string nameBlack,
            sf::RenderWindow& window)
@@ -84,7 +85,8 @@ bool Game::isCheck(Color color, Board& board) {
             board.clearPath({c, r}, king_pos)) {
           return true;
         }
-        if (piece->getName() == pawn && piece->validPieceMove({c, r}, king_pos) && c != king_pos.c) {
+        if (piece->getName() == pawn &&
+            piece->validPieceMove({c, r}, king_pos) && c != king_pos.c) {
           return true;
         }
       }
@@ -171,6 +173,7 @@ void Game::executeEnPassant(Point from, Point to) {  // serve davvero?
 // funzioni per il movimento dei pezzi
 void Game::playMove(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);
+
   bool moveExecuted{false};
   // verifichiamo che la mossia sia valida
   if (!validMove(from, to, board_)) {
@@ -178,14 +181,14 @@ void Game::playMove(Point from, Point to) {
   }
   // casi particolari
   switch (piece->getName()) {
-     case king: {
-       if (isCastlingValid(from, to) == true) {
-         executeCastling(from, to);
-         moveExecuted = true;
-         // cambio turno
-       }
-       break;
-     }
+    case king: {
+      if (isCastlingValid(from, to) == true) {
+        executeCastling(from, to);
+        moveExecuted = true;
+        // cambio turno
+      }
+      break;
+    }
     case pawn: {
       if (isEnPassantValid(to)) {
         executeEnPassant(from, to);
@@ -193,11 +196,13 @@ void Game::playMove(Point from, Point to) {
       }
       setEnPassantTarget(from, to);
 
-      if (board_.isPromotion(to, from) == true) {
-        // qualcosa per scegliere a quale pezzo sostituire il pedone
-        Name promotePiece;
-        board_.promote(to, promotePiece);
+      if (board_.isPromotion(from, to)) {
+        Name promotedPiece = pieceToPromote();
+        board_.promote(to, promotedPiece, piece->getColor());
+        board_.clearPieceAt(from);
         moveExecuted = true;
+        switchTurn();
+        return;
       }
       break;
     }
@@ -208,7 +213,49 @@ void Game::playMove(Point from, Point to) {
   if (!moveExecuted) {
     board_.movePiece(from, to);
   }
-
   piece->setMoved(true);
-  playerTurn_ = (playerTurn_ == White) ? Black : White;  // cambio turno
+  switchTurn();
+}
+
+void Game::switchTurn() {
+  playerTurn_ = (playerTurn_ == White) ? Black : White;
+}
+
+Name Game::pieceToPromote() {
+  int i;
+  while (i < 1 || i > 4) {
+    std::cout << " Select the piece " << '\n'
+              << "1. Queen " << '\n'
+              << "2. Bishop " << '\n'
+              << "3. Knight " << '\n'
+              << "4. Rook" << '\n';
+    ;
+    std::cin >> i;
+    if (std::cin
+            .fail()) {  // bool che verifica tipo input == tipo richiesto (es.
+                        // qualcuno scrive una lettera piuttosto che un numero)
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      std::cout << "Input non valido !!! " << '\n' << "Riprova " << '\n';
+    }
+  }
+  Name promotedPiece;
+  switch (i) {
+    case 1:
+      promotedPiece = queen;
+      break;
+    case 2:
+      promotedPiece = bishop;
+      break;
+    case 3:
+      promotedPiece = knight;
+      break;
+    case 4:
+      promotedPiece = rook;
+      break;
+
+    default:
+      break;
+  }
+  return promotedPiece;
 }

@@ -30,6 +30,7 @@ class Game {
   bool rightStarting(Point from);  // ho tolto i throw
   bool rightArrival(Point to);     // ho tolto i throw
   bool validMove(Point from, Point to, Board& board);
+  Name pieceToPromote();
 
   // funzioni per arrocco (IMPLEMENTARE TEST)
   bool isCastling(Point to);
@@ -39,15 +40,16 @@ class Game {
   // funzioni per enPassant (IMPLEMENTARE TEST)
   void setEnPassantTarget(Point from,
                           Point to);  // pedone si muove di due caselle
-  bool isEnPassantValid( Point to);  // questo enPassant si può fare?
+  bool isEnPassantValid(Point to);    // questo enPassant si può fare?
   void executeEnPassant(Point from, Point to);  // esegue l'enPassant
 
   // funzioni per lo scacco (DA FINIRE + IMPLEMENTARE TEST)
   bool isChecking(Point p, Color color, Board& board);
   bool isCheck(Color color, Board& board);  // color è sotto scacco?
-  bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?
+  bool createCheck(Point from, Point to);   // questa mossa genera uno scacco?
 
   // funzione definitiva
+  void switchTurn();
   void playMove(Point from, Point to);
 };
 
