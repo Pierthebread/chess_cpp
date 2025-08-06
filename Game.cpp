@@ -282,9 +282,7 @@ bool Game::canMove(Color color) {
           for (int l = 0; j < 8; ++j) {
             Point p_to{k, l};
             if (validMove(p_from, p_to, board_)) {
-              if (!createCheck(p_from, p_to)) {
-                return true;
-              }
+              return true;
             }
           }
         }
