@@ -222,14 +222,31 @@ Point Board::kingPosition(Color color) {
   throw std::runtime_error("King not found on the board");
 }
 
+bool Board::isCastling(Point p_from, Point p_to) {
+  Piece* king = selectPiece(p_from);
+  Point point_longWhiteCastle{2, 7};
+  Point point_shortWhiteCastle{6, 7};
+  Point point_longBlackCastle{2, 0};
+  Point point_shortBlackCastle{6, 0};
+  if (king && !king->getMoved()) {
+    if (king->getColor() == White) {
+      return (p_to == point_longWhiteCastle ||
+              p_to == point_shortWhiteCastle);
+    } else {
+      return (p_to == point_longBlackCastle ||
+              p_to == point_shortBlackCastle);
+    }
+  }
+  return false;
+};
+
+
 // riconosce se la mossa appena compiuta ha portato un pedone a promozione
 bool Board::isPromotion(Point from, Point to) {
   Piece* piece = selectPiece(from);
-  if (piece != nullptr && piece->getName() == pawn &&
-      ((piece->getColor() == White && to.r == 0) ||
-       (piece->getColor() == Black && to.r == 7))) {
-    return true;
-  };
+  if (piece != nullptr && piece->getName() == pawn){ 
+     return ((piece->getColor() == White && to.r == 0) ||
+       (piece->getColor() == Black && to.r == 7)); }
   return false;
 };
 

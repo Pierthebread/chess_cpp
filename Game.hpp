@@ -21,8 +21,7 @@ class Game {
   Board& getBoard();  // non posso copiare unique_ptr
   Color getPlayerTurn();
   bool getGameOver();
-  Player getWhitePlayer();
-  Player getBlackPlayer();
+  Player getPlayer(Color color);
 
   // metodi per modificare le variabili private
   void setPlayerTurn(Color color);
@@ -50,15 +49,19 @@ class Game {
   bool isChecking(Point p, Color color, Board& board);
   bool isCheck(Color color, Board& board);  // color è sotto scacco?
   bool createCheck(Point from, Point to);   // questa mossa genera uno scacco?
+
+  // funzione definitiva
+  void switchTurn();
+  void executeMove(Point from, Point to);
+  void playMove(Point from, Point to);
+
+  // conclusione partita
   bool canMove(Color color);      // ci sono mosse disponibili per color?
   bool isCheckmate(Color color);  // color è in scacco matto? (!color vince)
   bool isStalemate();             // è patta?
   bool insufficientMaterial();    // il materiale è sufficiente?
+  void checkGameOver();
 
-  // funzione definitiva
-  void switchTurn();
-  void processMove(Point from, Point to);
-  void playMove(Point from, Point to);
 };
 
 #endif

@@ -16,11 +16,13 @@ Game::Game(std::string nameWhite, std::string nameBlack,
 Board& Game::getBoard() { return board_; }
 bool Game::getGameOver() { return gameOver_; }
 Color Game::getPlayerTurn() { return playerTurn_; }
-Player Game::getWhitePlayer() { return whitePlayer_; }
-Player Game::getBlackPlayer() { return blackPlayer_; }
+Player Game::getPlayer(Color color) { return (color == White)? whitePlayer_: blackPlayer_ ; }
+
 
 // metodi per modificare variabili private
-void Game::setPlayerTurn(Color newTurn) { playerTurn_ = newTurn; };
+void Game::switchTurn() {
+  playerTurn_ = (playerTurn_ == White) ? Black : White;
+}
 void Game::setGameOver(bool the_end) { gameOver_ = the_end; }
 
 // funzioni per il movimento pezzi
@@ -53,7 +55,6 @@ bool Game::validMove(Point from, Point to, Board& board) {
   } else if (!piece->validPieceMove(from, to)) {
     return false;
   } else if (!board.clearPath(from, to)) {
-    std::cout << "4" << '\n';
     return false;
   } else if (createCheck(from, to) == true) {
     std::cout << "in questo modo ti poni in scacco" << '\n';
@@ -64,7 +65,6 @@ bool Game::validMove(Point from, Point to, Board& board) {
       return true;
     }
     if (from.c == to.c && board.selectPiece(to)) {
-      std::cout << "5" << '\n';
       return false;
     }
     if (from.c != to.c && !board.selectPiece(to)) {
@@ -74,7 +74,7 @@ bool Game::validMove(Point from, Point to, Board& board) {
   return true;
 }
 
-//// funzioni per lo scacco
+//////// funzioni per lo scacco
 // è scacco per il colore selezionato?
 bool Game::isCheck(Color color, Board& board) {
   Point king_pos = board.kingPosition(color);
@@ -129,17 +129,19 @@ void Game::executeCastling(Point from, Point to) {
   if (to.c == 2) {
     board_.movePiece(from, {2, row});      // Muove il re
     board_.movePiece({0, row}, {3, row});  // Muove la torre sinistra
+    board_.selectPiece({3, row})->setMoved(true);
   }
   // Arrocco corto (destra)
   else if (to.c == 6) {
     board_.movePiece(from, {6, row});      // Muove il re
     board_.movePiece({7, row}, {5, row});  // Muove la torre destra
+    board_.selectPiece({5, row})->setMoved(true);
   }
 }
 
 // funzioni per enPassant
 void Game::setEnPassantTarget(Point from, Point to) {
-  Piece* piece = board_.selectPiece(from);
+  Piece* piece = board_.selectPiece(to);
   if (piece && piece->getName() == pawn && abs(to.r - from.r) == 2) {
     enPassantTarget_ = {to.c, (to.r + from.r) / 2};
   } else {
@@ -149,63 +151,38 @@ void Game::setEnPassantTarget(Point from, Point to) {
 
 bool Game::isEnPassantValid(Point from, Point to) {
   return (to == enPassantTarget_ && !board_.selectPiece(to) &&
-      board_.selectPiece(from)->validPieceMove(from, to)); 
+          board_.selectPiece(from)->validPieceMove(from, to));
 }
 
-void Game::executeEnPassant(Point from, Point to) { 
+void Game::executeEnPassant(Point from, Point to) {
   board_.clearPieceAt({to.c, from.r});
   board_.movePiece(from, to);
 }
 
 // funzioni per il movimento dei pezzi
-void Game::processMove(Point from, Point to) {
+void Game::executeMove(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);
-
   bool moveExecuted{false};
-
-  // casi particolari
-  switch (piece->getName()) {
-    case king: {
-      King* kingPiece = dynamic_cast<King*>(piece);
-      if (kingPiece->isCastling(to) && isCastlingValid(from, to)) {
-        executeCastling(from, to);
-        moveExecuted = true;
-        // cambio turno
-      }
-      break;
-    }
-    case pawn: {
-      if (isEnPassantValid(from, to)) {
-        executeEnPassant(from, to);
-        moveExecuted = true;
-      }
-      setEnPassantTarget(from, to);
-
-      if (board_.isPromotion(from, to)) {
-        Name promotedPiece = pieceToPromote();
-        board_.promote(to, promotedPiece, piece->getColor());
-        board_.clearPieceAt(from);
-        moveExecuted = true;
-        switchTurn();
-        return;
-      }
-      break;
-    }
-    default:
-      break;
-  }
-
-  // caso generale
-  if (validMove(from, to, board_) && !moveExecuted) {
+  if (board_.isCastling(from, to) && isCastlingValid(from, to)) {
+    executeCastling(from, to);
+    moveExecuted = true;
+  } else if (to == enPassantTarget_ && isEnPassantValid(from, to)) {
+    executeEnPassant(from, to);
+    moveExecuted = true;
+  } else if (board_.isPromotion(from, to)) {
+    Name promotedPiece = pieceToPromote();
+    board_.promote(to, promotedPiece, piece->getColor());
+    board_.clearPieceAt(from);
+    moveExecuted = true;
+  } else if (validMove(from, to, board_)) {
     board_.movePiece(from, to);
+    moveExecuted = true;
+    piece->setMoved(true);
   }
-  piece->setMoved(true);
-  switchTurn();
-  return;
-}
-
-void Game::switchTurn() {
-  playerTurn_ = (playerTurn_ == White) ? Black : White;
+  if (moveExecuted) {
+    switchTurn();
+    setEnPassantTarget(from, to);
+  }
 }
 
 Name Game::pieceToPromote() {
@@ -218,9 +195,9 @@ Name Game::pieceToPromote() {
               << "4. Rook" << '\n';
     ;
     std::cin >> i;
-    if (std::cin
-            .fail()) {  // bool che verifica tipo input == tipo richiesto (es.
-                        // qualcuno scrive una lettera piuttosto che un numero)
+    if (std::cin.fail()) {  // bool che verifica tipo input == tipo richiesto
+                            // (es. qualcuno scrive una lettera piuttosto che
+                            // un numero)
       std::cin.clear();
       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       std::cout << "Input non valido !!! " << '\n' << "Riprova " << '\n';
@@ -247,57 +224,12 @@ Name Game::pieceToPromote() {
   return promotedPiece;
 }
 
-bool Game::insufficientMaterial() {
-  for (int i = 0; i < 8; ++i) {
-    for (int j = 0; j < 8; ++j) {
-      Piece* piece = board_.selectPiece({i, j});
-      if (piece != nullptr or piece->getName() != king) {
-        return false;
-      }
-      return true;
-    }
-  }
-}
 
-bool Game::canMove(Color color) {
-  for (int i = 0; i < 8; ++i) {
-    for (int j = 0; j < 8; ++j) {
-      Piece* piece = board_.selectPiece({i, j});
-      Point p_from{i, j};
 
-      if (piece->getColor() == color)
-        for (int k{0}; k < 8; ++k) {
-          for (int l{0}; l < 8; ++l) {
-            Point p_to{k, l};
-            if (validMove(p_from, p_to, board_)) {
-              return true;
-            }
-          }
-        }
-    }
-  }
-  return false;
-}
 
-bool Game::isCheckmate(Color color) {
-  if (isCheck(color, board_) && !canMove(color)) {
-    setGameOver(true);
-    return true;
-  } else {
-    return false;
-  }
-}
-
-bool Game::isStalemate() {
-  if (!canMove(getPlayerTurn()) && !isCheck(getPlayerTurn(), board_)) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
+/*
 void Game::playMove(Point from, Point to) {
-  processMove(from, to);
+  executeMove(from, to);
   Color loser = getPlayerTurn();
   // dopo 75 mosse c'è patta
 
@@ -313,4 +245,58 @@ void Game::playMove(Point from, Point to) {
   //  setGameOver(true);
   //  std::cout << "Patta !" << '\n';
   //}
+}
+*/
+
+bool Game::canMove(Color color) {
+  for (int i{0}; i < 8; ++i) {
+    for (int j{0}; j < 8; ++j) {
+      Piece* piece = board_.selectPiece({i, j});
+      Point p_from{i, j};
+
+      if (piece && piece->getColor() == color)
+        for (int k{0}; k < 8; ++k) {
+          for (int l{0}; l < 8; ++l) {
+            Point p_to{k, l};
+            if (validMove(p_from, p_to, board_)) {
+              return true;
+            }
+          }
+        }
+    }
+  }
+  return false;
+}
+
+bool Game::isCheckmate(Color color) {
+  return (isCheck(color, board_) && !canMove(color));
+}
+
+bool Game::insufficientMaterial() {
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 8; ++j) {
+      Piece* piece = board_.selectPiece({i, j});
+      if (piece != nullptr or piece->getName() != king) {
+        return false;
+      }
+      return true;
+    }
+  }
+}
+
+void Game::checkGameOver(){
+  if(!canMove(playerTurn_)){
+    //if(isCheck(playerTurn_,board_)){
+    //  Player winner{getPlayer(playerTurn_)};
+    //  std::cout << " The game is over: " <<  winner.getName() << " win! " << '\n';
+    //} 
+ //   else { 
+ //     std::cout << " The game is over: it's a draw " << '\n';
+ //   }
+ // if(insufficientMaterial()){
+ //   std::cout << " The game is over: it's a draw " << '\n';
+ // }
+ std::cout << "mannaggia"<< '/n';
+    
+  }
 }

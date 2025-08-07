@@ -26,10 +26,8 @@ class Board {
 
   // Crea il pezzo indicato e lo fa puntare dal puntatore indicato
   void setPiece(Name type, Color color, Point p);
-
   // Metodo per accedere all'array di array
   void clearPieceAt(Point x);
-
   // crea i pezzi e li assegna ai puntatori iniziali insieme alle immagini
   void setPieces();
 
@@ -41,10 +39,10 @@ class Board {
   Piece* selectPiece(Point p);  // resistuisce un puntatore data la posizione
   void movePiece(Point from, Point to);  // muovo un pezzo
 
-  // funzioni per il movimento pezzi (DA IMPLEMENTARE I TEST)
-  bool rightStarting(Point from);  // ho tolto i throw
-  bool rightArrival(Point to);     // ho tolto i throw
-  bool validMove(Point from, Point to);
+  // mosse speciali
+  bool isPromotion(Point to, Point from);
+  void promote(Point p_pawn, Name piece, Color color);
+  bool isCastling(Point p_from, Point p_to);
 
   // controllo della scacchiera
   bool clearPath(Point from, Point to);
@@ -53,9 +51,6 @@ class Board {
   bool clearDiagonalPath(Point p_from, Point p_to);
   Point kingPosition(Color color);
 
-  // per la promozione
-  bool isPromotion(Point to, Point from);
-  void promote(Point p_pawn, Name piece, Color color);
 };
 
 #endif

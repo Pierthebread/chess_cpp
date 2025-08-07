@@ -34,23 +34,6 @@ bool King::validPieceMove(Point cell_from, Point cell_to) {
   return delta_column <= 1 && delta_row <= 1;
 };
 
-bool King::isCastling(Point cell_to) {
-  Point point_longWhiteCastle{2, 7};
-  Point point_shortWhiteCastle{6, 7};
-  Point point_longBlackCastle{2, 0};
-  Point point_shortBlackCastle{6, 0};
-  if (!moved_) {
-    if (color_ == White) {
-      return (cell_to == point_longWhiteCastle ||
-              cell_to == point_shortWhiteCastle);
-    } else {
-      return (cell_to == point_longBlackCastle ||
-              cell_to == point_shortBlackCastle);
-    }
-  }
-  return false;
-};
-
 void King::loadTexture() {
   std::string colorPiece =
       (color_ == Color::White) ? "Image/whiteKing.png" : "Image/blackKing.png";
@@ -162,10 +145,6 @@ Pawn::Pawn(Color color) : Piece(pawn, color) { loadTexture(); };
 bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
   int direction = (color_ == White) ? +1 : -1;
 
-  if (cell_from.c == cell_to.c && cell_from.r == cell_to.r + direction) {
-    return true;
-  }
-
   // solo mossa
   if (cell_from.c == cell_to.c && moved_ == false &&
       cell_from.r == cell_to.r + 2 * direction) {
@@ -173,7 +152,7 @@ bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
   }
 
   // per mangiare
-  if (abs(cell_from.c - cell_to.c) == 1 &&
+  if (abs(cell_from.c - cell_to.c) <= 1 &&
       cell_from.r == cell_to.r + direction) {
     return true;
   }

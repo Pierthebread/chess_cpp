@@ -22,7 +22,6 @@ int main() {
         if (event.type == sf::Event::Closed) {
           window.close();
         }
-
         if (event.type == sf::Event::MouseButtonPressed &&
             event.mouseButton.button == sf::Mouse::Left) {
           int c = event.mouseButton.x / 80;
@@ -35,7 +34,8 @@ int main() {
           } else {
             if (game.rightArrival({c, r})) {
               arrival_cell = {c, r};
-              game.playMove(starting_cell, arrival_cell);
+              game.executeMove(starting_cell, arrival_cell);
+              game.checkGameOver();
               firstClick = true;
             }
           }
