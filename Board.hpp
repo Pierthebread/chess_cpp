@@ -50,7 +50,6 @@ class Board {
   bool clearVerticalPath(Point r_from, Point r_to);
   bool clearDiagonalPath(Point p_from, Point p_to);
   Point kingPosition(Color color);
-
 };
 
 #endif
