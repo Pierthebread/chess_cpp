@@ -37,6 +37,7 @@ int main() {
               game.executeMove(starting_cell, arrival_cell);
               game.checkGameOver();
               firstClick = true;
+              std::cout << game.getGameOver() << std::endl;
             }
           }
         }
