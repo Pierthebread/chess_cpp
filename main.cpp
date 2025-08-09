@@ -2,25 +2,23 @@
 
 int main() {
   try {
-    sf::RenderWindow window(sf::VideoMode(640, 640), "Board");
-    sf::Texture texture;
-    Game game("name1", "name2", window);
+    sf::RenderWindow pippo(sf::VideoMode(640, 640), "Chess");
+    pippo.setFramerateLimit(60);
+
+    Game game("name1", "name2", pippo);
     Board& board = game.getBoard();
     board.setPieces();
-
-    sf::Sprite sprite;
-    sprite.setTexture(texture);
 
     bool firstClick{true};
     Point starting_cell;
     Point arrival_cell;
 
-    while (window.isOpen()) {
+    while (pippo.isOpen()) {
       sf::Event event;
 
-      while (window.pollEvent(event)) {
+      while (pippo.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-          window.close();
+          pippo.close();
         }
         if (event.type == sf::Event::MouseButtonPressed &&
             event.mouseButton.button == sf::Mouse::Left) {
@@ -43,10 +41,10 @@ int main() {
         }
       }
 
-      window.clear();
+      pippo.clear();
       board.drawBoard();
       board.drawPieces();
-      window.display();
+      pippo.display();
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << '\n';

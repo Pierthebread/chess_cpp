@@ -3,6 +3,14 @@
 #include <iostream>
 #include <limits>
 
+bool operator==(const Move& lm, const Move& rm) {
+  return lm.cell == rm.cell && lm.piece == rm.piece && lm.ate == rm.ate;
+}
+
+bool operator!=(const Move& lm, const Move& rm) {
+  return lm.cell != lm.cell || lm.piece != rm.piece || lm.ate != rm.ate;
+}
+
 Game::Game(std::string nameWhite, std::string nameBlack,
            sf::RenderWindow& window)
     : window_(window),
@@ -10,7 +18,9 @@ Game::Game(std::string nameWhite, std::string nameBlack,
       whitePlayer_(nameWhite, White),
       blackPlayer_(nameBlack, Black),
       playerTurn_{White},
-      gameOver_(false) {}
+      gameOver_(false),
+      storedMoves_(),
+      fifty_movescounter_(0) {}
 
 // metodi per accedere alle variabili private
 Board& Game::getBoard() { return board_; }
@@ -19,12 +29,17 @@ Color Game::getPlayerTurn() { return playerTurn_; }
 Player Game::getPlayer(Color color) {
   return (color == White) ? whitePlayer_ : blackPlayer_;
 }
+std::vector<Move> Game::getStoredMoves() { return storedMoves_; }
+int Game::getFiftyMovesCounter() {return fifty_movescounter_; }
 
 // metodi per modificare variabili private
 void Game::switchTurn() {
   playerTurn_ = (playerTurn_ == White) ? Black : White;
 }
 void Game::setGameOver(bool the_end) { gameOver_ = the_end; }
+void Game::storeMove(Move last_move) { storedMoves_.push_back(last_move); }
+void Game::addMovesCounter() { ++fifty_movescounter_; }
+void Game::resetMovesCounter() { fifty_movescounter_ = 0; }
 
 // funzioni per il movimento pezzi
 bool Game::rightStarting(Point from) {
@@ -40,7 +55,7 @@ bool Game::rightStarting(Point from) {
 
 bool Game::rightArrival(Point to) {
   Piece* piece_to = board_.selectPiece(to);
-  if (piece_to == nullptr) {
+  if (!piece_to) {
     return true;
   }
   if (piece_to->getColor() != playerTurn_) {
@@ -51,7 +66,10 @@ bool Game::rightArrival(Point to) {
 
 bool Game::validMove(Point from, Point to, Board& board) {
   Piece* piece = board.selectPiece(from);
-  if (!rightArrival(to) && !rightStarting(from)) {
+
+  if (!rightArrival(to)) {
+    return false;
+  } else if (!rightStarting(from)) {
     return false;
   } else if (!piece->validPieceMove(from, to)) {
     return false;
@@ -162,7 +180,14 @@ void Game::executeEnPassant(Point from, Point to) {
 
 // funzioni per il movimento dei pezzi
 void Game::executeMove(Point from, Point to) {
-  Piece* piece = board_.selectPiece(from);
+  Piece* piece{board_.selectPiece(from)};
+  Name name_piece{piece->getName()};
+  Piece* captured{board_.selectPiece(to)};
+  bool ate;
+  if (captured) {
+    ate = true;
+  }
+
   bool moveExecuted{false};
   // ARROCCO
   if (board_.isCastling(from, to) && isCastlingValid(from, to)) {
@@ -188,7 +213,15 @@ void Game::executeMove(Point from, Point to) {
     piece->setMoved(true);
   }
   if (moveExecuted) {
+    Move move{name_piece, to, ate};
+    std::cout << name_piece << to.c << to.r << ate << '\n';
     setEnPassantTarget(from, to);
+    storeMove(move);
+    if (!move.ate && piece->getName() != pawn) {
+      addMovesCounter();
+    } else {
+      resetMovesCounter();
+    }
     switchTurn();
   }
 }
@@ -232,6 +265,7 @@ Name Game::pieceToPromote() {
   return promotedPiece;
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 /*
 void Game::playMove(Point from, Point to) {
   executeMove(from, to);
@@ -282,6 +316,7 @@ bool Game::canMove(Color color) {
   return false;
 }
   */
+
 bool Game::canMove(Color color) {
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
@@ -310,6 +345,8 @@ bool Game::isCheckmate(Color color) {
   return (isCheck(color, board_) && !canMove(color));
 }
 
+// Materiale insufficiente: re contro re, re contro re e pezzo leggero, re e p.l
+// contro re e p.l, re contro due cavalli
 bool Game::insufficientMaterial() {
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
@@ -325,16 +362,29 @@ bool Game::insufficientMaterial() {
 void Game::checkGameOver() {
   if (!canMove(playerTurn_)) {
     setGameOver(true);
+    std::cout << "help" << '\n';
     if (isCheck(playerTurn_, board_)) {
-      Player winner{getPlayer(playerTurn_)};
-      std::cout << " The game is over: " << winner.getName() << " win! "
-                << '\n';
+      // Checkmate
+      Player winner = getPlayer(
+          (playerTurn_ == White) ? Black : White);  // Opposite player wins
+      std::cout << "Checkmate! " << winner.getName() << " wins!" << '\n';
     } else {
-      std::cout << " The game is over: it's a draw " << '\n';
+      // Stalemate
+      std::cout << "Draw by stalemate" << '\n';
     }
-    if (insufficientMaterial()) {
-      std::cout << " The game is over: it's a draw " << '\n';
-    }
-    std::cout << "mannaggia" << '/n';
+  }
+  if (insufficientMaterial()) {
+    // Draw by insufficient material
+    std::cout << "Draw by insufficient material" << '\n';
+    //} else if (isRepetitionMoves()) {
+    //  // Draw by repetition
+    //  std::cout << "Draw by repetition" << '\n';
+  }
+  if (isFiftyMoves()) {
+    std::cout << "Draw by fiftyMoves rule" << '\n';
   }
 }
+
+// bool Game::isRepetitionMoves() {}
+
+bool Game::isFiftyMoves() { return getFiftyMovesCounter() == 50; }

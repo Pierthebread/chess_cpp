@@ -3,6 +3,9 @@
 bool operator==(const Point& lp, const Point& rp) {
   return lp.c == rp.c && lp.r == rp.r;
 }
+bool operator!=(const Point& lp, const Point& rp) {
+  return lp.c != rp.c || lp.r != rp.r;
+}
 
 // LA CLASSE MADRE
 // Costructor

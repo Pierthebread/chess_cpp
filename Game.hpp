@@ -4,6 +4,15 @@
 #include "Pieces.hpp"
 #include "Player.hpp"
 
+struct Move {
+  Name piece;
+  Point cell;
+  bool ate;
+};
+
+bool operator==(const Move& lm, const Move& rm);
+bool operator!=(const Move& lm, const Move& rm);
+
 class Game {
  private:
   sf::RenderWindow& window_;
@@ -13,6 +22,8 @@ class Game {
   Color playerTurn_;
   Point enPassantTarget_;  // Point su casella di Enpassant
   bool gameOver_;
+  std::vector<Move> storedMoves_;
+  int fifty_movescounter_;
 
  public:
   Game(std::string nameWhite, std::string nameBlack, sf::RenderWindow& window);
@@ -22,11 +33,16 @@ class Game {
   Color getPlayerTurn();
   bool getGameOver();
   Player getPlayer(Color color);
+  std::vector<Move> getStoredMoves();
+  int getFiftyMovesCounter();
 
   // metodi per modificare le variabili private
   void setPlayerTurn(Color color);
   void setGameOver(bool p);
   void setPlayerWinner(Player player);
+  void storeMove(Move last_move);
+  void addMovesCounter();
+  void resetMovesCounter();
 
   // funzioni per il movimento pezzi (IMPLEMENTARE TEST)
   bool rightStarting(Point from);  // ho tolto i throw
@@ -42,7 +58,7 @@ class Game {
   // funzioni per enPassant (IMPLEMENTARE TEST)
   void setEnPassantTarget(Point from,
                           Point to);  // pedone si muove di due caselle
-  bool isEnPassantValid(Point from, Point to);    // questo enPassant si può fare?
+  bool isEnPassantValid(Point from, Point to);  // questo enPassant si può fare?
   void executeEnPassant(Point from, Point to);  // esegue l'enPassant
 
   // funzioni per lo scacco
@@ -58,10 +74,10 @@ class Game {
   // conclusione partita
   bool canMove(Color color);      // ci sono mosse disponibili per color?
   bool isCheckmate(Color color);  // color è in scacco matto? (!color vince)
-  bool isStalemate();             // è patta?
-  bool insufficientMaterial();    // il materiale è sufficiente?
+  bool isFiftyMoves();            // 50 mosse senza cattura o movimento di pedone?
+  bool insufficientMaterial();  // il materiale è sufficiente?
+  bool isRepetitionMoves();     // ripetizione per 3 volte della stessa posizione?
   void checkGameOver();
-
 };
 
 #endif

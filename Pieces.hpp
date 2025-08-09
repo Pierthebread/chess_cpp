@@ -19,6 +19,7 @@ struct Point {
 };
 
 bool operator==(const Point& lp, const Point& rp);
+bool operator!=(const Point& lp, const Point& rp);
 
 // LA CLASSE MADRE
 class Piece {
