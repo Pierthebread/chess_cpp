@@ -148,13 +148,13 @@ Pawn::Pawn(Color color) : Piece(pawn, color) { loadTexture(); };
 bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
   int direction = (color_ == White) ? +1 : -1;
 
-  // solo mossa
+  // mossa doppia
   if (cell_from.c == cell_to.c && moved_ == false &&
       cell_from.r == cell_to.r + 2 * direction) {
     return true;
   }
 
-  // per mangiare
+  // solo mossa e mangiare
   if (abs(cell_from.c - cell_to.c) <= 1 &&
       cell_from.r == cell_to.r + direction) {
     return true;

@@ -4,15 +4,6 @@
 #include "Pieces.hpp"
 #include "Player.hpp"
 
-struct Move {
-  Name piece;
-  Point cell;
-  bool ate;
-};
-
-bool operator==(const Move& lm, const Move& rm);
-bool operator!=(const Move& lm, const Move& rm);
-
 class Game {
  private:
   sf::RenderWindow& window_;
@@ -22,8 +13,9 @@ class Game {
   Color playerTurn_;
   Point enPassantTarget_;  // Point su casella di Enpassant
   bool gameOver_;
-  std::vector<Move> storedMoves_;
   int fifty_movescounter_;
+  std::vector<Name> white_pieces_;
+  std::vector<Name> black_pieces_;
 
  public:
   Game(std::string nameWhite, std::string nameBlack, sf::RenderWindow& window);
@@ -33,14 +25,12 @@ class Game {
   Color getPlayerTurn();
   bool getGameOver();
   Player getPlayer(Color color);
-  std::vector<Move> getStoredMoves();
   int getFiftyMovesCounter();
 
   // metodi per modificare le variabili private
   void setPlayerTurn(Color color);
   void setGameOver(bool p);
   void setPlayerWinner(Player player);
-  void storeMove(Move last_move);
   void addMovesCounter();
   void resetMovesCounter();
 
@@ -48,7 +38,10 @@ class Game {
   bool rightStarting(Point from);  // ho tolto i throw
   bool rightArrival(Point to);     // ho tolto i throw
   bool validMove(Point from, Point to, Board& board);
+
+  // funzioni per promozione (IMPLEMENTARE TEST)
   Name pieceToPromote();
+  void executePromotion(Point from, Point to);
 
   // funzioni per arrocco (IMPLEMENTARE TEST)
   bool isCastling(Point to);
@@ -74,9 +67,9 @@ class Game {
   // conclusione partita
   bool canMove(Color color);      // ci sono mosse disponibili per color?
   bool isCheckmate(Color color);  // color è in scacco matto? (!color vince)
-  bool isFiftyMoves();            // 50 mosse senza cattura o movimento di pedone?
+  bool isFiftyMoves();          // 50 mosse senza cattura o movimento di pedone?
   bool insufficientMaterial();  // il materiale è sufficiente?
-  bool isRepetitionMoves();     // ripetizione per 3 volte della stessa posizione?
+  bool isRepetitionMoves();  // ripetizione per 3 volte della stessa posizione?
   void checkGameOver();
 };
 
