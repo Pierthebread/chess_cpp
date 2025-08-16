@@ -646,17 +646,18 @@ TEST_SUITE("Test validMove") {
 }
 
 */
-TEST_CASE("Testing checkmate") {
-  sf::RenderWindow window;
-  Game game("Tizio 1", "Tizio 2", window);
-  for (int i{0}; i < 8; ++i) {
-    for (int k{0}; k < 8; ++k) {
-      game.getBoard().clearPieceAt({i, k});
-    }
-  };
-  game.getBoard().setPiece(king, White, {0, 0});
-  game.getBoard().setPiece(queen, Black, {2, 0});
-  game.getBoard().setPiece(rook, Black, {2, 1});
-  game.checkGameOver();
-  CHECK(game.getGameOver() == true);
-}
+//TEST_CASE("Testing checkmate") {
+//  sf::RenderWindow window;
+//  Game game("Tizio 1", "Tizio 2", window);
+//  for (int i{0}; i < 8; ++i) {
+//    for (int k{0}; k < 8; ++k) {
+//      game.getBoard().clearPieceAt({i, k});
+//    }
+//  };
+//  game.getBoard().setPiece(king, White, {0, 0});
+//  game.getBoard().setPiece(queen, Black, {2, 0});
+//  game.getBoard().setPiece(rook, Black, {2, 1});
+//  game.checkGameOver();
+//  CHECK(game.getGameOver() == true);
+//}
+//

@@ -86,23 +86,7 @@ bool Game::validMove(Point from, Point to, Board& board) {
 // è scacco per il colore selezionato?
 bool Game::isCheck(Color color, Board& board) {
   Point king_pos = board.kingPosition(color);
-  for (int c = 0; c < 8; ++c) {
-    for (int r = 0; r < 8; ++r) {
-      Piece* piece = board.selectPiece({c, r});
-      if (piece && piece->getColor() != color) {
-        if (piece->getName() != pawn &&
-            piece->validPieceMove({c, r}, king_pos) &&
-            board.clearPath({c, r}, king_pos)) {
-          return true;
-        }
-        if (piece->getName() == pawn &&
-            piece->validPieceMove({c, r}, king_pos) && c != king_pos.c) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
+  return isCellAttached(king_pos, color, board);
 }
 
 // la mossa genera uno scacco a se stessi?
@@ -117,6 +101,25 @@ bool Game::createCheck(Point from, Point to) {
   return createCheck;
 }
 
+bool Game::isCellAttached(Point p, Color color, Board& board) {
+  for (int c = 0; c < 8; ++c) {
+    for (int r = 0; r < 8; ++r) {
+      Piece* piece = board.selectPiece({c, r});
+      if (piece && piece->getColor() != color) {
+        if (piece->getName() != pawn && piece->validPieceMove({c, r}, p) &&
+            board.clearPath({c, r}, p)) {
+          return true;
+        }
+        if (piece->getName() == pawn && piece->validPieceMove({c, r}, p) &&
+            c != p.c) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 //// funzioni per arrocco
 bool Game::isCastlingValid(Point from, Point to) {
   int rook_c = (to.c == 2) ? 0 : 7;
@@ -125,8 +128,15 @@ bool Game::isCastlingValid(Point from, Point to) {
   if (!rook_pos || rook_pos->getName() != rook || rook_pos->getMoved()) {
     return false;
   }
-  if (!board_.clearPath(from, to)) {
+  if (!board_.clearPath(from, {rook_c, to.r})) {
     return false;
+  }
+  int step = (to.c < from.c) ? -1 : 1;
+  for (int x = from.c; x != to.c + step; x += step) {
+    Point checkCell{x, from.r};
+    if (isCellAttached(checkCell, rook_pos->getColor(), board_)) {
+      return false;
+    }
   }
   return true;
 }
@@ -145,6 +155,7 @@ void Game::executeCastling(Point from, Point to) {
     board_.movePiece({7, row}, {5, row});  // Muove la torre destra
     board_.selectPiece({5, row})->setMoved(true);
   }
+  board_.selectPiece(to)->setMoved(true);
 }
 
 //////// funzioni per enPassant
@@ -288,17 +299,17 @@ bool Game::isCheckmate(Color color) {
 
 // Materiale insufficiente: re contro re, re contro re e pezzo leggero, re e p.l
 // contro re e p.l, re contro due cavalli
-bool Game::insufficientMaterial() {
-  for (int i = 0; i < 8; ++i) {
-    for (int j = 0; j < 8; ++j) {
-      Piece* piece = board_.selectPiece({i, j});
-      if (piece != nullptr or piece->getName() != king) {
-        return false;
-      }
-      return true;
-    }
-  }
-}
+//bool Game::insufficientMaterial() {
+//  for (int i = 0; i < 8; ++i) {
+//    for (int j = 0; j < 8; ++j) {
+//      Piece* piece = board_.selectPiece({i, j});
+//      if (piece != nullptr or piece->getName() != king) {
+//        return false;
+//      }
+//      return true;
+//    }
+//  }
+//}
 
 void Game::checkGameOver() {
   if (!canMove(playerTurn_)) {
@@ -314,10 +325,10 @@ void Game::checkGameOver() {
       std::cout << "Draw by stalemate" << '\n';
     }
   }
-  if (insufficientMaterial()) {
-    // Draw by insufficient material
-    std::cout << "Draw by insufficient material" << '\n';
-  }
+  //if (insufficientMaterial()) {
+  //  // Draw by insufficient material
+  //  std::cout << "Draw by insufficient material" << '\n';
+  //}
   if (isFiftyMoves()) {
     std::cout << "Draw by fiftyMoves rule" << '\n';
   }

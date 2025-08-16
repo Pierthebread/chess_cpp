@@ -56,6 +56,7 @@ class Game {
 
   // funzioni per lo scacco
   bool isChecking(Point p, Color color, Board& board);
+  bool isCellAttached(Point p, Color color, Board& board);
   bool isCheck(Color color, Board& board);  // color è sotto scacco?
   bool createCheck(Point from, Point to);   // questa mossa genera uno scacco?
 
