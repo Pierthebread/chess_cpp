@@ -94,19 +94,21 @@ TEST_CASE("Testing board") {
     CHECK(board.selectPiece({6, 7}) == nullptr);
   }
 }
+
 TEST_CASE("Testing movePiece") {
   sf::RenderWindow window;
   Board board(window);
   board.setPieces();
-  SUBCASE("Testing ")
 
   board.movePiece({0, 0}, {3, 3});
   CHECK(board.selectPiece({3, 3})->getName() == rook);
   CHECK(board.selectPiece({3, 3})->getColor() == Black);
+  CHECK(board.selectPiece({3, 3})->getMoved() == true);
 
   board.movePiece({7, 0}, {7, 7});
   CHECK(board.selectPiece({7, 7})->getName() == rook);
   CHECK(board.selectPiece({7, 7})->getColor() == Black);
+  CHECK(board.selectPiece({7, 7})->getMoved() == true);
 
   board.movePiece({3, 7}, {1, 0});
   CHECK(board.selectPiece({1, 0})->getColor() == White);
@@ -114,7 +116,6 @@ TEST_CASE("Testing movePiece") {
 
   CHECK_THROWS_AS(board.movePiece({0, 4}, {0, 6}), std::runtime_error);
   CHECK_THROWS_AS(board.movePiece({3, 4}, {6, 6}), std::runtime_error);
-}
 }
 
 TEST_CASE("Testing clearPath") {
@@ -167,50 +168,7 @@ TEST_CASE("Testing clearPath") {
     board.clearPieceAt({2, 2});
     CHECK(board.clearPath({0, 0}, {4, 4}) == true);
   }
-}
 
-///////////////////////////////////////////////////////////////////////////////////
-// Test Board
-
-TEST_CASE("Testing  movePiece") {
-  sf::RenderWindow window;
-  Board board(window);
-  board.setPiece(king, White, {0, 2});
-
-  SUBCASE("Testing movePiece with no piece_to") {
-    board.movePiece({0, 2}, {0, 6});
-    CHECK(board.selectPiece({0, 2}) == nullptr);
-    CHECK(board.selectPiece({0, 6})->getName() == king);
-  }
-
-  SUBCASE("Testing movePiece with piece_to") {
-    board.setPiece(rook, White, {0, 6});
-    board.movePiece({0, 2}, {0, 6});
-    CHECK(board.selectPiece({0, 2}) == nullptr);
-    CHECK(board.selectPiece({0, 6})->getName() == king);
-  }
-
-  SUBCASE("Testing movePiece not working") {
-    CHECK_THROWS(board.movePiece({1, 2}, {0, 2}));
-  }
-
-  SUBCASE("Testing movePiece changing has_moved") {
-    board.setPiece(rook, White, {0, 6});
-    CHECK(board.selectPiece({0, 2})->getMoved() == false);
-    CHECK(board.selectPiece({0, 6})->getMoved() == false);
-  }
-
-  SUBCASE("Testing movePiece changing has_moved") {
-    board.setPiece(rook, White, {0, 6});
-    board.movePiece({0, 2}, {0, 4});  // king
-    board.movePiece({0, 6}, {0, 7});  // rook
-    CHECK(board.selectPiece({0, 4})->getMoved() == true);
-    CHECK(board.selectPiece({0, 7})->getMoved() == true);
-  }
-};
-
-TEST_CASE("Testing clearPath") {
-  Board board;
   board.setPiece(king, White, {0, 2});
   board.setPiece(pawn, Black, {1, 6});
   board.setPiece(bishop, White, {2, 3});
@@ -285,23 +243,32 @@ TEST_CASE("Testing clearPath") {
   }
 };
 
+TEST_CASE("Testing kingPosition") {
+  sf::RenderWindow window;
+  Board board(window);
+  SUBCASE("Testing finding KingPosition") {
+    board.setPiece(king, White, {0, 2});
+    Point king_pos{0, 2};
+    CHECK(board.kingPosition(White) == king_pos);
+  }
+
+  SUBCASE("Testing king not found") {
+    CHECK_THROWS_AS(board.kingPosition(Black), std::runtime_error);
+  }
+};
+
+// FINISCO IO QUESTI CASI
+
+TEST_CASE("Testing isPromotion"){};
+TEST_CASE("Testing promote"){};
+TEST_CASE("Testing isCastling"){};
+
+// FINISCO IO QUESTI CASI
+
+// COMPILA E RUNNA I TEST E OSSERVA IL TEST CHE FALLISCE, POI CHIAMAMI PER
+// PARLARNE.
+
 /*
-TEST_CASE("Testing kingPosition") {
-  Board board;
-  board.setPiece(king, White, {A, 2});
-  Point king_pos{A, 2};
-  bool check = (board.kingPosition(White) == king_pos);
-  CHECK(check == true);
-  CHECK_THROWS_AS(board.kingPosition(Black), std::runtime_error);
-};
-TEST_CASE("Testing kingPosition") {
-  Board board;
-  board.setPiece(king, White, {A, 2});
-  Point king_pos{A, 2};
-  bool check = (board.kingPosition(White) == king_pos);
-  CHECK(check == true);
-  CHECK_THROWS_AS(board.kingPosition(Black), std::runtime_error);
-};
 
 TEST_CASE("Testing isPromotion and Promote") {
   Board board;
