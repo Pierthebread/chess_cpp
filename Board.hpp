@@ -9,6 +9,8 @@
 
 enum castleType { Long, Short };
 
+constexpr float CELL_SIZE = 80.0f;
+
 class Board {
   std::array<std::array<std::unique_ptr<Piece>, 8>, 8> board;
 
@@ -36,7 +38,7 @@ class Board {
   void drawBoard();
 
   // Movimento dei pezzi
-  Piece* selectPiece(Point p);  // resistuisce un puntatore data la posizione
+  Piece* selectPiece(Point p) const;  // resistuisce un puntatore data la posizione
   void movePiece(Point from, Point to);  // muovo un pezzo
 
   // mosse speciali

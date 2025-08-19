@@ -8,7 +8,7 @@ Board::Board(sf::RenderWindow& window) : window_(window) {
       cell = nullptr;
     }
   }
-  const float cellSize = 80.f;
+  const float cellSize = CELL_SIZE;
   cellWhite_.setSize(sf::Vector2f(cellSize, cellSize));
   cellWhite_.setFillColor(sf::Color(245, 245, 220));
 
@@ -95,15 +95,15 @@ void Board::setPieces() {
 //////////// Creazione dell'interfaccia grafica
 // traduzione point - pixel per posizionare le celle
 void Piece::setPositionImage(Point p) {
-  sprite_.setPosition(static_cast<float>(p.c) * 80.0f + 40.0f -
+  sprite_.setPosition(static_cast<float>(p.c) * CELL_SIZE + 40.0f -
                           sprite_.getGlobalBounds().width / 2,
-                      static_cast<float>(p.r) * 80.0f + 40.0f -
+                      static_cast<float>(p.r) * CELL_SIZE + 40.0f -
                           sprite_.getGlobalBounds().height / 2);
 }
 
 // disegna la scacchiera vuota sulla window
 void Board::drawBoard() {       // questa è la finestra grafica SFML
-  const float cellSize = 80.f;  // dimensione della casella
+  const float cellSize = CELL_SIZE;  // dimensione della casella
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
       sf::RectangleShape& cell = ((c + r) % 2 == 0) ? cellWhite_ : cellBlack_;
@@ -125,18 +125,14 @@ void Board::drawPieces() {
   }
 }
 
-void Board::clearPieceAt(Point x) { board[x.c][x.r] = nullptr; }
+void Board::clearPieceAt(Point x) { board[static_cast<std::size_t>(x.c)][static_cast<std::size_t>(x.r)] = nullptr; }
 
 ////////// Movimento dei pezzi
-Piece* Board::selectPiece(Point p) {
-  if (p.c < 0 or p.c >= 8 or p.r < 0 or p.r >= 8) {
-    throw std::runtime_error{"Point out of board"};
-  } else if (board[static_cast<std::size_t>(p.c)]
-                  [static_cast<std::size_t>(p.r)] == nullptr) {
-    return nullptr;
-  }
-  return board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)]
-      .get();  // capisci perché l'abbiamo fatto così
+Piece* Board::selectPiece(Point p) const {  // Nota il 'const'
+    if (p.c < 0 || p.c >= 8 || p.r < 0 || p.r >= 8) {
+        throw std::runtime_error{"Point out of board"};
+    }
+    return board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)].get();
 }
 
 void Board::movePiece(Point from, Point to) {
@@ -250,9 +246,5 @@ bool Board::isPromotion(Point from, Point to) {
 
 // promuove il pedone a pezzo desiderato
 void Board::promote(Point p_pawn, Name piece, Color color) {
-  if (piece != king) {
-    {
       setPiece(piece, color, p_pawn);
-    }
-  }
 }
