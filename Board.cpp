@@ -3,17 +3,22 @@
 
 // Costruttore
 Board::Board(sf::RenderWindow& window) : window_(window) {
-  for (auto& column : board) {
-    for (auto& cell : column) {
-      cell = nullptr;
+  try {
+    for (auto& column : board) {
+      for (auto& cell : column) {
+        cell = nullptr;
+      }
     }
-  }
-  const float cellSize = CELL_SIZE;
-  cellWhite_.setSize(sf::Vector2f(cellSize, cellSize));
-  cellWhite_.setFillColor(sf::Color(245, 245, 220));
+    const float cellSize = CELL_SIZE;
+    cellWhite_.setSize(sf::Vector2f(cellSize, cellSize));
+    cellWhite_.setFillColor(sf::Color(245, 245, 220));
 
-  cellBlack_.setSize(sf::Vector2f(cellSize, cellSize));
-  cellBlack_.setFillColor(sf::Color(139, 69, 19));
+    cellBlack_.setSize(sf::Vector2f(cellSize, cellSize));
+    cellBlack_.setFillColor(sf::Color(139, 69, 19));
+  } catch (const std::exception& e) {
+    std::cerr << "Error in Board constructor: " << e.what() << std::endl;
+    throw;
+  }
 }
 
 // clona la board attuale
@@ -21,6 +26,7 @@ Board Board::cloneBoard(const Board& other_board) {
   Board temporary_board(other_board.window_);
   for (std::size_t c = 0; c < 8; ++c) {
     for (std::size_t r = 0; r < 8; ++r) {
+      assertInRange({static_cast<int>(c), static_cast<int>(r)});
       if (other_board.board[c][r]) {
         Name name_piece = other_board.board[c][r]->getName();
         Color color_piece = other_board.board[c][r]->getColor();
@@ -102,7 +108,7 @@ void Piece::setPositionImage(Point p) {
 }
 
 // disegna la scacchiera vuota sulla window
-void Board::drawBoard() {       // questa è la finestra grafica SFML
+void Board::drawBoard() {            // questa è la finestra grafica SFML
   const float cellSize = CELL_SIZE;  // dimensione della casella
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
@@ -125,7 +131,9 @@ void Board::drawPieces() {
   }
 }
 
-void Board::clearPieceAt(Point x) { board[static_cast<std::size_t>(x.c)][static_cast<std::size_t>(x.r)] = nullptr; }
+void Board::clearPieceAt(Point x) {
+  board[static_cast<std::size_t>(x.c)][static_cast<std::size_t>(x.r)] = nullptr;
+}
 
 ////////// Movimento dei pezzi
 Piece* Board::selectPiece(Point p) const {
@@ -136,7 +144,7 @@ Piece* Board::selectPiece(Point p) const {
     return nullptr;
   }
   return board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)]
-      .get();  
+      .get();
 }
 
 void Board::movePiece(Point from, Point to) {
@@ -242,5 +250,5 @@ bool Board::isPromotion(Point from, Point to) const {
 
 // promuove il pedone a pezzo desiderato
 void Board::promote(Point p_pawn, Name piece, Color color) {
-      setPiece(piece, color, p_pawn);
+  setPiece(piece, color, p_pawn);
 }

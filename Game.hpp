@@ -70,7 +70,6 @@ class Game {
   bool isCheckmate(Color color);  // color è in scacco matto? (!color vince)
   bool isFiftyMoves();          // 50 mosse senza cattura o movimento di pedone?
   bool insufficientMaterial();  // il materiale è sufficiente?
-  bool isRepetitionMoves();  // ripetizione per 3 volte della stessa posizione?
   void checkGameOver();
 };
 
