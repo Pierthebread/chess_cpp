@@ -17,8 +17,8 @@ struct Point {
   int r;  // 0-7 (riga da 1-8)
 };
 
-bool operator==(const Point& lp, const Point& rp);
-bool operator!=(const Point& lp, const Point& rp);
+bool operator==(Point lp, Point rp);
+bool operator!=(Point lp, Point rp);
 
 // LA CLASSE MADRE
 class Piece {

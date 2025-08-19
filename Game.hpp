@@ -18,26 +18,26 @@ class Game {
   std::vector<Name> black_pieces_;
 
  public:
-  Game(std::string nameWhite, std::string nameBlack, sf::RenderWindow& window);
+  Game(const std::string nameWhite,const std::string nameBlack, sf::RenderWindow& window);
 
   // metodi per accedere alle variabili private
   Board& getBoard();  // non posso copiare unique_ptr
   Color getPlayerTurn();
   bool getGameOver();
-  Player getPlayer(Color color);
+  const Player& getPlayer(Color color); //non mi serve una copia, voglio solo leggere
   int getFiftyMovesCounter();
 
   // metodi per modificare le variabili private
   void setPlayerTurn(Color color);
   void setGameOver(bool p);
-  void setPlayerWinner(Player player);
+  void setPlayerWinner(const Player& player);
   void addMovesCounter();
   void resetMovesCounter();
 
   // funzioni per il movimento pezzi (IMPLEMENTARE TEST)
   bool rightStarting(Point from);  // ho tolto i throw
   bool rightArrival(Point to);     // ho tolto i throw
-  bool validMove(Point from, Point to, Board& board);
+  bool validMove(Point from, Point to, const Board& board);
 
   // funzioni per promozione (IMPLEMENTARE TEST)
   Name pieceToPromote();
@@ -55,9 +55,9 @@ class Game {
   void executeEnPassant(Point from, Point to);  // esegue l'enPassant
 
   // funzioni per lo scacco
-  bool isChecking(Point p, Color color, Board& board);
-  bool isCellAttached(Point p, Color color, Board& board);
-  bool isCheck(Color color, Board& board);  // color è sotto scacco?
+  bool isChecking(Point p, Color color, const Board& board);
+  bool isCellAttached(Point p, Color color, const Board& board);
+  bool isCheck(Color color, const Board& board);  // color è sotto scacco?
   bool createCheck(Point from, Point to);   // questa mossa genera uno scacco?
 
   // funzione definitiva

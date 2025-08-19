@@ -17,7 +17,7 @@ Board::Board(sf::RenderWindow& window) : window_(window) {
 }
 
 // clona la board attuale
-Board Board::cloneBoard(Board& other_board) {
+Board Board::cloneBoard(const Board& other_board) {
   Board temporary_board(other_board.window_);
   for (std::size_t c = 0; c < 8; ++c) {
     for (std::size_t r = 0; r < 8; ++r) {
@@ -128,7 +128,7 @@ void Board::drawPieces() {
 void Board::clearPieceAt(Point x) { board[x.c][x.r] = nullptr; }
 
 ////////// Movimento dei pezzi
-Piece* Board::selectPiece(Point p) {
+Piece* Board::selectPiece(Point p) const {
   if (p.c < 0 or p.c >= 8 or p.r < 0 or p.r >= 8) {
     throw std::runtime_error{"Point out of board"};
   } else if (board[static_cast<std::size_t>(p.c)]
@@ -159,7 +159,7 @@ void Board::movePiece(Point from, Point to) {
 }
 /////////
 /////////// Controllo della scacchiera (clearPath e kingPosition)
-bool Board::clearPath(Point from, Point to) {
+bool Board::clearPath(Point from, Point to) const {
   if (from.r == to.r) {
     return clearOrizzontalPath(from, to);
   } else if (from.c == to.c) {
@@ -170,7 +170,7 @@ bool Board::clearPath(Point from, Point to) {
   return true;
 }
 
-bool Board::clearOrizzontalPath(Point from, Point to) {
+bool Board::clearOrizzontalPath(Point from, Point to) const {
   int x = (to.c - from.c > 0) ? +1 : -1;
   for (int column = from.c + x; column != to.c; column += x) {
     Point p{column, to.r};
@@ -181,7 +181,7 @@ bool Board::clearOrizzontalPath(Point from, Point to) {
   return true;
 }
 
-bool Board::clearVerticalPath(Point from, Point to) {
+bool Board::clearVerticalPath(Point from, Point to) const {
   int y = (to.r - from.r > 0) ? +1 : -1;
   for (int row = from.r + y; row != to.r; row += y) {
     Point p{to.c, row};
@@ -192,7 +192,7 @@ bool Board::clearVerticalPath(Point from, Point to) {
   return true;
 }
 
-bool Board::clearDiagonalPath(Point from, Point to) {
+bool Board::clearDiagonalPath(Point from, Point to) const {
   int x = (to.c - from.c > 0) ? +1 : -1;
   int y = (to.r - from.r > 0) ? +1 : -1;
   int column = from.c + x;
@@ -209,7 +209,7 @@ bool Board::clearDiagonalPath(Point from, Point to) {
 }
 
 // restituisce la posizione del re, ma potrebbe essere migliorata
-Point Board::kingPosition(Color color) {
+Point Board::kingPosition(Color color) const {
   for (int c{0}; c < 8; ++c) {
     for (int r{0}; r < 8; ++r) {
       Piece* piece = selectPiece({c, r});
@@ -222,16 +222,16 @@ Point Board::kingPosition(Color color) {
   throw std::runtime_error("King not found on the board");
 }
 
-bool Board::isCastling(Point p_from, Point p_to) {
+bool Board::isCastling(Point p_from, Point p_to) const {
   Piece* king = selectPiece(p_from);
   if (king && !king->getMoved()) {
-      return (abs(p_to.c - p_from.c) == 2);
-}
+    return (abs(p_to.c - p_from.c) == 2);
+  }
   return false;
 }
 
 // riconosce se la mossa appena compiuta ha portato un pedone a promozione
-bool Board::isPromotion(Point from, Point to) {
+bool Board::isPromotion(Point from, Point to) const {
   Piece* piece = selectPiece(from);
   if (piece != nullptr && piece->getName() == pawn) {
     return ((piece->getColor() == White && to.r == 0) ||

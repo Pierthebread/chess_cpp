@@ -17,7 +17,7 @@ Game::Game(std::string nameWhite, std::string nameBlack,
 Board& Game::getBoard() { return board_; }
 bool Game::getGameOver() { return gameOver_; }
 Color Game::getPlayerTurn() { return playerTurn_; }
-Player Game::getPlayer(Color color) {
+const Player& Game::getPlayer(Color color) {
   return (color == White) ? whitePlayer_ : blackPlayer_;
 }
 int Game::getFiftyMovesCounter() { return fifty_movescounter_; }
@@ -53,7 +53,7 @@ bool Game::rightArrival(Point to) {
   return false;
 }
 
-bool Game::validMove(Point from, Point to, Board& board) {
+bool Game::validMove(Point from, Point to, const Board& board) {
   Piece* piece = board.selectPiece(from);
 
   if (!rightArrival(to)) {
@@ -84,7 +84,7 @@ bool Game::validMove(Point from, Point to, Board& board) {
 
 //////// funzioni per lo scacco
 // è scacco per il colore selezionato?
-bool Game::isCheck(Color color, Board& board) {
+bool Game::isCheck(Color color, const Board& board) {
   Point king_pos = board.kingPosition(color);
   return isCellAttached(king_pos, color, board);
 }
@@ -101,7 +101,7 @@ bool Game::createCheck(Point from, Point to) {
   return createCheck;
 }
 
-bool Game::isCellAttached(Point p, Color color, Board& board) {
+bool Game::isCellAttached(Point p, Color color, const Board& board) {
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
       Piece* piece = board.selectPiece({c, r});
@@ -299,7 +299,7 @@ bool Game::isCheckmate(Color color) {
 
 // Materiale insufficiente: re contro re, re contro re e pezzo leggero, re e p.l
 // contro re e p.l, re contro due cavalli
-//bool Game::insufficientMaterial() {
+// bool Game::insufficientMaterial() {
 //  for (int i = 0; i < 8; ++i) {
 //    for (int j = 0; j < 8; ++j) {
 //      Piece* piece = board_.selectPiece({i, j});
@@ -325,10 +325,10 @@ void Game::checkGameOver() {
       std::cout << "Draw by stalemate" << '\n';
     }
   }
-  //if (insufficientMaterial()) {
-  //  // Draw by insufficient material
-  //  std::cout << "Draw by insufficient material" << '\n';
-  //}
+  // if (insufficientMaterial()) {
+  //   // Draw by insufficient material
+  //   std::cout << "Draw by insufficient material" << '\n';
+  // }
   if (isFiftyMoves()) {
     std::cout << "Draw by fiftyMoves rule" << '\n';
   }
