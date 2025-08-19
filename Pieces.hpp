@@ -1,9 +1,8 @@
 #ifndef PIECES_HPP
 #define PIECES_HPP
 
-#include <assert.h>
-
 #include <SFML/Graphics.hpp>
+#include <cassert>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -29,6 +28,10 @@ class Piece {
   bool moved_{false};
   sf::Texture texture_;
   sf::Sprite sprite_;
+
+  static inline void assertInRange(Point p) {
+    assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
+  }
 
  public:
   // costruttore

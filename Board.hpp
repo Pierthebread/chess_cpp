@@ -17,6 +17,10 @@ class Board {
   sf::RectangleShape cellWhite_;
   sf::RectangleShape cellBlack_;
 
+  static inline void assertInRange(Point p) {
+    assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
+  }
+
  public:
   // Costruttore
   Board(sf::RenderWindow& window);
