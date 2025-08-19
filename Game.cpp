@@ -17,7 +17,7 @@ Game::Game(std::string nameWhite, std::string nameBlack,
 Board& Game::getBoard() { return board_; }
 bool Game::getGameOver() { return gameOver_; }
 Color Game::getPlayerTurn() { return playerTurn_; }
-Player Game::getPlayer(Color color) {
+const Player& Game::getPlayer(Color color) {
   return (color == White) ? whitePlayer_ : blackPlayer_;
 }
 int Game::getFiftyMovesCounter() { return fifty_movescounter_; }
@@ -53,7 +53,7 @@ bool Game::rightArrival(Point to) {
   return false;
 }
 
-bool Game::validMove(Point from, Point to, Board& board) {
+bool Game::validMove(Point from, Point to, const Board& board) {
   Piece* piece = board.selectPiece(from);
 
   if (!rightArrival(to)) {
@@ -84,25 +84,9 @@ bool Game::validMove(Point from, Point to, Board& board) {
 
 //////// funzioni per lo scacco
 // è scacco per il colore selezionato?
-bool Game::isCheck(Color color, Board& board) {
+bool Game::isCheck(Color color, const Board& board) {
   Point king_pos = board.kingPosition(color);
-  for (int c = 0; c < 8; ++c) {
-    for (int r = 0; r < 8; ++r) {
-      Piece* piece = board.selectPiece({c, r});
-      if (piece && piece->getColor() != color) {
-        if (piece->getName() != pawn &&
-            piece->validPieceMove({c, r}, king_pos) &&
-            board.clearPath({c, r}, king_pos)) {
-          return true;
-        }
-        if (piece->getName() == pawn &&
-            piece->validPieceMove({c, r}, king_pos) && c != king_pos.c) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
+  return isCellAttached(king_pos, color, board);
 }
 
 // la mossa genera uno scacco a se stessi?
@@ -117,6 +101,25 @@ bool Game::createCheck(Point from, Point to) {
   return createCheck;
 }
 
+bool Game::isCellAttached(Point p, Color color, const Board& board) {
+  for (int c = 0; c < 8; ++c) {
+    for (int r = 0; r < 8; ++r) {
+      Piece* piece = board.selectPiece({c, r});
+      if (piece && piece->getColor() != color) {
+        if (piece->getName() != pawn && piece->validPieceMove({c, r}, p) &&
+            board.clearPath({c, r}, p)) {
+          return true;
+        }
+        if (piece->getName() == pawn && piece->validPieceMove({c, r}, p) &&
+            c != p.c) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 //// funzioni per arrocco
 bool Game::isCastlingValid(Point from, Point to) {
   int rook_c = (to.c == 2) ? 0 : 7;
@@ -125,8 +128,15 @@ bool Game::isCastlingValid(Point from, Point to) {
   if (!rook_pos || rook_pos->getName() != rook || rook_pos->getMoved()) {
     return false;
   }
-  if (!board_.clearPath(from, to)) {
+  if (!board_.clearPath(from, {rook_c, to.r})) {
     return false;
+  }
+  int step = (to.c < from.c) ? -1 : 1;
+  for (int x = from.c; x != to.c + step; x += step) {
+    Point checkCell{x, from.r};
+    if (isCellAttached(checkCell, rook_pos->getColor(), board_)) {
+      return false;
+    }
   }
   return true;
 }
@@ -145,6 +155,7 @@ void Game::executeCastling(Point from, Point to) {
     board_.movePiece({7, row}, {5, row});  // Muove la torre destra
     board_.selectPiece({5, row})->setMoved(true);
   }
+  board_.selectPiece(to)->setMoved(true);
 }
 
 //////// funzioni per enPassant
@@ -292,68 +303,18 @@ bool Game::isCheckmate(Color color) {
   return (isCheck(color, board_) && !canMove(color));
 }
 
-// Patta per materiale insufficiente, lunghissima e da controllare
+// Materiale insufficiente: re contro re, re contro re e pezzo leggero, re e p.l
+// contro re e p.l, re contro due cavalli
 bool Game::insufficientMaterial() {
-    int whitePieces = 0, blackPieces = 0;
-    int whiteKnights = 0, blackKnights = 0;
-    bool whiteHasBishop = false, blackHasBishop = false;
-    bool whiteHasDarkSquaredBishop = false, whiteHasLightSquaredBishop = false;
-    bool blackHasDarkSquaredBishop = false, blackHasLightSquaredBishop = false;
-
-    for (int i = 0; i < 8; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            Piece* piece = board_.selectPiece({i, j});
-            if (!piece) continue; // Casella vuota
-
-            Color color = piece->getColor();
-            Name name = piece->getName();
-
-            // Se c'è una donna, torre o pedone, il materiale NON è insufficiente
-            if (name == queen || name == rook || name == pawn) {
-                return false;
-            }
-
-            if (color == White) {
-                whitePieces++;
-                if (name == knight) whiteKnights++;
-                else if (name == bishop) {
-                    whiteHasBishop = true;
-                    // Controlla se l'alfiere è su casella chiara o scura
-                    if ((i + j) % 2 == 0) whiteHasDarkSquaredBishop = true;
-                    else whiteHasLightSquaredBishop = true;
-                }
-            } else { // Black
-                blackPieces++;
-                if (name == knight) blackKnights++;
-                else if (name == bishop) {
-                    blackHasBishop = true;
-                    if ((i + j) % 2 == 0) blackHasDarkSquaredBishop = true;
-                    else blackHasLightSquaredBishop = true;
-                }
-            }
-        }
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 8; ++j) {
+      Piece* piece = board_.selectPiece({i, j});
+      if (piece != nullptr or piece->getName() != king) {
+        return false;
+      }
+      return true;
     }
-
-    // Caso 1: Solo i due re → patta
-    if (whitePieces == 1 && blackPieces == 1) {
-        return true;
-    }
-
-    // Caso 2: Re + cavallo/alfiere vs Re → patta
-    if ((whitePieces == 1 && blackPieces == 2 && (blackKnights == 1 || blackHasBishop)) ||
-        (blackPieces == 1 && whitePieces == 2 && (whiteKnights == 1 || whiteHasBishop))) {
-        return true;
-    }
-
-    // Caso 3: Re + alfiere vs Re + alfiere (stesso colore degli alfieri) → patta
-    if (whitePieces == 2 && blackPieces == 2 && whiteHasBishop && blackHasBishop) {
-        if ((whiteHasLightSquaredBishop && blackHasLightSquaredBishop) ||
-            (whiteHasDarkSquaredBishop && blackHasDarkSquaredBishop)) {
-            return true;
-        }
-    }
-
-    return false;
+  }
 }
 
 void Game::checkGameOver() {
@@ -370,10 +331,10 @@ void Game::checkGameOver() {
       std::cout << "Draw by stalemate" << '\n';
     }
   }
-  if (insufficientMaterial()) {
-    // Draw by insufficient material
-    std::cout << "Draw by insufficient material" << '\n';
-  }
+  // if (insufficientMaterial()) {
+  //   // Draw by insufficient material
+  //   std::cout << "Draw by insufficient material" << '\n';
+  // }
   if (isFiftyMoves()) {
     std::cout << "Draw by fiftyMoves rule" << '\n';
   }

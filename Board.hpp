@@ -19,12 +19,16 @@ class Board {
   sf::RectangleShape cellWhite_;
   sf::RectangleShape cellBlack_;
 
+  static inline void assertInRange(Point p) {
+    assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
+  }
+
  public:
   // Costruttore
   Board(sf::RenderWindow& window);
 
   // clone board
-  Board cloneBoard(Board& other_board);
+  Board cloneBoard(const Board& other_board);
 
   // Crea il pezzo indicato e lo fa puntare dal puntatore indicato
   void setPiece(Name type, Color color, Point p);
@@ -38,20 +42,21 @@ class Board {
   void drawBoard();
 
   // Movimento dei pezzi
-  Piece* selectPiece(Point p) const;  // resistuisce un puntatore data la posizione
+  Piece* selectPiece(
+      Point p) const;  // resistuisce un puntatore data la posizione
   void movePiece(Point from, Point to);  // muovo un pezzo
 
   // mosse speciali
-  bool isPromotion(Point to, Point from);
+  bool isPromotion(Point to, Point from) const;
   void promote(Point p_pawn, Name piece, Color color);
-  bool isCastling(Point p_from, Point p_to);
+  bool isCastling(Point p_from, Point p_to) const;
 
   // controllo della scacchiera
-  bool clearPath(Point from, Point to);
-  bool clearOrizzontalPath(Point p_from, Point p_to);
-  bool clearVerticalPath(Point r_from, Point r_to);
-  bool clearDiagonalPath(Point p_from, Point p_to);
-  Point kingPosition(Color color);
+  bool clearPath(Point from, Point to) const;
+  bool clearOrizzontalPath(Point p_from, Point p_to) const;
+  bool clearVerticalPath(Point r_from, Point r_to) const;
+  bool clearDiagonalPath(Point p_from, Point p_to) const;
+  Point kingPosition(Color color) const;
 };
 
 #endif

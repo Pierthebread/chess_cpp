@@ -11,10 +11,10 @@ class Player {
 
  public:
   // costruttore
-  Player(std::string name, Color color);
+  Player(const std::string& name, Color color);
 
   // metodi per accedere alle variabili private
-  const std::string getName();
+  const std::string& getName();
   Color getColor();
   int getMoves();
 
