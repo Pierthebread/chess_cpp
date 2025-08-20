@@ -16,6 +16,10 @@ Game::Game(std::string nameWhite, std::string nameBlack,
     throw std::invalid_argument(
         "I nomi dei giocatori non possono essere vuoti");
   }
+  if (nameWhite == nameBlack) {
+    throw std::invalid_argument(
+        "I nomi dei giocatori non possono essere uguali");
+  }
 }
 
 // metodi per accedere alle variabili private
@@ -110,12 +114,16 @@ bool Game::validMove(Point from, Point to, const Board& board) {
 //////// funzioni per lo scacco
 // è scacco per il colore selezionato?
 bool Game::isCheck(Color color, const Board& board) {
+  assert(color == White || color == Black);
   Point king_pos = board.getKingPosition(color);
+  assert(board.selectPiece(king_pos)->getName()==king);
   return isCellAttached(king_pos, color, board);
 }
 
 // la mossa genera uno scacco a se stessi?
 bool Game::createCheck(Point from, Point to) {
+  assertInRange_Game(from);
+  assertInRange_Game(to);
   Piece* piece = board_.selectPiece(from);  // pezzo che voglio spostare
   if (!piece) {
     return false;
@@ -258,7 +266,7 @@ Name Game::pieceToPromote() {
 // funzioni per il movimento dei pezzi
 void Game::executeMove(Point from, Point to) {
   Piece* piece{board_.selectPiece(from)};
-  Name Name_piece{piece->getName()};
+  Name name_piece{piece->getName()};
   Piece* captured{board_.selectPiece(to)};
   bool ate;
 
@@ -267,7 +275,7 @@ void Game::executeMove(Point from, Point to) {
   }
 
   bool moveExecuted{false};
-  
+
   // ARROCCO
   if (board_.isCastling(from, to) && isCastlingValid(from, to)) {
     executeCastling(from, to);
@@ -292,7 +300,7 @@ void Game::executeMove(Point from, Point to) {
   }
   if (moveExecuted) {
     setEnPassantTarget(from, to);
-    if (ate || piece->getName() == pawn) {
+    if (ate || name_piece == pawn) {
       resetMovesCounter();
     } else {
       addMovesCounter();
@@ -416,9 +424,11 @@ void Game::checkGameOver() {
   }
   if (insufficientMaterial()) {
     // Draw by insufficient material
+    setGameOver(true);
     std::cout << "Draw by insufficient material" << '\n';
   }
   if (isFiftyMoves()) {
+    setGameOver(true);
     std::cout << "Draw by fiftyMoves rule" << '\n';
   }
 }

@@ -2,6 +2,7 @@
 
 int main() {
   try {
+    /*
     std::string name1;
     std::string name2;
 
@@ -13,9 +14,10 @@ int main() {
     std::getline(std::cin, name2);
     Player blackPlayer(name2, Color::Black);
 
-    std::cout << whitePlayer.getName() << " Player 1 is white" << '\n';
-    std::cout << blackPlayer.getName() << " Player 2 is black" << '\n';
-    
+    std::cout << name1 << " is white" << '\n';
+    std::cout << name2 << " is black" << '\n';
+    */
+
     sf::RenderWindow window(sf::VideoMode(640, 640), "Chess");
     window.setFramerateLimit(60);
 
@@ -44,12 +46,17 @@ int main() {
               firstClick = false;
             }
           } else {
-            if (game.rightArrival({c, r})) {
+            if (game.rightArrival({c, r}) && starting_cell != Point{c, r}) {
               arrival_cell = {c, r};
               game.executeMove(starting_cell, arrival_cell);
               game.checkGameOver();
               firstClick = true;
-              std::cout << game.getGameOver() << std::endl;
+              if (game.getGameOver()) {
+                window.close();
+              }
+            }
+            else {
+            firstClick = true;
             }
           }
         }

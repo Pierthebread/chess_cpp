@@ -1,5 +1,4 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "Board.hpp"
 #include "Game.hpp"
 #include "doctest.h"
 
@@ -289,31 +288,29 @@ TEST_CASE("Testing isCastling") {
   }
 };
 
-/*
 // test Game
 TEST_CASE("Testing  rightStarting") {
-  Game game(std::string("nameWhite"), std::string("nameWhite"));
-  game.getBoard().setPiece(rook, White, {A, 0});
-  game.getBoard().setPiece(queen, Black, {B, 7});
+  sf::RenderWindow window;
+  Game game(std::string("nameWhite"), std::string("nameWhite"), window);
+  game.getBoard().setPiece(rook, White, {0, 0});
+  game.getBoard().setPiece(queen, Black, {1, 7});
 
-  SUBCASE("Testing rightStarting true ") {
-    CHECK(game.rightStarting({A, 0}) == true);
-    game.setPlayerTurn_(Black);
+  SUBCASE("Testing rightStarting") {
+    CHECK(game.getPlayerTurn() == White);
+    CHECK(game.rightStarting({0, 0}) == true);
+    CHECK(game.rightStarting({1, 7}) == false);
+    CHECK(game.rightStarting({2, 7}) == false);
+    CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
+    game.setPlayerTurn(Black);
     CHECK(game.getPlayerTurn() == Black);
-    CHECK(game.rightStarting({B, 7}) == true);
-  }
-
-  SUBCASE("Testing rightStarting false") {
-    CHECK(game.rightStarting({B, 7}) == false);
-    CHECK(game.rightStarting({C, 7}) == false);
-    // CHECK_THROWS_AS(game.rightStarting({C, 7}), std::runtime_error);
-
-    game.setPlayerTurn_(Black);
-    CHECK(game.rightStarting({A, 0}) == false);
-    CHECK(game.rightStarting({C, 7}) == false);
-    // CHECK_THROWS_AS(game.rightStarting({C, 7}), std::runtime_error);
+    CHECK(game.rightStarting({1, 7}) == true);
+    CHECK(game.rightStarting({0, 0}) == false);
+    CHECK(game.rightStarting({2, 7}) == false);
+    CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
   }
 }
+
+/*
 TEST_CASE("Testing  rightArrival") {
   Game game("nameWhite", "nameWhite");
   game.getBoard().setPiece(rook, White, {A, 0});
@@ -615,6 +612,7 @@ TEST_SUITE("Test validMove") {
 }
 
 */
+
 // TEST_CASE("Testing checkmate") {
 //   sf::RenderWindow window;
 //   Game game("Tizio 1", "Tizio 2", window);
