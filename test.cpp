@@ -70,13 +70,15 @@ TEST_CASE("Testing board") {
     std::array<Name, 8> firstRow = {rook, knight, bishop, queen,
                                     king, bishop, knight, rook};
     for (int i{0}; i < 8; ++i) {
-      CHECK(board.selectPiece({i, 0})->getName() == firstRow[i]);
+      CHECK(board.selectPiece({i, 0})->getName() ==
+            firstRow[static_cast<std::size_t>(i)]);
       CHECK(board.selectPiece({i, 0})->getColor() == Black);
       CHECK(board.selectPiece({i, 1})->getName() == pawn);
       CHECK(board.selectPiece({i, 1})->getColor() == Black);
     }
     for (int i{0}; i < 8; ++i) {
-      CHECK(board.selectPiece({i, 7})->getName() == firstRow[i]);
+      CHECK(board.selectPiece({i, 7})->getName() ==
+            firstRow[static_cast<std::size_t>(i)]);
       CHECK(board.selectPiece({i, 7})->getColor() == White);
       CHECK(board.selectPiece({i, 6})->getName() == pawn);
       CHECK(board.selectPiece({i, 6})->getColor() == White);
@@ -169,6 +171,7 @@ TEST_CASE("Testing clearPath") {
     CHECK(board.clearPath({0, 0}, {4, 4}) == true);
   }
 
+  // more testing
   board.setPiece(king, White, {0, 2});
   board.setPiece(pawn, Black, {1, 6});
   board.setPiece(bishop, White, {2, 3});
@@ -259,49 +262,67 @@ TEST_CASE("Testing kingPosition") {
 
 // FINISCO IO QUESTI CASI
 
-TEST_CASE("Testing isPromotion"){};
-TEST_CASE("Testing promote"){};
-TEST_CASE("Testing isCastling"){};
-
 // FINISCO IO QUESTI CASI
 
 // COMPILA E RUNNA I TEST E OSSERVA IL TEST CHE FALLISCE, POI CHIAMAMI PER
 // PARLARNE.
 
-/*
-
 TEST_CASE("Testing isPromotion and Promote") {
-  Board board;
-  board.setPiece(pawn, Black, {A, 6});
-  board.setPiece(pawn, White, {A, 1});
+  sf::RenderWindow window;
+  Board board(window);
+  board.setPiece(pawn, Black, {0, 6});
+  board.setPiece(pawn, White, {0, 1});
+  board.setPiece(queen, White, {4, 4});
 
   SUBCASE("Testing isPromotion") {
-    CHECK(board.isPromotion({A, 1}, {A, 0}) == true);
-    CHECK(board.isPromotion({A, 1}, {A, 2}) == false);
-    CHECK(board.isPromotion({A, 6}, {A, 7}) == true);
-    CHECK(board.isPromotion({A, 6}, {A, 5}) == false);
-    CHECK(board.isPromotion({A, 4}, {A, 5}) == false);
-    CHECK(board.isPromotion({A, 6}, {A, 0}) == false);
-    CHECK(board.isPromotion({A, 1}, {A, 7}) == false);
+    CHECK(board.isPromotion({0, 1}, {0, 0}) == true);
+    CHECK(board.isPromotion({0, 1}, {0, 2}) == false);
+    CHECK(board.isPromotion({0, 6}, {0, 7}) == true);
+    CHECK(board.isPromotion({0, 6}, {0, 5}) == false);
+    CHECK(board.isPromotion({0, 4}, {0, 5}) == false);
+    CHECK(board.isPromotion({0, 6}, {0, 0}) == false);
+    CHECK(board.isPromotion({0, 1}, {0, 7}) == false);
+    CHECK(board.isPromotion({4, 4}, {0, 0}) == false);
   }
-
   SUBCASE("Testing promote") {
-    board.movePiece({A, 1}, {A, 0});  // white
-    board.promote({A, 0}, rook);
-    board.movePiece({A, 6}, {A, 7});  // black
-    board.promote({A, 7}, queen);
-    CHECK(board.selectPiece({A, 0})->getName() == rook);
-    CHECK(board.selectPiece({A, 0})->getColor() == White);
-    CHECK(board.selectPiece({A, 7})->getName() == queen);
-    CHECK(board.selectPiece({A, 7})->getColor() == Black);
-    CHECK_THROWS(board.promote({A, 4}, queen));
-    CHECK_THROWS(board.promote({A, 0}, king));
-    CHECK(board.selectPiece({A, 1}) == nullptr);
+    board.movePiece({0, 1}, {0, 0});  // white
+    board.promote({0, 0}, rook, White);
+    board.movePiece({0, 6}, {0, 7});  // black
+    board.promote({0, 7}, queen, Black);
+    CHECK(board.selectPiece({0, 0})->getName() == rook);
+    CHECK(board.selectPiece({0, 0})->getColor() == White);
+    CHECK(board.selectPiece({0, 7})->getName() == queen);
+    CHECK(board.selectPiece({0, 7})->getColor() == Black);
+    CHECK(board.selectPiece({0, 1}) == nullptr);
   }
 };
 
+TEST_CASE("Testing isCastling") {
+  sf::RenderWindow window;
+  Board board(window);
+  board.setPiece(king, White, {4, 7});
+  board.setPiece(rook, Black, {4, 0});
 
+  SUBCASE("Testing isCastling true") {
+    CHECK(board.isCastling({4, 7}, {2, 7}) == true);
+    CHECK(board.isCastling({4, 7}, {6, 7}) == true);
+    CHECK(board.isCastling({4, 0}, {2, 0}) == true);
+    CHECK(board.isCastling({4, 0}, {6, 0}) == true);
+  }
+  SUBCASE("Testing isCastling false") {
+    CHECK(board.isCastling({4, 7}, {5, 7}) == false);
+    CHECK(board.isCastling({4, 0}, {3, 7}) == false);
+    CHECK(board.isCastling({5, 7}, {3, 7}) == false);
+  }
+  SUBCASE("Testing isCastling with king->getMoved() true") {
+    board.movePiece({4, 7}, {4, 6});
+    board.movePiece({4, 0}, {5, 0});
+    CHECK(board.isCastling({4, 6}, {2, 7}) == false);
+    CHECK(board.isCastling({5, 0}, {7, 0}) == false);
+  }
+};
 
+/*
 // test Game
 TEST_CASE("Testing  rightStarting") {
   Game game(std::string("nameWhite"), std::string("nameWhite"));
