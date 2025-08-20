@@ -9,6 +9,8 @@
 
 enum castleType { Long, Short };
 
+constexpr float CELL_SIZE = 80.0f;
+
 class Board {
   std::array<std::array<std::unique_ptr<Piece>, 8>, 8> board;
 
