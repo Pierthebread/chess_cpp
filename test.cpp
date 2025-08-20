@@ -212,14 +212,14 @@ TEST_CASE("Testing clearPath") {
     CHECK(board.clearVerticalPath({B, 5}, {B, 6}) == true);
     CHECK(board.clearPath({B, 5}, {B, 6}) == true);
   }
-  SUBCASE("Testing clearOrizzontalPath false") {
-    CHECK(board.clearOrizzontalPath({A, 6}, {D, 6}) == false);
+  SUBCASE("Testing clearHorizontalPath false") {
+    CHECK(board.clearHorizontalPath({A, 6}, {D, 6}) == false);
     CHECK(board.clearPath({A, 6}, {D, 6}) == false);
   }
-  SUBCASE("Testing clearOrizzontalPath true") {
-    CHECK(board.clearOrizzontalPath({B, 5}, {E, 5}) == true);
+  SUBCASE("Testing clearHorizontalPath true") {
+    CHECK(board.clearHorizontalPath({B, 5}, {E, 5}) == true);
     CHECK(board.clearPath({B, 5}, {E, 5}) == true);
-    CHECK(board.clearOrizzontalPath({B, 6}, {D, 6}) == true);
+    CHECK(board.clearHorizontalPath({B, 6}, {D, 6}) == true);
     CHECK(board.clearPath({B, 6}, {D, 6}) == true);
   }
   SUBCASE("Testing clearDiagonalPath false") {
@@ -246,14 +246,14 @@ TEST_CASE("Testing clearPath") {
     CHECK(board.clearVerticalPath({B, 5}, {B, 6}) == true);
     CHECK(board.clearPath({B, 5}, {B, 6}) == true);
   }
-  SUBCASE("Testing clearOrizzontalPath false") {
-    CHECK(board.clearOrizzontalPath({A, 6}, {D, 6}) == false);
+  SUBCASE("Testing clearHorizontalPath false") {
+    CHECK(board.clearHorizontalPath({A, 6}, {D, 6}) == false);
     CHECK(board.clearPath({A, 6}, {D, 6}) == false);
   }
-  SUBCASE("Testing clearOrizzontalPath true") {
-    CHECK(board.clearOrizzontalPath({B, 5}, {E, 5}) == true);
+  SUBCASE("Testing clearHorizontalPath true") {
+    CHECK(board.clearHorizontalPath({B, 5}, {E, 5}) == true);
     CHECK(board.clearPath({B, 5}, {E, 5}) == true);
-    CHECK(board.clearOrizzontalPath({B, 6}, {D, 6}) == true);
+    CHECK(board.clearHorizontalPath({B, 6}, {D, 6}) == true);
     CHECK(board.clearPath({B, 6}, {D, 6}) == true);
   }
   SUBCASE("Testing clearDiagonalPath false") {

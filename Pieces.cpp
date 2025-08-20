@@ -1,11 +1,10 @@
 #include "Pieces.hpp"
 
-bool operator==(Point lp, Point rp) { return lp.c == rp.c && lp.r == rp.r; }
-// bool operator!=(const Point& lp, const Point& rp) {
-//   // assert(lp.c >= 0 && lp.c < 8 && lp.r >= 0 && lp.r < 8);
-//   // assert(rp.c >= 0 && rp.c < 8 && rp.r >= 0 && rp.r < 8);
-//   return lp.c != rp.c || lp.r != rp.r;
-// }
+bool operator==(Point lp, Point rp) {
+  assert(lp.c >= 0 && lp.c < 8 && lp.r >= 0 && lp.r < 8);
+  assert(rp.c >= 0 && rp.c < 8 && rp.r >= 0 && rp.r < 8);
+  return lp.c == rp.c && lp.r == rp.r;
+}
 
 // LA CLASSE MADRE
 // Costructor
@@ -45,8 +44,8 @@ King::King(Color color) : Piece(king, color) { loadTexture(); };
 
 // le mosse del re
 bool King::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange(cell_from);
-  assertInRange(cell_to);
+  assertInRange_Pieces(cell_from);
+  assertInRange_Pieces(cell_to);
 
   int delta_column{abs(cell_from.c - cell_to.c)};
   int delta_row{abs(cell_from.r - cell_to.r)};
@@ -70,8 +69,8 @@ Queen::Queen(Color color) : Piece(queen, color) { loadTexture(); };
 
 // le mosse della regina
 bool Queen::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange(cell_from);
-  assertInRange(cell_to);
+  assertInRange_Pieces(cell_from);
+  assertInRange_Pieces(cell_to);
 
   int delta_column{
       abs(cell_from.c - cell_to.c)};  // per muoversi in diagonale colonna
@@ -102,8 +101,8 @@ Knight::Knight(Color color) : Piece(knight, color) { loadTexture(); };
 
 // le mosse del cavallo
 bool Knight::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange(cell_from);
-  assertInRange(cell_to);
+  assertInRange_Pieces(cell_from);
+  assertInRange_Pieces(cell_to);
 
   int delta_column{abs(cell_from.c - cell_to.c)};
   int delta_row{abs(cell_from.r - cell_to.r)};
@@ -127,8 +126,8 @@ Bishop::Bishop(Color color) : Piece(bishop, color) { loadTexture(); };
 
 // le mosse dell'alfiere
 bool Bishop::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange(cell_from);
-  assertInRange(cell_to);
+  assertInRange_Pieces(cell_from);
+  assertInRange_Pieces(cell_to);
 
   int delta_column{abs(cell_from.c - cell_to.c)};
   int delta_row{abs(cell_from.r - cell_to.r)};
@@ -152,8 +151,8 @@ Rook::Rook(Color color) : Piece(rook, color) { loadTexture(); };
 
 // le mosse della torre
 bool Rook::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange(cell_from);
-  assertInRange(cell_to);
+  assertInRange_Pieces(cell_from);
+  assertInRange_Pieces(cell_to);
 
   return cell_from.r == cell_to.r || cell_from.c == cell_to.c;
 };
@@ -174,8 +173,8 @@ Pawn::Pawn(Color color) : Piece(pawn, color) { loadTexture(); };
 
 // le mosse del pedone
 bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange(cell_from);
-  assertInRange(cell_to);
+  assertInRange_Pieces(cell_from);
+  assertInRange_Pieces(cell_to);
 
   int direction = (color_ == White) ? +1 : -1;
 

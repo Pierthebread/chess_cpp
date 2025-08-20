@@ -11,28 +11,52 @@ Game::Game(std::string nameWhite, std::string nameBlack,
       blackPlayer_(nameBlack, Black),
       playerTurn_{White},
       gameOver_(false),
-      fifty_movescounter_(0) {}
+      fifty_movescounter_(0) {
+  if (nameWhite.empty() || nameBlack.empty()) {
+    throw std::invalid_argument(
+        "I nomi dei giocatori non possono essere vuoti");
+  }
+}
 
 // metodi per accedere alle variabili private
-Board& Game::getBoard() { return board_; }
+Board& Game::getBoard() {
+  assert(!gameOver_);
+  return board_;
+}
 bool Game::getGameOver() { return gameOver_; }
-Color Game::getPlayerTurn() { return playerTurn_; }
+Color Game::getPlayerTurn() {
+  assert(!gameOver_);
+  return playerTurn_;
+}
 const Player& Game::getPlayer(Color color) {
+  assert(color == White || color == Black);
   return (color == White) ? whitePlayer_ : blackPlayer_;
 }
-int Game::getFiftyMovesCounter() { return fifty_movescounter_; }
+int Game::getFiftyMovesCounter() {
+  assert(!gameOver_);
+  assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
+  return fifty_movescounter_;
+}
 
 // metodi per modificare variabili private
 void Game::switchTurn() {
+  assert(!gameOver_);
   playerTurn_ = (playerTurn_ == White) ? Black : White;
 }
 void Game::setGameOver(bool the_end) { gameOver_ = the_end; }
-void Game::addMovesCounter() { ++fifty_movescounter_; }
-void Game::resetMovesCounter() { fifty_movescounter_ = 0; }
+void Game::addMovesCounter() {
+  assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
+  ++fifty_movescounter_;
+}
+void Game::resetMovesCounter() {
+  assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
+  fifty_movescounter_ = 0;
+}
 
 // funzioni per il movimento pezzi
 bool Game::rightStarting(Point from) {
   Piece* piece_from = board_.selectPiece(from);
+  assertInRange_Game(from);
   if (!piece_from) {
     return false;
   }
@@ -44,6 +68,7 @@ bool Game::rightStarting(Point from) {
 
 bool Game::rightArrival(Point to) {
   Piece* piece_to = board_.selectPiece(to);
+  assertInRange_Game(to);
   if (!piece_to) {
     return true;
   }
@@ -54,6 +79,8 @@ bool Game::rightArrival(Point to) {
 }
 
 bool Game::validMove(Point from, Point to, const Board& board) {
+  assertInRange_Game(from);
+  assertInRange_Game(to);
   Piece* piece = board.selectPiece(from);
 
   if (!rightArrival(to)) {
@@ -65,11 +92,10 @@ bool Game::validMove(Point from, Point to, const Board& board) {
   } else if (!board.clearPath(from, to)) {
     return false;
   } else if (createCheck(from, to) == true) {
-    std::cout << "in questo modo ti poni in scacco" << '\n';
     return false;
   }
   if (piece->getName() == pawn) {
-    if (to == enPassantTarget_) {
+    if (to.c == enPassantTarget_.c && to.r == enPassantTarget_.r) {
       return true;
     }
     if (from.c == to.c && board.selectPiece(to)) {
@@ -85,7 +111,7 @@ bool Game::validMove(Point from, Point to, const Board& board) {
 //////// funzioni per lo scacco
 // è scacco per il colore selezionato?
 bool Game::isCheck(Color color, const Board& board) {
-  Point king_pos = board.kingPosition(color);
+  Point king_pos = board.getKingPosition(color);
   return isCellAttached(king_pos, color, board);
 }
 
@@ -94,7 +120,7 @@ bool Game::createCheck(Point from, Point to) {
   Piece* piece = board_.selectPiece(from);  // pezzo che voglio spostare
   if (!piece) {
     return false;
-  }  // potrebbe essere tolto forse
+  }
   Board temporary_board = board_.cloneBoard(board_);
   temporary_board.movePiece(from, to);
   bool createCheck = isCheck(piece->getColor(), temporary_board);
@@ -142,6 +168,7 @@ bool Game::isCastlingValid(Point from, Point to) {
 }
 
 void Game::executeCastling(Point from, Point to) {
+  assert(board_.isCastling(from, to));
   const int row = to.r;
   // Arrocco lungo (sinistra)
   if (to.c == 2) {
@@ -155,7 +182,9 @@ void Game::executeCastling(Point from, Point to) {
     board_.movePiece({7, row}, {5, row});  // Muove la torre destra
     board_.selectPiece({5, row})->setMoved(true);
   }
+  assert(board_.selectPiece(to)->getName() == king);
   board_.selectPiece(to)->setMoved(true);
+  board_.setKingPosition(board_.selectPiece(to)->getColor(), to);
 }
 
 //////// funzioni per enPassant
@@ -169,27 +198,24 @@ void Game::setEnPassantTarget(Point from, Point to) {
 }
 
 bool Game::isEnPassantValid(Point from, Point to) {
-  return (to == enPassantTarget_ && !board_.selectPiece(to) &&
+  return (to.c == enPassantTarget_.c && to.r == enPassantTarget_.r &&
+          !board_.selectPiece(to) &&
           board_.selectPiece(from)->validPieceMove(from, to));
 }
 
 void Game::executeEnPassant(Point from, Point to) {
-  board_.clearPieceAt({to.c, from.r});
+  board_.deletePiece({to.c, from.r});
   board_.movePiece(from, to);
 }
 
 // funzioni per la promotion
 
-
-
-
 void Game::executePromotion(Point from, Point to) {
   Name promotedPiece{pieceToPromote()};
   Color color{board_.selectPiece(from)->getColor()};
   board_.promote(to, promotedPiece, color);
-  board_.clearPieceAt(from);
+  board_.deletePiece(from);
 }
-
 
 Name Game::pieceToPromote() {
   int i{0};
@@ -230,11 +256,10 @@ Name Game::pieceToPromote() {
   return promotedPiece;
 }
 
-
-
 // funzioni per il movimento dei pezzi
 void Game::executeMove(Point from, Point to) {
   Piece* piece{board_.selectPiece(from)};
+  Name Name_piece{piece->getName()};
   Piece* captured{board_.selectPiece(to)};
   bool ate;
 
@@ -249,7 +274,8 @@ void Game::executeMove(Point from, Point to) {
     moveExecuted = true;
   }
   // EN PASSANT
-  else if (to == enPassantTarget_ && isEnPassantValid(from, to)) {
+  else if (to.c == enPassantTarget_.c && to.r == enPassantTarget_.r &&
+           isEnPassantValid(from, to)) {
     executeEnPassant(from, to);
     moveExecuted = true;
   }
@@ -271,6 +297,11 @@ void Game::executeMove(Point from, Point to) {
     } else {
       addMovesCounter();
     }
+    if (Name_piece == king) {
+      board_.setKingPosition(piece->getColor(), to);
+    }
+    std::cout << "posizione del re" << board_.getKingPosition(White).c << "  "
+              << board_.getKingPosition(White).r << '\n';
     switchTurn();
   }
 }
@@ -304,72 +335,80 @@ bool Game::isCheckmate(Color color) {
 }
 
 bool Game::insufficientMaterial() {
-    int whitePieces = 0, blackPieces = 0;
-    int whiteKnights = 0, blackKnights = 0;
-    bool whiteHasBishop = false, blackHasBishop = false;
-    bool whiteHasDarkSquaredBishop = false, whiteHasLightSquaredBishop = false;
-    bool blackHasDarkSquaredBishop = false, blackHasLightSquaredBishop = false;
+  int whitePieces = 0, blackPieces = 0;
+  int whiteKnights = 0, blackKnights = 0;
+  bool whiteHasBishop = false, blackHasBishop = false;
+  bool whiteHasDarkSquaredBishop = false, whiteHasLightSquaredBishop = false;
+  bool blackHasDarkSquaredBishop = false, blackHasLightSquaredBishop = false;
 
-    for (int i = 0; i < 8; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            Piece* piece = board_.selectPiece({i, j});
-            if (!piece) continue; // Casella vuota
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 8; ++j) {
+      Piece* piece = board_.selectPiece({i, j});
+      if (!piece) continue;  // Casella vuota
 
-            Color color = piece->getColor();
-            Name name = piece->getName();
+      Color color = piece->getColor();
+      Name name = piece->getName();
 
-            // Se c'è una donna, torre o pedone, il materiale NON è insufficiente
-            if (name == queen || name == rook || name == pawn) {
-                return false;
-            }
+      // Se c'è una donna, torre o pedone, il materiale NON è insufficiente
+      if (name == queen || name == rook || name == pawn) {
+        return false;
+      }
 
-            if (color == White) {
-                whitePieces++;
-                if (name == knight) whiteKnights++;
-                else if (name == bishop) {
-                    whiteHasBishop = true;
-                    // Controlla se l'alfiere è su casella chiara o scura
-                    if ((i + j) % 2 == 0) whiteHasDarkSquaredBishop = true;
-                    else whiteHasLightSquaredBishop = true;
-                }
-            } else { // Black
-                blackPieces++;
-                if (name == knight) blackKnights++;
-                else if (name == bishop) {
-                    blackHasBishop = true;
-                    if ((i + j) % 2 == 0) blackHasDarkSquaredBishop = true;
-                    else blackHasLightSquaredBishop = true;
-                }
-            }
+      if (color == White) {
+        whitePieces++;
+        if (name == knight)
+          whiteKnights++;
+        else if (name == bishop) {
+          whiteHasBishop = true;
+          // Controlla se l'alfiere è su casella chiara o scura
+          if ((i + j) % 2 == 0)
+            whiteHasDarkSquaredBishop = true;
+          else
+            whiteHasLightSquaredBishop = true;
         }
-    }
-
-    // Caso 1: Solo i due re → patta
-    if (whitePieces == 1 && blackPieces == 1) {
-        return true;
-    }
-
-    // Caso 2: Re + cavallo/alfiere vs Re → patta
-    if ((whitePieces == 1 && blackPieces == 2 && (blackKnights == 1 || blackHasBishop)) ||
-        (blackPieces == 1 && whitePieces == 2 && (whiteKnights == 1 || whiteHasBishop))) {
-        return true;
-    }
-
-    // Caso 3: Re + alfiere vs Re + alfiere (stesso colore degli alfieri) → patta
-    if (whitePieces == 2 && blackPieces == 2 && whiteHasBishop && blackHasBishop) {
-        if ((whiteHasLightSquaredBishop && blackHasLightSquaredBishop) ||
-            (whiteHasDarkSquaredBishop && blackHasDarkSquaredBishop)) {
-            return true;
+      } else {  // Black
+        blackPieces++;
+        if (name == knight)
+          blackKnights++;
+        else if (name == bishop) {
+          blackHasBishop = true;
+          if ((i + j) % 2 == 0)
+            blackHasDarkSquaredBishop = true;
+          else
+            blackHasLightSquaredBishop = true;
         }
+      }
     }
+  }
 
-    return false;
+  // Caso 1: Solo i due re → patta
+  if (whitePieces == 1 && blackPieces == 1) {
+    return true;
+  }
+
+  // Caso 2: Re + cavallo/alfiere vs Re → patta
+  if ((whitePieces == 1 && blackPieces == 2 &&
+       (blackKnights == 1 || blackHasBishop)) ||
+      (blackPieces == 1 && whitePieces == 2 &&
+       (whiteKnights == 1 || whiteHasBishop))) {
+    return true;
+  }
+
+  // Caso 3: Re + alfiere vs Re + alfiere (stesso colore degli alfieri) → patta
+  if (whitePieces == 2 && blackPieces == 2 && whiteHasBishop &&
+      blackHasBishop) {
+    if ((whiteHasLightSquaredBishop && blackHasLightSquaredBishop) ||
+        (whiteHasDarkSquaredBishop && blackHasDarkSquaredBishop)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void Game::checkGameOver() {
   if (!canMove(playerTurn_)) {
     setGameOver(true);
-    std::cout << "help" << '\n';
     if (isCheck(playerTurn_, board_)) {
       // Checkmate
       Player winner = getPlayer(
@@ -380,16 +419,13 @@ void Game::checkGameOver() {
       std::cout << "Draw by stalemate" << '\n';
     }
   }
- if (insufficientMaterial()) {
-   // Draw by insufficient material
-   std::cout << "Draw by insufficient material" << '\n';
- }
+  if (insufficientMaterial()) {
+    // Draw by insufficient material
+    std::cout << "Draw by insufficient material" << '\n';
+  }
   if (isFiftyMoves()) {
     std::cout << "Draw by fiftyMoves rule" << '\n';
   }
 }
 
 bool Game::isFiftyMoves() { return getFiftyMovesCounter() == 50; }
-
-
-
