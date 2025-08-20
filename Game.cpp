@@ -287,7 +287,7 @@ void Game::executeMove(Point from, Point to) {
     } else {
       board_.movePiece(from, to);
       moveExecuted = true;
-      piece->setMoved(true);
+      // piece->setMoved(true);    //questo comando è già presente in movePiece
     }
   }
   if (moveExecuted) {
@@ -296,9 +296,6 @@ void Game::executeMove(Point from, Point to) {
       resetMovesCounter();
     } else {
       addMovesCounter();
-    }
-    if (Name_piece == king) {
-      board_.setKingPosition(piece->getColor(), to);
     }
     switchTurn();
   }

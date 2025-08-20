@@ -70,24 +70,26 @@ TEST_CASE("Testing board") {
     std::array<Name, 8> firstRow = {rook, knight, bishop, queen,
                                     king, bishop, knight, rook};
     for (int i{0}; i < 8; ++i) {
-      CHECK(board.selectPiece({i, 0})->getName() == firstRow[i]);
+      CHECK(board.selectPiece({i, 0})->getName() ==
+            firstRow[static_cast<std::size_t>(i)]);
       CHECK(board.selectPiece({i, 0})->getColor() == Black);
       CHECK(board.selectPiece({i, 1})->getName() == pawn);
       CHECK(board.selectPiece({i, 1})->getColor() == Black);
     }
     for (int i{0}; i < 8; ++i) {
-      CHECK(board.selectPiece({i, 7})->getName() == firstRow[i]);
+      CHECK(board.selectPiece({i, 7})->getName() ==
+            firstRow[static_cast<std::size_t>(i)]);
       CHECK(board.selectPiece({i, 7})->getColor() == White);
       CHECK(board.selectPiece({i, 6})->getName() == pawn);
       CHECK(board.selectPiece({i, 6})->getColor() == White);
     }
   }
-  SUBCASE("Testing clearPieceAt") {
+  SUBCASE("Testing deletePiece") {
     board.setPieces();
-    board.clearPieceAt({0, 0});
-    board.clearPieceAt({3, 3});
-    board.clearPieceAt({1, 0});
-    board.clearPieceAt({6, 7});
+    board.deletePiece({0, 0});
+    board.deletePiece({3, 3});
+    board.deletePiece({1, 0});
+    board.deletePiece({6, 7});
     CHECK(board.selectPiece({0, 0}) == nullptr);
     CHECK(board.selectPiece({3, 3}) == nullptr);
     CHECK(board.selectPiece({1, 0}) == nullptr);
@@ -116,18 +118,18 @@ TEST_CASE("Testing movePiece") {
 
   CHECK_THROWS_AS(board.movePiece({0, 4}, {0, 6}), std::runtime_error);
   CHECK_THROWS_AS(board.movePiece({3, 4}, {6, 6}), std::runtime_error);
-}
+};
 
 TEST_CASE("Testing clearPath") {
   sf::RenderWindow window;
   Board board(window);
-  SUBCASE("Testing clearOrizzontalPath") {
+  SUBCASE("Testing clearHorizontalPath") {
     board.setPiece(rook, White, {0, 0});
     board.setPiece(pawn, Black, {3, 0});
 
-    CHECK(board.clearOrizzontalPath({0, 1}, {3, 1}) == true);
-    CHECK(board.clearOrizzontalPath({0, 0}, {5, 0}) == false);
-    CHECK(board.clearOrizzontalPath({4, 0}, {0, 0}) == false);
+    CHECK(board.clearHorizontalPath({0, 1}, {3, 1}) == true);
+    CHECK(board.clearHorizontalPath({0, 0}, {5, 0}) == false);
+    CHECK(board.clearHorizontalPath({4, 0}, {0, 0}) == false);
   }
 
   SUBCASE("Testing clearVerticalPath") {
@@ -150,25 +152,26 @@ TEST_CASE("Testing clearPath") {
   }
 
   SUBCASE("Testing clearPath") {
-    // Orizzontal
+    // Horizontal
     board.setPiece(rook, White, {1, 0});
     CHECK(board.clearPath({0, 0}, {7, 0}) == false);
-    board.clearPieceAt({1, 0});
+    board.deletePiece({1, 0});
     CHECK(board.clearPath({0, 0}, {7, 0}) == true);
 
     // Vertical
     board.setPiece(rook, White, {3, 3});
     CHECK(board.clearPath({3, 0}, {3, 7}) == false);
-    board.clearPieceAt({3, 3});
+    board.deletePiece({3, 3});
     CHECK(board.clearPath({3, 0}, {3, 7}) == true);
 
     // Diagonal
     board.setPiece(bishop, White, {2, 2});
     CHECK(board.clearPath({0, 0}, {4, 4}) == false);
-    board.clearPieceAt({2, 2});
+    board.deletePiece({2, 2});
     CHECK(board.clearPath({0, 0}, {4, 4}) == true);
   }
 
+  // more testing
   board.setPiece(king, White, {0, 2});
   board.setPiece(pawn, Black, {1, 6});
   board.setPiece(bishop, White, {2, 3});
@@ -183,59 +186,25 @@ TEST_CASE("Testing clearPath") {
     CHECK(board.clearVerticalPath({1, 5}, {1, 6}) == true);
     CHECK(board.clearPath({1, 5}, {1, 6}) == true);
   }
-  SUBCASE("Testing clearOrizzontalPath false") {
-    CHECK(board.clearOrizzontalPath({A, 6}, {D, 6}) == false);
-    CHECK(board.clearPath({A, 6}, {D, 6}) == false);
+  SUBCASE("Testing clearHorizontalPath false") {
+    CHECK(board.clearHorizontalPath({0, 6}, {3, 6}) == false);
+    CHECK(board.clearPath({0, 6}, {3, 6}) == false);
   }
-  SUBCASE("Testing clearOrizzontalPath true") {
-    CHECK(board.clearOrizzontalPath({B, 5}, {E, 5}) == true);
-    CHECK(board.clearPath({B, 5}, {E, 5}) == true);
-    CHECK(board.clearOrizzontalPath({B, 6}, {D, 6}) == true);
-    CHECK(board.clearPath({B, 6}, {D, 6}) == true);
-  }
-  SUBCASE("Testing clearDiagonalPath false") {
-    CHECK(board.clearDiagonalPath({0, 5}, {2, 7}) == false);
-    CHECK(board.clearPath({0, 5}, {2, 7}) == false);
-  }
-  SUBCASE("Testing clearDiagonalPath false") {
-    CHECK(board.clearDiagonalPath({1, 7}, {6, 0}) == true);
-    CHECK(board.clearPath({1, 7}, {6, 0}) == true);
-    CHECK(board.clearDiagonalPath({0, 5}, {1, 6}) == true);
-    CHECK(board.clearPath({0, 5}, {1, 6}) == true);
-  }
-  SUBCASE("Testing clearPath with disconnected cell") {
-    CHECK(board.clearPath({1, 2}, {0, 5}) == true);
-    CHECK(board.clearPath({4, 2}, {1, 1}) == true);
-  }
-  SUBCASE("Testing clearVerticalPath false") {
-    CHECK(board.clearVerticalPath({1, 5}, {1, 7}) == false);
-    CHECK(board.clearPath({1, 5}, {1, 7}) == false);
-  }
-  SUBCASE("Testing clearVerticalPath true") {
-    CHECK(board.clearVerticalPath({1, 2}, {1, 5}) == true);
-    CHECK(board.clearPath({1, 2}, {1, 5}) == true);
-    CHECK(board.clearVerticalPath({1, 5}, {1, 6}) == true);
-    CHECK(board.clearPath({1, 5}, {1, 6}) == true);
-  }
-  SUBCASE("Testing clearOrizzontalPath false") {
-    CHECK(board.clearOrizzontalPath({A, 6}, {D, 6}) == false);
-    CHECK(board.clearPath({A, 6}, {D, 6}) == false);
-  }
-  SUBCASE("Testing clearOrizzontalPath true") {
-    CHECK(board.clearOrizzontalPath({B, 5}, {E, 5}) == true);
-    CHECK(board.clearPath({B, 5}, {E, 5}) == true);
-    CHECK(board.clearOrizzontalPath({B, 6}, {D, 6}) == true);
-    CHECK(board.clearPath({B, 6}, {D, 6}) == true);
+  SUBCASE("Testing clearHorizontalPath true") {
+    CHECK(board.clearHorizontalPath({1, 5}, {4, 5}) == true);
+    CHECK(board.clearPath({1, 5}, {4, 5}) == true);
+    CHECK(board.clearHorizontalPath({1, 6}, {3, 6}) == true);
+    CHECK(board.clearPath({1, 6}, {3, 6}) == true);
   }
   SUBCASE("Testing clearDiagonalPath false") {
     CHECK(board.clearDiagonalPath({0, 5}, {2, 7}) == false);
     CHECK(board.clearPath({0, 5}, {2, 7}) == false);
   }
-  SUBCASE("Testing clearDiagonalPath false") {
-    CHECK(board.clearDiagonalPath({1, 7}, {6, 0}) == true);
-    CHECK(board.clearPath({1, 7}, {6, 0}) == true);
-    CHECK(board.clearDiagonalPath({0, 5}, {1, 6}) == true);
-    CHECK(board.clearPath({0, 5}, {1, 6}) == true);
+  SUBCASE("Testing clearDiagonalPath true") {
+    CHECK(board.clearDiagonalPath({3, 3}, {5, 5}) == true);
+    CHECK(board.clearPath({3, 3}, {5, 5}) == true);
+    CHECK(board.clearDiagonalPath({7, 7}, {4, 4}) == true);
+    CHECK(board.clearPath({7, 7}, {4, 4}) == true);
   }
   SUBCASE("Testing clearPath with disconnected cell") {
     CHECK(board.clearPath({1, 2}, {0, 5}) == true);
@@ -243,65 +212,84 @@ TEST_CASE("Testing clearPath") {
   }
 };
 
-TEST_CASE("Testing kingPosition") {
+TEST_CASE("Testing getKingPosition") {
   sf::RenderWindow window;
   Board board(window);
-  SUBCASE("Testing finding KingPosition") {
-    board.setPiece(king, White, {0, 2});
-    Point king_pos{0, 2};
-    CHECK(board.kingPosition(White) == king_pos);
-  }
+  board.setPieces();
 
-  SUBCASE("Testing king not found") {
-    CHECK_THROWS_AS(board.kingPosition(Black), std::runtime_error);
+  SUBCASE("Testing firt position") {
+    Point white_king_pos{4, 7};
+    Point black_king_pos{4, 0};
+    CHECK(board.getKingPosition(White) == white_king_pos);
+    CHECK(board.getKingPosition(Black) == black_king_pos);
+  }
+  SUBCASE("Testing getKingPosition after king has moved") {
+    board.movePiece({4, 7}, {5, 1});
+    board.movePiece({4, 0}, {6, 6});
+    Point white_king_pos{5, 1};
+    Point black_king_pos{6, 6};
+
+    CHECK(board.getKingPosition(White) == white_king_pos);
+    CHECK(board.getKingPosition(Black) == black_king_pos);
   }
 };
-
-// FINISCO IO QUESTI CASI
-
-TEST_CASE("Testing isPromotion"){};
-TEST_CASE("Testing promote"){};
-TEST_CASE("Testing isCastling"){};
-
-// FINISCO IO QUESTI CASI
-
-// COMPILA E RUNNA I TEST E OSSERVA IL TEST CHE FALLISCE, POI CHIAMAMI PER
-// PARLARNE.
-
-/*
 
 TEST_CASE("Testing isPromotion and Promote") {
-  Board board;
-  board.setPiece(pawn, Black, {A, 6});
-  board.setPiece(pawn, White, {A, 1});
+  sf::RenderWindow window;
+  Board board(window);
+  board.setPiece(pawn, Black, {0, 6});
+  board.setPiece(pawn, White, {0, 1});
+  board.setPiece(queen, White, {4, 4});
 
   SUBCASE("Testing isPromotion") {
-    CHECK(board.isPromotion({A, 1}, {A, 0}) == true);
-    CHECK(board.isPromotion({A, 1}, {A, 2}) == false);
-    CHECK(board.isPromotion({A, 6}, {A, 7}) == true);
-    CHECK(board.isPromotion({A, 6}, {A, 5}) == false);
-    CHECK(board.isPromotion({A, 4}, {A, 5}) == false);
-    CHECK(board.isPromotion({A, 6}, {A, 0}) == false);
-    CHECK(board.isPromotion({A, 1}, {A, 7}) == false);
+    CHECK(board.isPromotion({0, 1}, {0, 0}) == true);
+    CHECK(board.isPromotion({0, 1}, {0, 2}) == false);
+    CHECK(board.isPromotion({0, 6}, {0, 7}) == true);
+    CHECK(board.isPromotion({0, 6}, {0, 5}) == false);
+    CHECK(board.isPromotion({0, 4}, {0, 5}) == false);
+    CHECK(board.isPromotion({0, 6}, {0, 0}) == false);
+    CHECK(board.isPromotion({0, 1}, {0, 7}) == false);
+    CHECK(board.isPromotion({4, 4}, {0, 0}) == false);
   }
-
   SUBCASE("Testing promote") {
-    board.movePiece({A, 1}, {A, 0});  // white
-    board.promote({A, 0}, rook);
-    board.movePiece({A, 6}, {A, 7});  // black
-    board.promote({A, 7}, queen);
-    CHECK(board.selectPiece({A, 0})->getName() == rook);
-    CHECK(board.selectPiece({A, 0})->getColor() == White);
-    CHECK(board.selectPiece({A, 7})->getName() == queen);
-    CHECK(board.selectPiece({A, 7})->getColor() == Black);
-    CHECK_THROWS(board.promote({A, 4}, queen));
-    CHECK_THROWS(board.promote({A, 0}, king));
-    CHECK(board.selectPiece({A, 1}) == nullptr);
+    board.movePiece({0, 1}, {0, 0});  // white
+    board.promote({0, 0}, rook, White);
+    board.movePiece({0, 6}, {0, 7});  // black
+    board.promote({0, 7}, queen, Black);
+    CHECK(board.selectPiece({0, 0})->getName() == rook);
+    CHECK(board.selectPiece({0, 0})->getColor() == White);
+    CHECK(board.selectPiece({0, 7})->getName() == queen);
+    CHECK(board.selectPiece({0, 7})->getColor() == Black);
+    CHECK(board.selectPiece({0, 1}) == nullptr);
   }
 };
 
+TEST_CASE("Testing isCastling") {
+  sf::RenderWindow window;
+  Board board(window);
+  board.setPiece(king, White, {4, 7});
+  board.setPiece(rook, Black, {4, 0});
 
+  SUBCASE("Testing isCastling true") {
+    CHECK(board.isCastling({4, 7}, {2, 7}) == true);
+    CHECK(board.isCastling({4, 7}, {6, 7}) == true);
+    CHECK(board.isCastling({4, 0}, {2, 0}) == true);
+    CHECK(board.isCastling({4, 0}, {6, 0}) == true);
+  }
+  SUBCASE("Testing isCastling false") {
+    CHECK(board.isCastling({4, 7}, {5, 7}) == false);
+    CHECK(board.isCastling({4, 0}, {3, 7}) == false);
+    CHECK(board.isCastling({5, 7}, {3, 7}) == false);
+  }
+  SUBCASE("Testing isCastling with king->getMoved() true") {
+    board.movePiece({4, 7}, {4, 6});
+    board.movePiece({4, 0}, {5, 0});
+    CHECK(board.isCastling({4, 6}, {2, 7}) == false);
+    CHECK(board.isCastling({5, 0}, {7, 0}) == false);
+  }
+};
 
+/*
 // test Game
 TEST_CASE("Testing  rightStarting") {
   Game game(std::string("nameWhite"), std::string("nameWhite"));
