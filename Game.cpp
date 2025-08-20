@@ -55,7 +55,6 @@ void Game::resetMovesCounter() {
   assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
   fifty_movescounter_ = 0;
 }
-void Game::setPlayerTurn(Color color) { playerTurn_ = color; }
 
 // funzioni per il movimento pezzi
 bool Game::rightStarting(Point from) {
@@ -296,7 +295,6 @@ void Game::executeMove(Point from, Point to) {
     } else {
       board_.movePiece(from, to);
       moveExecuted = true;
-      // piece->setMoved(true);    //questo comando è già presente in movePiece
     }
   }
   if (moveExecuted) {

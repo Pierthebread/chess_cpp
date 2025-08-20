@@ -34,11 +34,11 @@ class Game {
   int getFiftyMovesCounter();
 
   // metodi per modificare le variabili private
-  void setPlayerTurn(Color color);
   void setGameOver(bool p);
   void setPlayerWinner(const Player& player);
   void addMovesCounter();
   void resetMovesCounter();
+  void switchTurn();
 
   // funzioni per il movimento pezzi (IMPLEMENTARE TEST)
   bool rightStarting(Point from);  // ho tolto i throw
@@ -67,7 +67,6 @@ class Game {
   bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?
 
   // funzione definitiva
-  void switchTurn();
   void executeMove(Point from, Point to);
   void playMove(Point from, Point to);
 

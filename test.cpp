@@ -291,7 +291,7 @@ TEST_CASE("Testing isCastling") {
 // test Game
 TEST_CASE("Testing  rightStarting") {
   sf::RenderWindow window;
-  Game game(std::string("nameWhite"), std::string("nameWhite"), window);
+  Game game(std::string("nameWhite"), std::string("nameBlack"), window);
   game.getBoard().setPiece(rook, White, {0, 0});
   game.getBoard().setPiece(queen, Black, {1, 7});
 
@@ -301,9 +301,7 @@ TEST_CASE("Testing  rightStarting") {
     CHECK(game.rightStarting({1, 7}) == false);
     CHECK(game.rightStarting({2, 7}) == false);
     CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
-
-    game.setPlayerTurn(Black);
-    
+    game.switchTurn();
     CHECK(game.getPlayerTurn() == Black);
     CHECK(game.rightStarting({1, 7}) == true);
     CHECK(game.rightStarting({0, 0}) == false);
