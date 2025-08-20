@@ -2,292 +2,273 @@
 #include "Board.hpp"
 #include "Game.hpp"
 #include "doctest.h"
-/*
-///////// Test Pieces
-// Test king
-TEST_CASE("Testing  mossaValida") {
-  King king(White);
-  Point p_from{A, 2};
-  king.setPosition(p_from);
 
-  SUBCASE("mossaValida true horizontal") {
-    Point p_to{A, 3};
-    CHECK(king.validPieceMove(p_to) == true);
+// Piece.hpp && Piece.cpp
+TEST_CASE("Testing validPieceMove") {
+  Point A{0, 0};
+  Point B{3, 3};
+  Point C{3, 4};
+  Point D{4, 6};
+  Point E{5, 5};
+  Point F{5, 2};
+  SUBCASE("Testing King") {
+    King piece(Black);
+    CHECK(piece.validPieceMove(A, B) == false);
+    CHECK(piece.validPieceMove(B, C) == true);
+    CHECK(piece.validPieceMove(C, D) == false);
+    CHECK(piece.validPieceMove(D, E) == true);
+    CHECK(piece.validPieceMove(E, F) == false);
   }
-  SUBCASE("mossaValida true vertical") {
-    Point p_to{B, 2};
-    CHECK(king.validPieceMove(p_to) == true);
+  SUBCASE("Testing Knight") {
+    Knight piece(Black);
+    CHECK(piece.validPieceMove(A, B) == false);
+    CHECK(piece.validPieceMove(B, C) == false);
+    CHECK(piece.validPieceMove(C, D) == true);
+    CHECK(piece.validPieceMove(D, E) == false);
+    CHECK(piece.validPieceMove(E, F) == false);
   }
-  SUBCASE("mossaValida true diagonal") {
-    Point p_to{B, 3};
-    CHECK(king.validPieceMove(p_to) == true);
+  SUBCASE("Testing Rook") {
+    Rook piece(Black);
+    CHECK(piece.validPieceMove(A, B) == false);
+    CHECK(piece.validPieceMove(B, C) == true);
+    CHECK(piece.validPieceMove(C, D) == false);
+    CHECK(piece.validPieceMove(D, E) == false);
+    CHECK(piece.validPieceMove(E, F) == true);
   }
-  SUBCASE("mossaValida false") {
-    Point p_to{A, 4};
-    CHECK(king.validPieceMove(p_to) == false);
+  SUBCASE("Testing Queen") {
+    Queen piece(Black);
+    CHECK(piece.validPieceMove(A, B) == true);
+    CHECK(piece.validPieceMove(B, C) == true);
+    CHECK(piece.validPieceMove(C, D) == false);
+    CHECK(piece.validPieceMove(D, E) == true);
+    CHECK(piece.validPieceMove(E, F) == true);
   }
-};
-
-// Test Queen
-TEST_CASE("Testing  validMove") {
-  Queen queen(White);
-  Point p_from{A, 2};
-  queen.setPosition(p_from);
-
-  SUBCASE("validMove true horizontal") {
-    Point to{A, 4};
-    CHECK(queen.validPieceMove(to) == true);
+  SUBCASE("Testing Bishop") {
+    Bishop piece(Black);
+    CHECK(piece.validPieceMove(A, B) == true);
+    CHECK(piece.validPieceMove(B, C) == false);
+    CHECK(piece.validPieceMove(C, D) == false);
+    CHECK(piece.validPieceMove(D, E) == true);
+    CHECK(piece.validPieceMove(E, F) == false);
   }
-
-  SUBCASE("validMove true vertical") {
-    Point to{H, 2};
-    CHECK(queen.validPieceMove(to) == true);
+  SUBCASE("Testing Pawn") {
+    Pawn piece(Black);
+    CHECK(piece.validPieceMove(A, B) == false);
+    CHECK(piece.validPieceMove(B, C) == true);
+    CHECK(piece.validPieceMove(C, D) == false);
+    CHECK(piece.validPieceMove(D, E) == false);
+    CHECK(piece.validPieceMove(E, F) == false);
   }
+}
 
-  SUBCASE("validMove true diagonal") {
-    Point to{C, 4};
-    CHECK(queen.validPieceMove(to) == true);
+// Test Board.hpp && Board.cpp
+TEST_CASE("Testing board") {
+  sf::RenderWindow window;
+  Board board(window);
+  SUBCASE("Testing setPieces") {
+    board.setPieces();
+    std::array<Name, 8> firstRow = {rook, knight, bishop, queen,
+                                    king, bishop, knight, rook};
+    for (int i{0}; i < 8; ++i) {
+      CHECK(board.selectPiece({i, 0})->getName() == firstRow[i]);
+      CHECK(board.selectPiece({i, 0})->getColor() == Black);
+      CHECK(board.selectPiece({i, 1})->getName() == pawn);
+      CHECK(board.selectPiece({i, 1})->getColor() == Black);
+    }
+    for (int i{0}; i < 8; ++i) {
+      CHECK(board.selectPiece({i, 7})->getName() == firstRow[i]);
+      CHECK(board.selectPiece({i, 7})->getColor() == White);
+      CHECK(board.selectPiece({i, 6})->getName() == pawn);
+      CHECK(board.selectPiece({i, 6})->getColor() == White);
+    }
   }
-
-  SUBCASE("validMove false") {
-    Point to{C, 8};
-    CHECK(queen.validPieceMove(to) == false);
+  SUBCASE("Testing clearPieceAt") {
+    board.setPieces();
+    board.clearPieceAt({0, 0});
+    board.clearPieceAt({3, 3});
+    board.clearPieceAt({1, 0});
+    board.clearPieceAt({6, 7});
+    CHECK(board.selectPiece({0, 0}) == nullptr);
+    CHECK(board.selectPiece({3, 3}) == nullptr);
+    CHECK(board.selectPiece({1, 0}) == nullptr);
+    CHECK(board.selectPiece({6, 7}) == nullptr);
   }
-};
+}
 
-// Test bishop
+TEST_CASE("Testing movePiece") {
+  sf::RenderWindow window;
+  Board board(window);
+  board.setPieces();
 
-TEST_CASE("Testing  validMove") {
-  Bishop bishop(White);
-  Point p_from{A, 2};
-  bishop.setPosition(p_from);
+  board.movePiece({0, 0}, {3, 3});
+  CHECK(board.selectPiece({3, 3})->getName() == rook);
+  CHECK(board.selectPiece({3, 3})->getColor() == Black);
+  CHECK(board.selectPiece({3, 3})->getMoved() == true);
 
-  SUBCASE("validMove true") {
-    Point p_to{C, 4};
-    CHECK(bishop.validPieceMove(p_to) == true);
-  }
+  board.movePiece({7, 0}, {7, 7});
+  CHECK(board.selectPiece({7, 7})->getName() == rook);
+  CHECK(board.selectPiece({7, 7})->getColor() == Black);
+  CHECK(board.selectPiece({7, 7})->getMoved() == true);
 
-  SUBCASE("validMove false") {
-    Point p_to{D, 4};
-    CHECK(bishop.validPieceMove(p_to) == false);
-  }
-};
+  board.movePiece({3, 7}, {1, 0});
+  CHECK(board.selectPiece({1, 0})->getColor() == White);
+  CHECK(board.selectPiece({1, 0})->getName() == queen);
 
-// Test knight
-
-TEST_CASE("Testing  mossaValida") {
-  Knight knight(White);
-  Point p_from{A, 2};
-  knight.setPosition(p_from);
-
-  SUBCASE("mossaValida true") {
-    Point p_to{B, 4};
-    CHECK(knight.validPieceMove(p_to) == true);
-  }
-
-  SUBCASE("mossaValida false") {
-    Point p_to{D, 4};
-    CHECK(knight.validPieceMove(p_to) == false);
-  }
-};
-
-// Test rook
-
-TEST_CASE("Testing  validMove") {
-  Rook rook(White);
-  Point p_from{A, 2};
-  rook.setPosition(p_from);
-
-  SUBCASE("validMove true horizontal") {
-    Point p_to{A, 6};
-    CHECK(rook.validPieceMove(p_to) == true);
-  }
-
-  SUBCASE("validMove true vertical") {
-    Point p_to{H, 2};
-    CHECK(rook.validPieceMove(p_to) == true);
-  }
-
-  SUBCASE("validMove false") {
-    Point p_to{C, 8};
-    CHECK(rook.validPieceMove(p_to) == false);
-  }
-};
-
-// Test Pawn
-TEST_CASE("Testing  validMove") {
-  Pawn pawn(Black);
-  Point p_from{C, 2};
-  pawn.setPosition(p_from);
-
-  SUBCASE("Testing double advancement") {
-    Point p_to{C, 4};
-    pawn.setMoved(true);
-    CHECK(pawn.validPieceMove(p_to) == false);
-    pawn.setMoved(false);
-    CHECK(pawn.validPieceMove(p_to) == true);
-  }
-
-  SUBCASE("Testing single advancement") {
-    Point p_to{C, 3};
-    CHECK(pawn.validPieceMove(p_to) == true);
-  }
-
-  SUBCASE("Testing lateral movement") {
-    Point p_to{D, 3};
-    CHECK(pawn.validPieceMove(p_to) == true);
-  }
-};
-
-///////////////////////////////////////////////////////////////////////////////////
-// Test Board
-TEST_CASE("Testing  selectPiece") {
-  Board board;
-  board.setPiece(king, White, {A, 2});
-  board.setPiece(rook, Black, {B, 6});
-
-  SUBCASE("Testing selectPiece true") {
-    CHECK(board.selectPiece({A, 2})->getName() == king);
-    CHECK(board.selectPiece({A, 2})->getColor() == White);
-    CHECK(board.selectPiece({B, 6})->getName() == rook);
-    CHECK(board.selectPiece({B, 6})->getColor() != White);
-  }
-
-  SUBCASE("Testing selectPiece false") {
-    CHECK(board.selectPiece({A, 3}) == nullptr);
-    CHECK(board.selectPiece({E, 7}) == nullptr);
-    CHECK_THROWS_AS(board.selectPiece({E, 20}), std::runtime_error);
-  }
-};
-
-TEST_CASE("Testing  movePiece") {
-  Board board;
-  board.setPiece(king, White, {A, 2});
-
-  SUBCASE("Testing movePiece with no piece_to") {
-    board.movePiece({A, 2}, {A, 6});
-    CHECK(board.selectPiece({A, 2}) == nullptr);
-    CHECK(board.selectPiece({A, 6})->getName() == king);
-  }
-
-  SUBCASE("Testing movePiece with piece_to") {
-    board.setPiece(rook, White, {A, 6});
-    board.movePiece({A, 2}, {A, 6});
-    CHECK(board.selectPiece({A, 2}) == nullptr);
-    CHECK(board.selectPiece({A, 6})->getName() == king);
-  }
-
-  SUBCASE("Testing movePiece not working") {
-    CHECK_THROWS(board.movePiece({B, 2}, {A, 2}));
-  }
-
-  SUBCASE("Testing movePiece changing has_moved") {
-    board.setPiece(rook, White, {A, 6});
-    CHECK(board.selectPiece({A, 2})->getMoved() == false);
-    CHECK(board.selectPiece({A, 6})->getMoved() == false);
-  }
-
-  SUBCASE("Testing movePiece changing has_moved") {
-    board.setPiece(rook, White, {A, 6});
-    board.movePiece({A, 2}, {A, 4});  // king
-    board.movePiece({A, 6}, {A, 7});  // rook
-    CHECK(board.selectPiece({A, 4})->getMoved() == true);
-    CHECK(board.selectPiece({A, 7})->getMoved() == true);
-  }
-};
+  CHECK_THROWS_AS(board.movePiece({0, 4}, {0, 6}), std::runtime_error);
+  CHECK_THROWS_AS(board.movePiece({3, 4}, {6, 6}), std::runtime_error);
+}
 
 TEST_CASE("Testing clearPath") {
-  Board board;
-  board.setPiece(king, White, {A, 2});
-  board.setPiece(pawn, Black, {B, 6});
-  board.setPiece(bishop, White, {C, 3});
+  sf::RenderWindow window;
+  Board board(window);
+  SUBCASE("Testing clearOrizzontalPath") {
+    board.setPiece(rook, White, {0, 0});
+    board.setPiece(pawn, Black, {3, 0});
+
+    CHECK(board.clearOrizzontalPath({0, 1}, {3, 1}) == true);
+    CHECK(board.clearOrizzontalPath({0, 0}, {5, 0}) == false);
+    CHECK(board.clearOrizzontalPath({4, 0}, {0, 0}) == false);
+  }
+
+  SUBCASE("Testing clearVerticalPath") {
+    board.setPiece(rook, White, {0, 0});
+    board.setPiece(pawn, Black, {0, 3});
+
+    CHECK(board.clearVerticalPath({1, 0}, {1, 3}) == true);
+    CHECK(board.clearVerticalPath({0, 0}, {0, 5}) == false);
+    CHECK(board.clearVerticalPath({0, 5}, {0, 0}) == false);
+  }
+
+  // SUBCASE per percorsi diagonali
+  SUBCASE("Testing clearDiagonalPath") {
+    board.setPiece(bishop, White, {2, 2});
+    board.setPiece(pawn, Black, {4, 4});
+
+    CHECK(board.clearDiagonalPath({0, 0}, {2, 2}) == true);
+    CHECK(board.clearDiagonalPath({2, 2}, {5, 5}) == false);
+    CHECK(board.clearDiagonalPath({4, 4}, {1, 1}) == false);
+  }
+
+  SUBCASE("Testing clearPath") {
+    // Orizzontal
+    board.setPiece(rook, White, {1, 0});
+    CHECK(board.clearPath({0, 0}, {7, 0}) == false);
+    board.clearPieceAt({1, 0});
+    CHECK(board.clearPath({0, 0}, {7, 0}) == true);
+
+    // Vertical
+    board.setPiece(rook, White, {3, 3});
+    CHECK(board.clearPath({3, 0}, {3, 7}) == false);
+    board.clearPieceAt({3, 3});
+    CHECK(board.clearPath({3, 0}, {3, 7}) == true);
+
+    // Diagonal
+    board.setPiece(bishop, White, {2, 2});
+    CHECK(board.clearPath({0, 0}, {4, 4}) == false);
+    board.clearPieceAt({2, 2});
+    CHECK(board.clearPath({0, 0}, {4, 4}) == true);
+  }
+
+  board.setPiece(king, White, {0, 2});
+  board.setPiece(pawn, Black, {1, 6});
+  board.setPiece(bishop, White, {2, 3});
 
   SUBCASE("Testing clearVerticalPath false") {
-    CHECK(board.clearVerticalPath({B, 5}, {B, 7}) == false);
-    CHECK(board.clearPath({B, 5}, {B, 7}) == false);
+    CHECK(board.clearVerticalPath({1, 5}, {1, 7}) == false);
+    CHECK(board.clearPath({1, 5}, {1, 7}) == false);
   }
   SUBCASE("Testing clearVerticalPath true") {
-    CHECK(board.clearVerticalPath({B, 2}, {B, 5}) == true);
-    CHECK(board.clearPath({B, 2}, {B, 5}) == true);
-    CHECK(board.clearVerticalPath({B, 5}, {B, 6}) == true);
-    CHECK(board.clearPath({B, 5}, {B, 6}) == true);
+    CHECK(board.clearVerticalPath({1, 2}, {1, 5}) == true);
+    CHECK(board.clearPath({1, 2}, {1, 5}) == true);
+    CHECK(board.clearVerticalPath({1, 5}, {1, 6}) == true);
+    CHECK(board.clearPath({1, 5}, {1, 6}) == true);
   }
-  SUBCASE("Testing clearHorizontalPath false") {
-    CHECK(board.clearHorizontalPath({A, 6}, {D, 6}) == false);
+  SUBCASE("Testing clearOrizzontalPath false") {
+    CHECK(board.clearOrizzontalPath({A, 6}, {D, 6}) == false);
     CHECK(board.clearPath({A, 6}, {D, 6}) == false);
   }
-  SUBCASE("Testing clearHorizontalPath true") {
-    CHECK(board.clearHorizontalPath({B, 5}, {E, 5}) == true);
+  SUBCASE("Testing clearOrizzontalPath true") {
+    CHECK(board.clearOrizzontalPath({B, 5}, {E, 5}) == true);
     CHECK(board.clearPath({B, 5}, {E, 5}) == true);
-    CHECK(board.clearHorizontalPath({B, 6}, {D, 6}) == true);
+    CHECK(board.clearOrizzontalPath({B, 6}, {D, 6}) == true);
     CHECK(board.clearPath({B, 6}, {D, 6}) == true);
   }
   SUBCASE("Testing clearDiagonalPath false") {
-    CHECK(board.clearDiagonalPath({A, 5}, {C, 7}) == false);
-    CHECK(board.clearPath({A, 5}, {C, 7}) == false);
+    CHECK(board.clearDiagonalPath({0, 5}, {2, 7}) == false);
+    CHECK(board.clearPath({0, 5}, {2, 7}) == false);
   }
   SUBCASE("Testing clearDiagonalPath false") {
-    CHECK(board.clearDiagonalPath({B, 7}, {G, 0}) == true);
-    CHECK(board.clearPath({B, 7}, {G, 0}) == true);
-    CHECK(board.clearDiagonalPath({A, 5}, {B, 6}) == true);
-    CHECK(board.clearPath({A, 5}, {B, 6}) == true);
+    CHECK(board.clearDiagonalPath({1, 7}, {6, 0}) == true);
+    CHECK(board.clearPath({1, 7}, {6, 0}) == true);
+    CHECK(board.clearDiagonalPath({0, 5}, {1, 6}) == true);
+    CHECK(board.clearPath({0, 5}, {1, 6}) == true);
   }
   SUBCASE("Testing clearPath with disconnected cell") {
-    CHECK(board.clearPath({B, 2}, {A, 5}) == true);
-    CHECK(board.clearPath({E, 2}, {B, 1}) == true);
+    CHECK(board.clearPath({1, 2}, {0, 5}) == true);
+    CHECK(board.clearPath({4, 2}, {1, 1}) == true);
   }
   SUBCASE("Testing clearVerticalPath false") {
-    CHECK(board.clearVerticalPath({B, 5}, {B, 7}) == false);
-    CHECK(board.clearPath({B, 5}, {B, 7}) == false);
+    CHECK(board.clearVerticalPath({1, 5}, {1, 7}) == false);
+    CHECK(board.clearPath({1, 5}, {1, 7}) == false);
   }
   SUBCASE("Testing clearVerticalPath true") {
-    CHECK(board.clearVerticalPath({B, 2}, {B, 5}) == true);
-    CHECK(board.clearPath({B, 2}, {B, 5}) == true);
-    CHECK(board.clearVerticalPath({B, 5}, {B, 6}) == true);
-    CHECK(board.clearPath({B, 5}, {B, 6}) == true);
+    CHECK(board.clearVerticalPath({1, 2}, {1, 5}) == true);
+    CHECK(board.clearPath({1, 2}, {1, 5}) == true);
+    CHECK(board.clearVerticalPath({1, 5}, {1, 6}) == true);
+    CHECK(board.clearPath({1, 5}, {1, 6}) == true);
   }
-  SUBCASE("Testing clearHorizontalPath false") {
-    CHECK(board.clearHorizontalPath({A, 6}, {D, 6}) == false);
+  SUBCASE("Testing clearOrizzontalPath false") {
+    CHECK(board.clearOrizzontalPath({A, 6}, {D, 6}) == false);
     CHECK(board.clearPath({A, 6}, {D, 6}) == false);
   }
-  SUBCASE("Testing clearHorizontalPath true") {
-    CHECK(board.clearHorizontalPath({B, 5}, {E, 5}) == true);
+  SUBCASE("Testing clearOrizzontalPath true") {
+    CHECK(board.clearOrizzontalPath({B, 5}, {E, 5}) == true);
     CHECK(board.clearPath({B, 5}, {E, 5}) == true);
-    CHECK(board.clearHorizontalPath({B, 6}, {D, 6}) == true);
+    CHECK(board.clearOrizzontalPath({B, 6}, {D, 6}) == true);
     CHECK(board.clearPath({B, 6}, {D, 6}) == true);
   }
   SUBCASE("Testing clearDiagonalPath false") {
-    CHECK(board.clearDiagonalPath({A, 5}, {C, 7}) == false);
-    CHECK(board.clearPath({A, 5}, {C, 7}) == false);
+    CHECK(board.clearDiagonalPath({0, 5}, {2, 7}) == false);
+    CHECK(board.clearPath({0, 5}, {2, 7}) == false);
   }
   SUBCASE("Testing clearDiagonalPath false") {
-    CHECK(board.clearDiagonalPath({B, 7}, {G, 0}) == true);
-    CHECK(board.clearPath({B, 7}, {G, 0}) == true);
-    CHECK(board.clearDiagonalPath({A, 5}, {B, 6}) == true);
-    CHECK(board.clearPath({A, 5}, {B, 6}) == true);
+    CHECK(board.clearDiagonalPath({1, 7}, {6, 0}) == true);
+    CHECK(board.clearPath({1, 7}, {6, 0}) == true);
+    CHECK(board.clearDiagonalPath({0, 5}, {1, 6}) == true);
+    CHECK(board.clearPath({0, 5}, {1, 6}) == true);
   }
   SUBCASE("Testing clearPath with disconnected cell") {
-    CHECK(board.clearPath({B, 2}, {A, 5}) == true);
-    CHECK(board.clearPath({E, 2}, {B, 1}) == true);
+    CHECK(board.clearPath({1, 2}, {0, 5}) == true);
+    CHECK(board.clearPath({4, 2}, {1, 1}) == true);
   }
 };
 
 TEST_CASE("Testing kingPosition") {
-  Board board;
-  board.setPiece(king, White, {A, 2});
-  Point king_pos{A, 2};
-  bool check = (board.kingPosition(White) == king_pos);
-  CHECK(check == true);
-  CHECK_THROWS_AS(board.kingPosition(Black), std::runtime_error);
+  sf::RenderWindow window;
+  Board board(window);
+  SUBCASE("Testing finding KingPosition") {
+    board.setPiece(king, White, {0, 2});
+    Point king_pos{0, 2};
+    CHECK(board.kingPosition(White) == king_pos);
+  }
+
+  SUBCASE("Testing king not found") {
+    CHECK_THROWS_AS(board.kingPosition(Black), std::runtime_error);
+  }
 };
-TEST_CASE("Testing kingPosition") {
-  Board board;
-  board.setPiece(king, White, {A, 2});
-  Point king_pos{A, 2};
-  bool check = (board.kingPosition(White) == king_pos);
-  CHECK(check == true);
-  CHECK_THROWS_AS(board.kingPosition(Black), std::runtime_error);
-};
+
+// FINISCO IO QUESTI CASI
+
+TEST_CASE("Testing isPromotion"){};
+TEST_CASE("Testing promote"){};
+TEST_CASE("Testing isCastling"){};
+
+// FINISCO IO QUESTI CASI
+
+// COMPILA E RUNNA I TEST E OSSERVA IL TEST CHE FALLISCE, POI CHIAMAMI PER
+// PARLARNE.
+
+/*
 
 TEST_CASE("Testing isPromotion and Promote") {
   Board board;
@@ -646,18 +627,18 @@ TEST_SUITE("Test validMove") {
 }
 
 */
-//TEST_CASE("Testing checkmate") {
-//  sf::RenderWindow window;
-//  Game game("Tizio 1", "Tizio 2", window);
-//  for (int i{0}; i < 8; ++i) {
-//    for (int k{0}; k < 8; ++k) {
-//      game.getBoard().clearPieceAt({i, k});
-//    }
-//  };
-//  game.getBoard().setPiece(king, White, {0, 0});
-//  game.getBoard().setPiece(queen, Black, {2, 0});
-//  game.getBoard().setPiece(rook, Black, {2, 1});
-//  game.checkGameOver();
-//  CHECK(game.getGameOver() == true);
-//}
+// TEST_CASE("Testing checkmate") {
+//   sf::RenderWindow window;
+//   Game game("Tizio 1", "Tizio 2", window);
+//   for (int i{0}; i < 8; ++i) {
+//     for (int k{0}; k < 8; ++k) {
+//       game.getBoard().clearPieceAt({i, k});
+//     }
+//   };
+//   game.getBoard().setPiece(king, White, {0, 0});
+//   game.getBoard().setPiece(queen, Black, {2, 0});
+//   game.getBoard().setPiece(rook, Black, {2, 1});
+//   game.checkGameOver();
+//   CHECK(game.getGameOver() == true);
+// }
 //
