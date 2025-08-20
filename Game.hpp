@@ -17,14 +17,19 @@ class Game {
   std::vector<Name> white_pieces_;
   std::vector<Name> black_pieces_;
 
+  static inline void assertInRange_Game(Point p) {
+    assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
+  }
  public:
-  Game(const std::string nameWhite,const std::string nameBlack, sf::RenderWindow& window);
+  Game(const std::string nameWhite, const std::string nameBlack,
+       sf::RenderWindow&);
 
   // metodi per accedere alle variabili private
   Board& getBoard();  // non posso copiare unique_ptr
   Color getPlayerTurn();
   bool getGameOver();
-  const Player& getPlayer(Color color); //non mi serve una copia, voglio solo leggere
+  const Player& getPlayer(
+      Color);  // non mi serve una copia, voglio solo leggere
   int getFiftyMovesCounter();
 
   // metodi per modificare le variabili private
@@ -58,7 +63,7 @@ class Game {
   bool isChecking(Point p, Color color, const Board& board);
   bool isCellAttached(Point p, Color color, const Board& board);
   bool isCheck(Color color, const Board& board);  // color è sotto scacco?
-  bool createCheck(Point from, Point to);   // questa mossa genera uno scacco?
+  bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?
 
   // funzione definitiva
   void switchTurn();

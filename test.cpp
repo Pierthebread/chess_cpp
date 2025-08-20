@@ -187,14 +187,14 @@ TEST_CASE("Testing clearPath") {
     CHECK(board.clearPath({1, 5}, {1, 6}) == true);
   }
   SUBCASE("Testing clearOrizzontalPath false") {
-    CHECK(board.clearOrizzontalPath({0, 6}, {3, 6}) == false);
-    CHECK(board.clearPath({0, 6}, {3, 6}) == false);
+    CHECK(board.clearOrizzontalPath({A, 6}, {D, 6}) == false);
+    CHECK(board.clearPath({A, 6}, {D, 6}) == false);
   }
   SUBCASE("Testing clearOrizzontalPath true") {
-    CHECK(board.clearOrizzontalPath({1, 5}, {4, 5}) == true);
-    CHECK(board.clearPath({1, 5}, {4, 5}) == true);
-    CHECK(board.clearOrizzontalPath({1, 6}, {3, 6}) == true);
-    CHECK(board.clearPath({1, 6}, {3, 6}) == true);
+    CHECK(board.clearOrizzontalPath({B, 5}, {E, 5}) == true);
+    CHECK(board.clearPath({B, 5}, {E, 5}) == true);
+    CHECK(board.clearOrizzontalPath({B, 6}, {D, 6}) == true);
+    CHECK(board.clearPath({B, 6}, {D, 6}) == true);
   }
   SUBCASE("Testing clearDiagonalPath false") {
     CHECK(board.clearDiagonalPath({0, 5}, {2, 7}) == false);
@@ -221,14 +221,14 @@ TEST_CASE("Testing clearPath") {
     CHECK(board.clearPath({1, 5}, {1, 6}) == true);
   }
   SUBCASE("Testing clearOrizzontalPath false") {
-    CHECK(board.clearOrizzontalPath({0, 6}, {3, 6}) == false);
-    CHECK(board.clearPath({0, 6}, {3, 6}) == false);
+    CHECK(board.clearOrizzontalPath({A, 6}, {D, 6}) == false);
+    CHECK(board.clearPath({A, 6}, {D, 6}) == false);
   }
   SUBCASE("Testing clearOrizzontalPath true") {
-    CHECK(board.clearOrizzontalPath({4, 5}, {4, 5}) == true);
-    CHECK(board.clearPath({1, 5}, {4, 5}) == true);
-    CHECK(board.clearOrizzontalPath({1, 6}, {3, 6}) == true);
-    CHECK(board.clearPath({1, 6}, {3, 6}) == true);
+    CHECK(board.clearOrizzontalPath({B, 5}, {E, 5}) == true);
+    CHECK(board.clearPath({B, 5}, {E, 5}) == true);
+    CHECK(board.clearOrizzontalPath({B, 6}, {D, 6}) == true);
+    CHECK(board.clearPath({B, 6}, {D, 6}) == true);
   }
   SUBCASE("Testing clearDiagonalPath false") {
     CHECK(board.clearDiagonalPath({0, 5}, {2, 7}) == false);

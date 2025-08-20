@@ -18,7 +18,6 @@ struct Point {
 };
 
 bool operator==(Point lp, Point rp);
-bool operator!=(Point lp, Point rp);
 
 // LA CLASSE MADRE
 class Piece {
@@ -29,7 +28,7 @@ class Piece {
   sf::Texture texture_;
   sf::Sprite sprite_;
 
-  static inline void assertInRange(Point p) {
+  static inline void assertInRange_Pieces(Point p) {
     assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
   }
 
@@ -43,8 +42,8 @@ class Piece {
   bool getMoved();
 
   // metodi per modificare le variabili protette
-  inline void setName(Name new_name);
-  inline void setColor(Color new_color);
+  void setName(Name new_name);
+  void setColor(Color new_color);
   void setMoved(bool has_moved);
   virtual void drawPiece(sf::RenderWindow& window);  // disegna il pezzo
 
@@ -65,7 +64,7 @@ class King : public Piece {
   King(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
-  inline bool getMoved();
+  bool getMoved();
   void setMoved(bool has_moved);
   void loadTexture() override;
 };

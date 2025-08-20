@@ -2,23 +2,19 @@
 #include "Board.hpp"
 
 // Costruttore
-Board::Board(sf::RenderWindow& window) : window_(window) {
-  try {
-    for (auto& column : board) {
-      for (auto& cell : column) {
-        cell = nullptr;
-      }
+Board::Board(sf::RenderWindow& window)
+    : window_(window), whiteKingPos_({4, 7}), blackKingPos_({4, 0}) {
+  for (auto& column : board) {
+    for (auto& cell : column) {
+      cell = nullptr;
     }
-    const float cellSize = CELL_SIZE;
-    cellWhite_.setSize(sf::Vector2f(cellSize, cellSize));
-    cellWhite_.setFillColor(sf::Color(245, 245, 220));
-
-    cellBlack_.setSize(sf::Vector2f(cellSize, cellSize));
-    cellBlack_.setFillColor(sf::Color(139, 69, 19));
-  } catch (const std::exception& e) {
-    std::cerr << "Error in Board constructor: " << e.what() << std::endl;
-    throw;
   }
+  const float cellSize = CELL_SIZE;
+  cellWhite_.setSize(sf::Vector2f(cellSize, cellSize));
+  cellWhite_.setFillColor(sf::Color(245, 245, 220));
+
+  cellBlack_.setSize(sf::Vector2f(cellSize, cellSize));
+  cellBlack_.setFillColor(sf::Color(139, 69, 19));
 }
 
 // clona la board attuale
@@ -26,7 +22,6 @@ Board Board::cloneBoard(const Board& other_board) {
   Board temporary_board(other_board.window_);
   for (std::size_t c = 0; c < 8; ++c) {
     for (std::size_t r = 0; r < 8; ++r) {
-      assertInRange({static_cast<int>(c), static_cast<int>(r)});
       if (other_board.board[c][r]) {
         Name name_piece = other_board.board[c][r]->getName();
         Color color_piece = other_board.board[c][r]->getColor();
@@ -37,11 +32,14 @@ Board Board::cloneBoard(const Board& other_board) {
       }
     }
   }
+  temporary_board.whiteKingPos_ = other_board.whiteKingPos_;
+  temporary_board.blackKingPos_ = other_board.blackKingPos_;  
   return temporary_board;
 }
 
 // questa funzione mi permette di posizionare pezzi sulla scacchiera
 void Board::setPiece(Name type, Color color, Point p) {
+  assertInRange_Board(p);
   switch (type) {
     case Name::queen:
       board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)] =
@@ -101,6 +99,7 @@ void Board::setPieces() {
 //////////// Creazione dell'interfaccia grafica
 // traduzione point - pixel per posizionare le celle
 void Piece::setPositionImage(Point p) {
+  assertInRange_Pieces(p);
   sprite_.setPosition(static_cast<float>(p.c) * CELL_SIZE + 40.0f -
                           sprite_.getGlobalBounds().width / 2,
                       static_cast<float>(p.r) * CELL_SIZE + 40.0f -
@@ -131,12 +130,23 @@ void Board::drawPieces() {
   }
 }
 
-void Board::clearPieceAt(Point x) {
-  board[static_cast<std::size_t>(x.c)][static_cast<std::size_t>(x.r)] = nullptr;
+// posizione del re
+Point Board::getKingPosition(Color color) const {
+  return (color == White) ? whiteKingPos_ : blackKingPos_;
+}
+
+void Board::setKingPosition(Color color, Point p) {
+  (color == White) ? whiteKingPos_ = p : blackKingPos_ = p;
+}
+
+void Board::deletePiece(Point p) {
+  assertInRange_Board(p);
+  board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)] = nullptr;
 }
 
 ////////// Movimento dei pezzi
 Piece* Board::selectPiece(Point p) const {
+  assertInRange_Board(p);
   if (p.c < 0 or p.c >= 8 or p.r < 0 or p.r >= 8) {
     throw std::runtime_error{"Point out of board"};
   } else if (board[static_cast<std::size_t>(p.c)]
@@ -150,6 +160,8 @@ Piece* Board::selectPiece(Point p) const {
 void Board::movePiece(Point from, Point to) {
   // std::move sposta l'oggetto da from a to, distruggendo l'oggetto che
   // conteneva in precedenza to.
+  assertInRange_Board(from);
+  assertInRange_Board(to);
   if (selectPiece(from)) {
     selectPiece(from)->setPositionImage({to.c, to.r});
     board[static_cast<std::size_t>(to.c)][static_cast<std::size_t>(to.r)] =
@@ -161,6 +173,9 @@ void Board::movePiece(Point from, Point to) {
         selectPiece(to)->getName() == pawn) {
       selectPiece(to)->setMoved(true);
     }
+    if(selectPiece(to)->getName()== king){
+      setKingPosition(selectPiece(to)->getColor(), to);
+    }
   } else {
     throw std::runtime_error{"Selected cell is empty"};
   }
@@ -168,8 +183,10 @@ void Board::movePiece(Point from, Point to) {
 /////////
 /////////// Controllo della scacchiera (clearPath e kingPosition)
 bool Board::clearPath(Point from, Point to) const {
+  assertInRange_Board(from);
+  assertInRange_Board(to);
   if (from.r == to.r) {
-    return clearOrizzontalPath(from, to);
+    return clearHorizontalPath(from, to);
   } else if (from.c == to.c) {
     return clearVerticalPath(from, to);
   } else if (abs(from.r - to.r) == abs(from.c - to.c)) {
@@ -178,11 +195,14 @@ bool Board::clearPath(Point from, Point to) const {
   return true;
 }
 
-bool Board::clearOrizzontalPath(Point from, Point to) const {
+bool Board::clearHorizontalPath(Point from, Point to) const {
+  assertInRange_Board(from);
+  assertInRange_Board(to);
+  assert(from.r == to.r);
   int x = (to.c - from.c > 0) ? +1 : -1;
   for (int column = from.c + x; column != to.c; column += x) {
     Point p{column, to.r};
-    if (selectPiece({p}) != nullptr) {
+    if (selectPiece(p)) {
       return false;
     }
   }
@@ -190,10 +210,13 @@ bool Board::clearOrizzontalPath(Point from, Point to) const {
 }
 
 bool Board::clearVerticalPath(Point from, Point to) const {
+  assertInRange_Board(from);
+  assertInRange_Board(to);
+  assert(from.c == to.c);
   int y = (to.r - from.r > 0) ? +1 : -1;
   for (int row = from.r + y; row != to.r; row += y) {
     Point p{to.c, row};
-    if (selectPiece(p) != nullptr) {
+    if (selectPiece(p)) {
       return false;
     }
   }
@@ -201,13 +224,16 @@ bool Board::clearVerticalPath(Point from, Point to) const {
 }
 
 bool Board::clearDiagonalPath(Point from, Point to) const {
+  assertInRange_Board(from);
+  assertInRange_Board(to);
+  assert(abs(from.r - to.r) == abs(from.c - to.c));
   int x = (to.c - from.c > 0) ? +1 : -1;
   int y = (to.r - from.r > 0) ? +1 : -1;
   int column = from.c + x;
   int row = from.r + y;
   while (column != to.c && row != to.r) {
     Point p{column, row};
-    if (selectPiece(p) != nullptr) {
+    if (selectPiece(p)) {
       return false;
     }
     column = column + x;
@@ -216,30 +242,20 @@ bool Board::clearDiagonalPath(Point from, Point to) const {
   return true;
 }
 
-// restituisce la posizione del re, ma potrebbe essere migliorata
-Point Board::kingPosition(Color color) const {
-  for (int c{0}; c < 8; ++c) {
-    for (int r{0}; r < 8; ++r) {
-      Piece* piece = selectPiece({c, r});
-      if (piece != nullptr && piece->getName() == king &&
-          piece->getColor() == color) {
-        return {c, r};
-      }
-    }
-  }
-  throw std::runtime_error("King not found on the board");
-}
-
-bool Board::isCastling(Point p_from, Point p_to) const {
-  Piece* king = selectPiece(p_from);
+bool Board::isCastling(Point from, Point to) const {
+  assertInRange_Board(from);
+  assertInRange_Board(to);
+  Piece* king = selectPiece(from);
   if (king && !king->getMoved()) {
-    return (abs(p_to.c - p_from.c) == 2);
+    return (abs(to.c - from.c) == 2);
   }
   return false;
 }
 
 // riconosce se la mossa appena compiuta ha portato un pedone a promozione
 bool Board::isPromotion(Point from, Point to) const {
+  assertInRange_Board(from);
+  assertInRange_Board(to);
   Piece* piece = selectPiece(from);
   if (piece && piece->getName() == pawn) {
     return ((piece->getColor() == White && to.r == 0) ||
@@ -250,5 +266,6 @@ bool Board::isPromotion(Point from, Point to) const {
 
 // promuove il pedone a pezzo desiderato
 void Board::promote(Point p_pawn, Name piece, Color color) {
+  assertInRange_Board(p_pawn);
   setPiece(piece, color, p_pawn);
 }
