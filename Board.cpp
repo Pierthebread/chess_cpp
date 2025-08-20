@@ -33,7 +33,7 @@ Board Board::cloneBoard(const Board& other_board) {
     }
   }
   temporary_board.whiteKingPos_ = other_board.whiteKingPos_;
-  temporary_board.blackKingPos_ = other_board.blackKingPos_;  
+  temporary_board.blackKingPos_ = other_board.blackKingPos_;
   return temporary_board;
 }
 
@@ -173,7 +173,7 @@ void Board::movePiece(Point from, Point to) {
         selectPiece(to)->getName() == pawn) {
       selectPiece(to)->setMoved(true);
     }
-    if(selectPiece(to)->getName()== king){
+    if (selectPiece(to)->getName() == king) {
       setKingPosition(selectPiece(to)->getColor(), to);
     }
   } else {

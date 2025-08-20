@@ -297,11 +297,6 @@ void Game::executeMove(Point from, Point to) {
     } else {
       addMovesCounter();
     }
-    if (Name_piece == king) {
-      board_.setKingPosition(piece->getColor(), to);
-    }
-    std::cout << "posizione del re" << board_.getKingPosition(White).c << "  "
-              << board_.getKingPosition(White).r << '\n';
     switchTurn();
   }
 }
