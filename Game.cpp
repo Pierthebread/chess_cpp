@@ -55,6 +55,7 @@ void Game::resetMovesCounter() {
   assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
   fifty_movescounter_ = 0;
 }
+void Game::setPlayerTurn(Color color) { playerTurn_ = color; }
 
 // funzioni per il movimento pezzi
 bool Game::rightStarting(Point from) {
@@ -116,7 +117,7 @@ bool Game::validMove(Point from, Point to, const Board& board) {
 bool Game::isCheck(Color color, const Board& board) {
   assert(color == White || color == Black);
   Point king_pos = board.getKingPosition(color);
-  assert(board.selectPiece(king_pos)->getName()==king);
+  assert(board.selectPiece(king_pos)->getName() == king);
   return isCellAttached(king_pos, color, board);
 }
 
