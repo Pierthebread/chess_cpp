@@ -2,6 +2,20 @@
 
 int main() {
   try {
+    std::string name1;
+    std::string name2;
+
+    std::cout << "Player 1 name: " << '\n';
+    std::getline(std::cin, name1);
+    Player whitePlayer(name1, Color::White);
+
+    std::cout << "Player 2 name: " << '\n';
+    std::getline(std::cin, name2);
+    Player blackPlayer(name2, Color::Black);
+
+    std::cout << whitePlayer.getName() << " Player 1 is white" << '\n';
+    std::cout << blackPlayer.getName() << " Player 2 is black" << '\n';
+    
     sf::RenderWindow window(sf::VideoMode(640, 640), "Chess");
     window.setFramerateLimit(60);
 

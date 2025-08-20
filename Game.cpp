@@ -33,7 +33,6 @@ const Player& Game::getPlayer(Color color) {
   return (color == White) ? whitePlayer_ : blackPlayer_;
 }
 int Game::getFiftyMovesCounter() {
-  assert(!gameOver_);
   assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
   return fifty_movescounter_;
 }
@@ -268,6 +267,7 @@ void Game::executeMove(Point from, Point to) {
   }
 
   bool moveExecuted{false};
+  
   // ARROCCO
   if (board_.isCastling(from, to) && isCastlingValid(from, to)) {
     executeCastling(from, to);
@@ -300,8 +300,6 @@ void Game::executeMove(Point from, Point to) {
     if (Name_piece == king) {
       board_.setKingPosition(piece->getColor(), to);
     }
-    std::cout << "posizione del re" << board_.getKingPosition(White).c << "  "
-              << board_.getKingPosition(White).r << '\n';
     switchTurn();
   }
 }

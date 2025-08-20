@@ -20,6 +20,7 @@ class Game {
   static inline void assertInRange_Game(Point p) {
     assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
   }
+  
  public:
   Game(const std::string nameWhite, const std::string nameBlack,
        sf::RenderWindow&);
