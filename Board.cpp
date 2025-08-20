@@ -241,7 +241,7 @@ bool Board::isCastling(Point p_from, Point p_to) const {
 // riconosce se la mossa appena compiuta ha portato un pedone a promozione
 bool Board::isPromotion(Point from, Point to) const {
   Piece* piece = selectPiece(from);
-  if (piece != nullptr && piece->getName() == pawn) {
+  if (piece && piece->getName() == pawn) {
     return ((piece->getColor() == White && to.r == 0) ||
             (piece->getColor() == Black && to.r == 7));
   }
