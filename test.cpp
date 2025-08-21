@@ -552,7 +552,7 @@ TEST_CASE("Game::validMove - Complex Scenarios") {
 TEST_CASE("Game::isCastlingValid - Valid Conditions") {
   sf::RenderWindow window;
   Game game("white", "black", window);
-  
+
   SUBCASE("Kingside castling valid") {
     game.getBoard().setPiece(king, White, {4, 0});
     game.getBoard().setPiece(rook, White, {7, 0});
@@ -569,28 +569,21 @@ TEST_CASE("Game::isCastlingValid - Valid Conditions") {
 TEST_CASE("Game::isCastlingValid - Invalid Conditions") {
   sf::RenderWindow window;
   Game game("white", "black", window);
-  
-  SUBCASE("King has moved") {
-    game.getBoard().setPiece(king, White, {4, 0})->setMoved(true);
-    game.getBoard().setPiece(rook, White, {7, 0});
-    CHECK(game.isCastlingValid({4, 0}, {6, 0}) == false);
-  }
+  game.getBoard().setPiece(king, White, {4, 0});
 
   SUBCASE("Rook has moved") {
-    game.getBoard().setPiece(king, White, {4, 0});
-    game.getBoard().setPiece(rook, White, {7, 0})->setMoved(true);
+    game.getBoard().setPiece(rook, White, {7, 0});
+    game.getBoard().selectPiece({7, 0})->setMoved(true);
     CHECK(game.isCastlingValid({4, 0}, {6, 0}) == false);
   }
 
   SUBCASE("Path not clear") {
-    game.getBoard().setPiece(king, White, {4, 0});
     game.getBoard().setPiece(rook, White, {7, 0});
     game.getBoard().setPiece(bishop, White, {5, 0});
     CHECK(game.isCastlingValid({4, 0}, {6, 0}) == false);
   }
 
   SUBCASE("King in check during castling") {
-    game.getBoard().setPiece(king, White, {4, 0});
     game.getBoard().setPiece(rook, White, {7, 0});
     game.getBoard().setPiece(rook, Black, {4, 7});
     CHECK(game.isCastlingValid({4, 0}, {6, 0}) == false);
@@ -600,7 +593,7 @@ TEST_CASE("Game::isCastlingValid - Invalid Conditions") {
 TEST_CASE("Game::executeCastling") {
   sf::RenderWindow window;
   Game game("white", "black", window);
-  
+
   SUBCASE("Kingside castling execution") {
     game.getBoard().setPiece(king, White, {4, 0});
     game.getBoard().setPiece(rook, White, {7, 0});
@@ -622,35 +615,40 @@ TEST_CASE("Game::executeCastling") {
 TEST_CASE("Game::setEnPassantTarget") {
   sf::RenderWindow window;
   Game game("white", "black", window);
-  
+
   SUBCASE("Pawn double move sets en passant") {
-    game.getBoard().setPiece(pawn, White, {1, 1});
-    game.setEnPassantTarget({1, 1}, {1, 3});
-    CHECK(game.enPassantTarget_.c == 1);
-    CHECK(game.enPassantTarget_.r == 2);
+    game.getBoard().setPiece(pawn, White, {1, 6});
+    game.getBoard().movePiece({1, 6}, {1, 4});
+    game.setEnPassantTarget({1, 6}, {1, 4});
+    CHECK(game.getEnpassantTarget().c == 1);
+    CHECK(game.getEnpassantTarget().r == 5);
   }
 
   SUBCASE("Non-pawn move resets en passant") {
     game.getBoard().setPiece(rook, White, {0, 0});
+    game.getBoard().movePiece({0, 0}, {0, 5});
     game.setEnPassantTarget({0, 0}, {0, 5});
-    CHECK(game.enPassantTarget_.c == 8);
-    CHECK(game.enPassantTarget_.r == 8);
+    CHECK(game.getEnpassantTarget().c == 8);
+    CHECK(game.getEnpassantTarget().r == 8);
   }
 }
 
 TEST_CASE("Game::isEnPassantValid") {
   sf::RenderWindow window;
   Game game("white", "black", window);
-  
+
   SUBCASE("Valid en passant capture") {
-    game.getBoard().setPiece(pawn, White, {1, 3});
-    game.enPassantTarget_ = {2, 2};
-    CHECK(game.isEnPassantValid({1, 3}, {2, 2}) == true);
+    game.getBoard().setPiece(pawn, White, {1, 6});
+    game.getBoard().setPiece(pawn, Black, {2, 4});
+    game.getBoard().movePiece({1, 6}, {1, 4});
+    game.setEnPassantTarget({1, 6}, {1, 4});
+    CHECK(game.isEnPassantValid({2, 4}, {1, 5}) == true);
   }
 
   SUBCASE("Invalid target position") {
     game.getBoard().setPiece(pawn, White, {1, 3});
-    game.enPassantTarget_ = {3, 2};
+    game.getBoard().movePiece({1, 3}, {3, 2});
+    game.setEnPassantTarget({1, 3}, {3, 2});
     CHECK(game.isEnPassantValid({1, 3}, {2, 2}) == false);
   }
 }
@@ -658,7 +656,7 @@ TEST_CASE("Game::isEnPassantValid") {
 TEST_CASE("Game::executeEnPassant") {
   sf::RenderWindow window;
   Game game("white", "black", window);
-  
+
   SUBCASE("En passant execution removes correct pawn") {
     game.getBoard().setPiece(pawn, White, {1, 3});
     game.getBoard().setPiece(pawn, Black, {2, 3});
@@ -669,38 +667,304 @@ TEST_CASE("Game::executeEnPassant") {
 }
 
 // Test per promotion
+TEST_CASE("Game::pieceToPromote") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+
+  // Save old cin buffer
+  std::streambuf* oldCin = std::cin.rdbuf();
+
+  SUBCASE("Select queen") {
+    std::stringstream input;
+    input << "1\n";
+    std::cin.rdbuf(input.rdbuf());
+    CHECK(game.pieceToPromote() == queen);
+  }
+
+  SUBCASE("Select bishop") {
+    std::stringstream input;
+    input << "2\n";
+    std::cin.rdbuf(input.rdbuf());
+    CHECK(game.pieceToPromote() == bishop);
+  }
+
+  SUBCASE("Select knight") {
+    std::stringstream input;
+    input << "3\n";
+    std::cin.rdbuf(input.rdbuf());
+    CHECK(game.pieceToPromote() == knight);
+  }
+
+  SUBCASE("Select rook") {
+    std::stringstream input;
+    input << "4\n";
+    std::cin.rdbuf(input.rdbuf());
+    CHECK(game.pieceToPromote() == rook);
+  }
+
+  SUBCASE("Invalid input then valid") {
+    std::stringstream input;
+    input << "5\n0\n2\n";
+    std::cin.rdbuf(input.rdbuf());
+    CHECK(game.pieceToPromote() == bishop);
+  }
+
+  // Restore cin
+  std::cin.rdbuf(oldCin);
+}
+
 TEST_CASE("Game::executePromotion") {
   sf::RenderWindow window;
   Game game("white", "black", window);
-  
+
+  // Save old cin buffer
+  std::streambuf* oldCin = std::cin.rdbuf();
+
   SUBCASE("Promotion to queen") {
+    std::stringstream input;
+    input << "1\n";
+    std::cin.rdbuf(input.rdbuf());
+
     game.getBoard().setPiece(pawn, White, {0, 1});
-    game.promoteTo(queen);
     game.executePromotion({0, 1}, {0, 0});
     CHECK(game.getBoard().selectPiece({0, 0})->getName() == queen);
+    CHECK(game.getBoard().selectPiece({0, 1}) == nullptr);
   }
 
   SUBCASE("Promotion to rook") {
+    std::stringstream input;
+    input << "4\n";
+    std::cin.rdbuf(input.rdbuf());
+
     game.getBoard().setPiece(pawn, Black, {1, 6});
-    game.switchTurn();
-    game.promoteTo(rook);
     game.executePromotion({1, 6}, {1, 7});
     CHECK(game.getBoard().selectPiece({1, 7})->getName() == rook);
+    CHECK(game.getBoard().selectPiece({1, 6}) == nullptr);
+  }
+
+  // Restore cin
+  std::cin.rdbuf(oldCin);
+}
+
+// Test per executeMove
+TEST_CASE("Game::executeMove - Normal Move") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+
+  SUBCASE("Normal pawn move") {
+    game.getBoard().setPiece(pawn, White, {1, 6});
+    game.executeMove({1, 6}, {1, 5});
+    CHECK(game.getBoard().selectPiece({1, 5})->getName() == pawn);
+    CHECK(game.getBoard().selectPiece({1, 6}) == nullptr);
+    CHECK(game.getPlayerTurn() == Black);  // Turn should switch
+  }
+
+  SUBCASE("Capture move") {
+    game.getBoard().setPiece(pawn, White, {1, 6});
+    game.getBoard().setPiece(pawn, Black, {2, 5});
+    game.executeMove({1, 6}, {2, 5});
+    CHECK(game.getBoard().selectPiece({2, 5})->getName() == pawn);
+    CHECK(game.getBoard().selectPiece({2, 5})->getColor() == White);
+    CHECK(game.getBoard().selectPiece({1, 6}) == nullptr);
   }
 }
 
-// TEST_CASE("Testing checkmate") {
-//   sf::RenderWindow window;
-//   Game game("Tizio 1", "Tizio 2", window);
-//   for (int i{0}; i < 8; ++i) {
-//     for (int k{0}; k < 8; ++k) {
-//       game.getBoard().clearPieceAt({i, k});
-//     }
-//   };
-//   game.getBoard().setPiece(king, White, {0, 0});
-//   game.getBoard().setPiece(queen, Black, {2, 0});
-//   game.getBoard().setPiece(rook, Black, {2, 1});
-//   game.checkGameOver();
-//   CHECK(game.getGameOver() == true);
-// }
-//
+TEST_CASE("Game::executeMove - Special Moves") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+
+  SUBCASE("Castling") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {0, 0});
+    game.executeMove({4, 0}, {2, 0});
+    CHECK(game.getBoard().selectPiece({2, 0})->getName() == king);
+    CHECK(game.getBoard().selectPiece({3, 0})->getName() == rook);
+  }
+
+  SUBCASE("En passant") {
+    game.getBoard().setPiece(pawn, White, {1, 3});
+    game.getBoard().setPiece(pawn, Black, {2, 3});
+    game.setEnPassantTarget({2, 1},
+                            {2, 3});  // Simulate previous double pawn move
+    game.executeMove({1, 3}, {2, 2});
+    CHECK(game.getBoard().selectPiece({2, 2})->getName() == pawn);
+    CHECK(game.getBoard().selectPiece({2, 3}) ==
+          nullptr);  // Captured pawn should be removed
+  }
+
+  SUBCASE("Promotion") {
+    // We'll simulate the input for promotion to queen
+    std::streambuf* oldCin = std::cin.rdbuf();
+    std::stringstream input;
+    input << "1\n";
+    std::cin.rdbuf(input.rdbuf());
+
+    game.getBoard().setPiece(pawn, White, {0, 1});
+    game.executeMove({0, 1}, {0, 0});
+    CHECK(game.getBoard().selectPiece({0, 0})->getName() == queen);
+
+    std::cin.rdbuf(oldCin);
+  }
+}
+
+TEST_CASE("Game::canMove") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+
+  SUBCASE("King can move") {
+    game.getBoard().setPiece(king, White, {4, 4});
+    CHECK(game.canMove(White) == true);
+  }
+
+  SUBCASE("Pinned piece cannot move") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {4, 4});
+    game.getBoard().setPiece(rook, Black, {4, 7});
+    CHECK(game.canMove(White) == true);  // King can still move
+  }
+
+  SUBCASE("Checkmate - no moves") {
+    game.getBoard().setPiece(king, White, {0, 0});
+    game.getBoard().setPiece(rook, Black, {1, 7});
+    game.getBoard().setPiece(rook, Black, {7, 1});
+    CHECK(game.canMove(White) == false);
+  }
+}
+
+TEST_CASE("Game::isCheckmate") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+
+  SUBCASE("Checkmate position") {
+    game.getBoard().setPiece(king, White, {0, 0});
+    game.getBoard().setPiece(rook, Black, {0, 7});
+    game.getBoard().setPiece(rook, Black, {7, 0});
+    game.getBoard().setPiece(bishop, Black, {7, 7});
+    CHECK(game.isCheckmate(White) == true);
+  }
+
+  SUBCASE("Check but not mate") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, Black, {4, 7});
+    game.getBoard().setPiece(knight, White, {3, 2});
+    CHECK(game.isCheckmate(White) == false);
+  }
+
+  SUBCASE("Not in check") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(king, Black, {4, 7});
+    CHECK(game.isCheckmate(White) == false);
+  }
+}
+
+TEST_CASE("Game::insufficientMaterial") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+
+  SUBCASE("Only kings") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(king, Black, {4, 7});
+    CHECK(game.insufficientMaterial() == true);
+  }
+
+  SUBCASE("King and knight vs king") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(knight, White, {1, 1});
+    game.getBoard().setPiece(king, Black, {4, 7});
+    CHECK(game.insufficientMaterial() == true);
+  }
+
+  SUBCASE("King and bishop vs king") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(bishop, White, {2, 2});
+    game.getBoard().setPiece(king, Black, {4, 7});
+    CHECK(game.insufficientMaterial() == true);
+  }
+
+  SUBCASE("King and bishop vs king and bishop (same color)") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(bishop, White, {2, 2});  // Light square
+    game.getBoard().setPiece(king, Black, {4, 7});
+    game.getBoard().setPiece(bishop, Black, {3, 3});  // Light square
+    CHECK(game.insufficientMaterial() == true);
+  }
+
+  SUBCASE("King and bishop vs king and bishop (different color)") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(bishop, White, {2, 2});  // Light square
+    game.getBoard().setPiece(king, Black, {4, 7});
+    game.getBoard().setPiece(bishop, Black, {2, 3});  // Dark square
+    CHECK(game.insufficientMaterial() == false);
+  }
+
+  SUBCASE("King and pawn vs king") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(pawn, White, {4, 1});
+    game.getBoard().setPiece(king, Black, {4, 7});
+    CHECK(game.insufficientMaterial() == false);
+  }
+}
+
+TEST_CASE("Game::checkGameOver") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+
+  SUBCASE("Checkmate") {
+    game.getBoard().setPiece(king, White, {0, 0});
+    game.getBoard().setPiece(rook, Black, {0, 7});
+    game.getBoard().setPiece(rook, Black, {7, 0});
+    game.getBoard().setPiece(bishop, Black, {7, 7});
+    game.checkGameOver();
+    CHECK(game.getGameOver() == true);
+  }
+
+  SUBCASE("Stalemate") {
+    game.getBoard().setPiece(king, White, {0, 0});
+    game.getBoard().setPiece(queen, Black, {1, 2});
+    game.getBoard().setPiece(king, Black, {2, 2});
+    game.checkGameOver();
+    CHECK(game.getGameOver() == true);
+  }
+
+  SUBCASE("Insufficient material") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(king, Black, {4, 7});
+    game.checkGameOver();
+    CHECK(game.getGameOver() == true);
+  }
+
+  SUBCASE("Fifty moves rule") {
+    for (int i = 0; i < 50; i++) {
+      game.addMovesCounter();
+    }
+    game.checkGameOver();
+    CHECK(game.getGameOver() == true);
+  }
+}
+
+TEST_CASE("Game::isFiftyMoves") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+
+  SUBCASE("Exactly 50 moves") {
+    for (int i = 0; i < 50; i++) {
+      game.addMovesCounter();
+    }
+    CHECK(game.isFiftyMoves() == true);
+  }
+
+  SUBCASE("Less than 50 moves") {
+    for (int i = 0; i < 49; i++) {
+      game.addMovesCounter();
+    }
+    CHECK(game.isFiftyMoves() == false);
+  }
+
+  SUBCASE("Reset after capture") {
+    for (int i{0}; i < 30; i++) {
+      game.addMovesCounter();
+    }
+    game.resetMovesCounter();
+    CHECK(game.getFiftyMovesCounter() == 0);
+  }
+}

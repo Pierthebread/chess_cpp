@@ -30,6 +30,7 @@ class Game {
   bool getGameOver();
   const Player& getPlayer(Color);
   int getFiftyMovesCounter();
+  Point getEnpassantTarget();
 
   void setGameOver(bool p);
   void setPlayerWinner(const Player& player);

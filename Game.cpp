@@ -22,7 +22,6 @@ Game::Game(std::string nameWhite, std::string nameBlack,
   }
 }
 
-// metodi per accedere alle variabili private
 Board& Game::getBoard() {
   assert(!gameOver_);
   return board_;
@@ -40,8 +39,8 @@ int Game::getFiftyMovesCounter() {
   assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
   return fifty_movescounter_;
 }
+Point Game::getEnpassantTarget() { return enPassantTarget_; }
 
-// metodi per modificare variabili private
 void Game::switchTurn() {
   assert(!gameOver_);
   playerTurn_ = (playerTurn_ == White) ? Black : White;
@@ -56,10 +55,9 @@ void Game::resetMovesCounter() {
   fifty_movescounter_ = 0;
 }
 
-// funzioni per il movimento pezzi
 bool Game::rightStarting(Point from) {
-  Piece* piece_from = board_.selectPiece(from);
   assertInRange_Game(from);
+  Piece* piece_from = board_.selectPiece(from);
   if (!piece_from) {
     return false;
   }
@@ -70,8 +68,8 @@ bool Game::rightStarting(Point from) {
 }
 
 bool Game::rightArrival(Point to) {
-  Piece* piece_to = board_.selectPiece(to);
   assertInRange_Game(to);
+  Piece* piece_to = board_.selectPiece(to);
   if (!piece_to) {
     return true;
   }
@@ -111,8 +109,6 @@ bool Game::validMove(Point from, Point to, const Board& board) {
   return true;
 }
 
-//////// funzioni per lo scacco
-// è scacco per il colore selezionato?
 bool Game::isCheck(Color color, const Board& board) {
   assert(color == White || color == Black);
   Point king_pos = board.getKingPosition(color);
@@ -120,11 +116,10 @@ bool Game::isCheck(Color color, const Board& board) {
   return isCellAttached(king_pos, color, board);
 }
 
-// la mossa genera uno scacco a se stessi?
 bool Game::createCheck(Point from, Point to) {
   assertInRange_Game(from);
   assertInRange_Game(to);
-  Piece* piece = board_.selectPiece(from);  // pezzo che voglio spostare
+  Piece* piece = board_.selectPiece(from);
   if (!piece) {
     return false;
   }
@@ -135,6 +130,8 @@ bool Game::createCheck(Point from, Point to) {
 }
 
 bool Game::isCellAttached(Point p, Color color, const Board& board) {
+  assertInRange_Game(p);
+  assert(color == White || color == Black);
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
       Piece* piece = board.selectPiece({c, r});
@@ -153,8 +150,9 @@ bool Game::isCellAttached(Point p, Color color, const Board& board) {
   return false;
 }
 
-//// funzioni per arrocco
 bool Game::isCastlingValid(Point from, Point to) {
+  assertInRange_Game(to);
+  assertInRange_Game(from);
   int rook_c = (to.c == 2) ? 0 : 7;
   Piece* rook_pos = board_.selectPiece({rook_c, to.r});
 
@@ -164,9 +162,11 @@ bool Game::isCastlingValid(Point from, Point to) {
   if (!board_.clearPath(from, {rook_c, to.r})) {
     return false;
   }
+  assert(from != to);
   int step = (to.c < from.c) ? -1 : 1;
   for (int x = from.c; x != to.c + step; x += step) {
     Point checkCell{x, from.r};
+    assertInRange_Game(checkCell);
     if (isCellAttached(checkCell, rook_pos->getColor(), board_)) {
       return false;
     }
@@ -175,18 +175,23 @@ bool Game::isCastlingValid(Point from, Point to) {
 }
 
 void Game::executeCastling(Point from, Point to) {
+  assertInRange_Game(to);
+  assertInRange_Game(from);
   assert(board_.isCastling(from, to));
   const int row = to.r;
   // Arrocco lungo (sinistra)
   if (to.c == 2) {
-    board_.movePiece(from, {2, row});      // Muove il re
-    board_.movePiece({0, row}, {3, row});  // Muove la torre sinistra
+    assert(board_.selectPiece({0, row})->getName() == rook);
+    board_.movePiece(from, {2, row});      // move the king
+    board_.movePiece({0, row}, {3, row});  // move the rook
     board_.selectPiece({3, row})->setMoved(true);
   }
   // Arrocco corto (destra)
   else if (to.c == 6) {
-    board_.movePiece(from, {6, row});      // Muove il re
-    board_.movePiece({7, row}, {5, row});  // Muove la torre destra
+    assert(board_.selectPiece(from)->getName() == king);
+    assert(board_.selectPiece({0, row})->getName() == rook);
+    board_.movePiece(from, {6, row});      // move the king
+    board_.movePiece({7, row}, {5, row});  // move the rook
     board_.selectPiece({5, row})->setMoved(true);
   }
   assert(board_.selectPiece(to)->getName() == king);
@@ -194,7 +199,6 @@ void Game::executeCastling(Point from, Point to) {
   board_.setKingPosition(board_.selectPiece(to)->getColor(), to);
 }
 
-//////// funzioni per enPassant
 void Game::setEnPassantTarget(Point from, Point to) {
   Piece* piece = board_.selectPiece(to);
   if (piece && piece->getName() == pawn && abs(to.r - from.r) == 2) {
@@ -214,8 +218,6 @@ void Game::executeEnPassant(Point from, Point to) {
   board_.deletePiece({to.c, from.r});
   board_.movePiece(from, to);
 }
-
-// funzioni per la promotion
 
 void Game::executePromotion(Point from, Point to) {
   Name promotedPiece{pieceToPromote()};
@@ -263,7 +265,6 @@ Name Game::pieceToPromote() {
   return promotedPiece;
 }
 
-// funzioni per il movimento dei pezzi
 void Game::executeMove(Point from, Point to) {
   Piece* piece{board_.selectPiece(from)};
   Name name_piece{piece->getName()};
