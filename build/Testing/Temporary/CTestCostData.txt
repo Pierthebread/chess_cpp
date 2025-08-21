@@ -1,3 +1,0 @@
-chess.t 0 0
----
-chess.t
