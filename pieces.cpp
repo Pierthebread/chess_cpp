@@ -1,4 +1,4 @@
-#include "Pieces.hpp"
+#include "pieces.hpp"
 
 bool operator==(Point lp, Point rp) {
   assert(lp.c >= 0 && lp.c < 8 && lp.r >= 0 && lp.r < 8);

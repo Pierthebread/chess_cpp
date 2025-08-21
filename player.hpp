@@ -1,7 +1,7 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
-#include "Pieces.hpp"
+#include "pieces.hpp"
 
 class Player {
  private:

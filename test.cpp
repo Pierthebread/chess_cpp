@@ -1,5 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "Game.hpp"
+#include "game.hpp"
 #include "doctest.h"
 
 // Piece.hpp && Piece.cpp

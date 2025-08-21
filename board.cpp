@@ -1,5 +1,5 @@
 
-#include "Board.hpp"
+#include "board.hpp"
 
 Board::Board(sf::RenderWindow& window)
     : window_(window) {

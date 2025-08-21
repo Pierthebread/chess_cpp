@@ -1,4 +1,4 @@
-#include "Player.hpp"
+#include "player.hpp"
 
 Player::Player(const std::string& name, Color color)
     : name_(name), color_(color), moves_(0) {}

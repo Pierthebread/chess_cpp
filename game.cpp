@@ -1,4 +1,4 @@
-#include "Game.hpp"
+#include "game.hpp"
 
 #include <iostream>
 #include <limits>
@@ -130,24 +130,24 @@ bool Game::createCheck(Point from, Point to) {
 }
 
 bool Game::isCellAttached(Point p, Color color, const Board& board) {
-  assertInRange_Game(p);
-  assert(color == White || color == Black);
-  for (int c = 0; c < 8; ++c) {
-    for (int r = 0; r < 8; ++r) {
-      Piece* piece = board.selectPiece({c, r});
-      if (piece && piece->getColor() != color) {
-        if (piece->getName() != pawn && piece->validPieceMove({c, r}, p) &&
-            board.clearPath({c, r}, p)) {
-          return true;
-        }
-        if (piece->getName() == pawn && piece->validPieceMove({c, r}, p) &&
-            c != p.c) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
+    assertInRange_Game(p);
+    assert(color == White || color == Black);
+    
+    std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
+    
+    return std::any_of(indices.begin(), indices.end(), [&](int c) {
+        return std::any_of(indices.begin(), indices.end(), [&](int r) {
+            Piece* piece = board.selectPiece({c, r});
+            if (!piece || piece->getColor() == color) return false;
+            
+            if (piece->getName() != pawn) {
+                return piece->validPieceMove({c, r}, p) && 
+                       board.clearPath({c, r}, p);
+            } else {
+                return piece->validPieceMove({c, r}, p) && (c != p.c);
+            }
+        });
+    });
 }
 
 bool Game::isCastlingValid(Point from, Point to) {
@@ -310,27 +310,26 @@ void Game::executeMove(Point from, Point to) {
 }
 
 bool Game::canMove(Color color) {
-  for (int i = 0; i < 8; ++i) {
-    for (int j = 0; j < 8; ++j) {
-      Point from{i, j};  // r = row, c = col
-      Piece* piece = board_.selectPiece(from);
-      if (piece && piece->getColor() == color) {
-        for (int r = 0; r < 8; ++r) {
-          for (int c = 0; c < 8; ++c) {
-            Point to{c, r};
-            try {
-              if (validMove(from, to, board_)) {
-                return true;
-              }
-            } catch (std::runtime_error& e) {
-              continue;
-            }
-          }
-        }
-      }
-    }
-  }
-  return false;
+    std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
+    
+    return std::any_of(indices.begin(), indices.end(), [&](int c) {
+        return std::any_of(indices.begin(), indices.end(), [&](int r) {
+            Point from{c, r};
+            Piece* piece = board_.selectPiece(from);
+            if (!piece || piece->getColor() != color) return false;
+            
+            return std::any_of(indices.begin(), indices.end(), [&](int to_c) {
+                return std::any_of(indices.begin(), indices.end(), [&](int to_r) {
+                    Point to{to_c, to_r};
+                    try {
+                        return validMove(from, to, board_);
+                    } catch (const std::runtime_error&) {
+                        return false;
+                    }
+                });
+            });
+        });
+    });
 }
 
 bool Game::isCheckmate(Color color) {
@@ -352,7 +351,7 @@ bool Game::insufficientMaterial() {
       Color color = piece->getColor();
       Name name = piece->getName();
 
-      // Se c'è una donna, torre o pedone, il materiale NON è insufficiente
+      // Se c'è una donna, torre o pedone, il materiale è sufficiente
       if (name == queen || name == rook || name == pawn) {
         return false;
       }
@@ -397,7 +396,8 @@ bool Game::insufficientMaterial() {
     return true;
   }
 
-  // Caso 3: Re + alfiere vs Re + alfiere (stesso colore degli alfieri) → patta
+  // Caso 3: Re + alfiere vs Re + alfiere (stesso colore degli alfieri) →
+  // patta
   if (whitePieces == 2 && blackPieces == 2 && whiteHasBishop &&
       blackHasBishop) {
     if ((whiteHasLightSquaredBishop && blackHasLightSquaredBishop) ||
@@ -413,17 +413,14 @@ void Game::checkGameOver() {
   if (!canMove(playerTurn_)) {
     setGameOver(true);
     if (isCheck(playerTurn_, board_)) {
-      // Checkmate
       Player winner = getPlayer(
           (playerTurn_ == White) ? Black : White);  // Opposite player wins
       std::cout << "Checkmate! " << winner.getName() << " wins!" << '\n';
     } else {
-      // Stalemate
       std::cout << "Draw by stalemate" << '\n';
     }
   }
   if (insufficientMaterial()) {
-    // Draw by insufficient material
     setGameOver(true);
     std::cout << "Draw by insufficient material" << '\n';
   }

@@ -1,11 +1,11 @@
-#ifndef SCACCHIERA_HPP
-#define SCACCHIERA_HPP
+#ifndef BOARD_HPP
+#define BOARD_HPP
 
 #include <array>
 #include <memory>
 
-#include "Pieces.hpp"
-#include "Player.hpp"
+#include "pieces.hpp"
+#include "player.hpp"
 
 enum castleType { Long, Short };
 

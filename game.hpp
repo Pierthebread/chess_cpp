@@ -1,8 +1,6 @@
 #ifndef GAME_HPP
 #define GAME_HPP
-#include "Board.hpp"
-#include "Pieces.hpp"
-#include "Player.hpp"
+#include "board.hpp"
 
 class Game {
  private:
