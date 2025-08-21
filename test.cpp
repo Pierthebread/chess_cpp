@@ -222,15 +222,15 @@ TEST_CASE("Testing getKingPosition") {
     CHECK(board.getKingPosition(White) == white_king_pos);
     CHECK(board.getKingPosition(Black) == black_king_pos);
   }
- SUBCASE("Testing getKingPosition after king has moved") {
-   board.movePiece({4, 7}, {5, 1});
-   board.movePiece({4, 0}, {6, 6});
-   Point white_king_pos{5, 1};
-   Point black_king_pos{6, 6};
+  SUBCASE("Testing getKingPosition after king has moved") {
+    board.movePiece({4, 7}, {5, 1});
+    board.movePiece({4, 0}, {6, 6});
+    Point white_king_pos{5, 1};
+    Point black_king_pos{6, 6};
 
-   CHECK(board.getKingPosition(White) == white_king_pos);
-   //CHECK(board.getKingPosition(Black) == black_king_pos);
- }
+    CHECK(board.getKingPosition(White) == white_king_pos);
+    // CHECK(board.getKingPosition(Black) == black_king_pos);
+  }
 };
 
 TEST_CASE("Testing isPromotion and Promote") {
@@ -289,331 +289,405 @@ TEST_CASE("Testing isCastling") {
 };
 
 // test Game
-//TEST_CASE("Testing  rightStarting") {
-//  sf::RenderWindow window;
-//  Game game(std::string("nameWhite"), std::string("nameWhite"), window);
-//  game.getBoard().setPiece(rook, White, {0, 0});
-//  game.getBoard().setPiece(queen, Black, {1, 7});
-//
-//  SUBCASE("Testing rightStarting") {
-//    CHECK(game.getPlayerTurn() == White);
-//    CHECK(game.rightStarting({0, 0}) == true);
-//    CHECK(game.rightStarting({1, 7}) == false);
-//    CHECK(game.rightStarting({2, 7}) == false);
-//    CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
-//
-//    game.setPlayerTurn(Black);
-//    
-//    CHECK(game.getPlayerTurn() == Black);
-//    CHECK(game.rightStarting({1, 7}) == true);
-//    CHECK(game.rightStarting({0, 0}) == false);
-//    CHECK(game.rightStarting({2, 7}) == false);
-//    CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
-//  }
-//}
+TEST_CASE("Testing  rightStarting") {
+  sf::RenderWindow window;
+  Game game(std::string("White"), std::string("Black"), window);
+  game.getBoard().setPiece(rook, White, {0, 0});
+  game.getBoard().setPiece(queen, Black, {1, 7});
 
-/*
+  SUBCASE("Testing rightStarting") {
+    CHECK(game.getPlayerTurn() == White);
+    CHECK(game.rightStarting({0, 0}) == true);
+    CHECK(game.rightStarting({1, 7}) == false);
+    CHECK(game.rightStarting({2, 7}) == false);
+    CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
+
+    game.switchTurn();
+
+    CHECK(game.getPlayerTurn() == Black);
+    CHECK(game.rightStarting({1, 7}) == true);
+    CHECK(game.rightStarting({0, 0}) == false);
+    CHECK(game.rightStarting({2, 7}) == false);
+    CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
+  }
+}
+
 TEST_CASE("Testing  rightArrival") {
-  Game game("nameWhite", "nameWhite");
-  game.getBoard().setPiece(rook, White, {A, 0});
-  game.getBoard().setPiece(queen, Black, {B, 7});
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  game.getBoard().setPiece(rook, White, {0, 0});
+  game.getBoard().setPiece(queen, Black, {1, 7});
 
   SUBCASE("Testing rightArrival true ") {
-    CHECK(game.rightArrival({A, 5}) == true);
-    CHECK(game.rightArrival({B, 7}) == true);
-    game.setPlayerTurn_(Black);
+    CHECK(game.rightArrival({0, 5}) == true);
+    CHECK(game.rightArrival({1, 7}) == true);
+    CHECK(game.rightArrival({0, 0}) == false);
+    game.switchTurn();
     CHECK(game.getPlayerTurn() == Black);
-    CHECK(game.rightArrival({A, 0}) == true);
-    CHECK(game.rightArrival({B, 4}) == true);
+    CHECK(game.rightArrival({0, 0}) == true);
+    CHECK(game.rightArrival({1, 4}) == true);
+    CHECK(game.rightArrival({1, 7}) == false);
   }
+}
 
-  SUBCASE("Testing rightArrival false") {
-    CHECK(game.rightArrival({A, 0}) == false);
-    game.setPlayerTurn_(Black);
-    CHECK(game.rightArrival({B, 7}) == false);
-  }
-};
-
-TEST_CASE("Testing  createCheck") {
-  Game game("nameWhite", "nameWhite");
-  game.getBoard().setPiece(king, White, {D, 3});
+TEST_CASE("Testing createCheck") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  game.getBoard().setPiece(king, White, {3, 3});
 
   SUBCASE("Testing createCheck I") {
-    game.getBoard().setPiece(rook, Black, {H, 3});
-    CHECK(game.createCheck({D, 3}, {E, 3}) == true);
-    CHECK(game.createCheck({D, 3}, {C, 3}) == true);
-    CHECK(game.createCheck({D, 3}, {D, 4}) == false);
-    // non dovrebbe essersi spostato
-    game.createCheck({D, 3}, {D, 4});
-    CHECK(game.getBoard().selectPiece({D, 3})->getName() == king);
+    game.getBoard().setPiece(rook, Black, {7, 3});
+    CHECK(game.createCheck({3, 3}, {4, 3}) == true);
+    CHECK(game.createCheck({3, 3}, {2, 3}) == true);
+    CHECK(game.createCheck({3, 3}, {3, 4}) == false);
+    game.createCheck({3, 3}, {3, 4});
+    CHECK(game.getBoard().selectPiece({3, 3})->getName() == king);
   }
   SUBCASE("Testing createCheck II") {
-    game.getBoard().setPiece(rook, Black, {H, 3});
-    game.getBoard().setPiece(rook, White, {E, 3});
-    CHECK(game.createCheck({E, 3}, {F, 3}) == false);
-    CHECK(game.createCheck({E, 3}, {H, 3}) == false);
-    CHECK(game.createCheck({E, 3}, {E, 2}) == true);
-    // non dovrebbe essersi spostato
-    game.createCheck({E, 3}, {D, 4});
-    CHECK(game.getBoard().selectPiece({E, 3})->getName() == rook);
+    game.getBoard().setPiece(rook, Black, {7, 3});
+    game.getBoard().setPiece(rook, White, {4, 3});
+    CHECK(game.createCheck({4, 3}, {5, 3}) == false);
+    CHECK(game.createCheck({4, 3}, {7, 3}) == false);
+    CHECK(game.createCheck({4, 3}, {4, 2}) == true);
   }
-
   SUBCASE("Testing createCheck III") {
-    game.getBoard().setPiece(pawn, White, {E, 3});
-    game.getBoard().setPiece(rook, Black, {H, 3});
-
-    CHECK(game.createCheck({E, 3}, {E, 4}) == true);
-    CHECK(game.createCheck({E, 3}, {E, 5}) == true);
-    CHECK(game.createCheck({E, 3}, {F, 4}) == true);
-    CHECK(game.createCheck({E, 3}, {E, 2}) == true);
+    game.getBoard().setPiece(rook, Black, {7, 3});
+    game.getBoard().setPiece(pawn, White, {4, 3});
+    CHECK(game.createCheck({4, 3}, {4, 4}) == true);
+    CHECK(game.createCheck({4, 3}, {4, 5}) == true);
+    CHECK(game.createCheck({4, 3}, {5, 4}) == true);
   }
-
   SUBCASE("Testing createCheck IV") {
-    game.getBoard().setPiece(pawn, White, {D, 4});
-    game.getBoard().setPiece(queen, Black, {D, 6});
-
-    CHECK(game.createCheck({D, 4}, {D, 5}) == false);
-    CHECK(game.createCheck({D, 4}, {D, 6}) == false);
-    CHECK(game.createCheck({D, 4}, {D, 2}) == true);
+    game.getBoard().setPiece(queen, Black, {3, 6});
+    game.getBoard().setPiece(pawn, White, {3, 4});
+    CHECK(game.createCheck({3, 4}, {3, 5}) == false);
+    CHECK(game.createCheck({3, 4}, {3, 6}) == false);
+    CHECK(game.createCheck({3, 4}, {3, 2}) == true);
   }
-
   SUBCASE("Testing createCheck V") {
-    game.getBoard().setPiece(rook, White, {A, 1});
-    CHECK(game.createCheck({A, 1}, {A, 2}) == false);
-    CHECK(game.createCheck({A, 1}, {A, 3}) == false);
+    game.getBoard().setPiece(rook, White, {0, 1});
+    CHECK(game.createCheck({0, 1}, {0, 2}) == false);
+    CHECK(game.createCheck({0, 1}, {0, 3}) == false);
   }
-
   SUBCASE("Testing createCheck VI") {
-    game.getBoard().setPiece(bishop, White, {C, 2});
-    game.getBoard().setPiece(bishop, Black, {F, 5});
-
-    CHECK(game.createCheck({C, 2}, {D, 1}) == true);
-    CHECK(game.createCheck({C, 2}, {E, 4}) == false);
+    game.getBoard().setPiece(bishop, White, {2, 2});
+    game.getBoard().setPiece(bishop, Black, {5, 5});
+    CHECK(game.createCheck({2, 2}, {3, 1}) == true);
+    CHECK(game.createCheck({2, 2}, {4, 4}) == false);
   }
-
   SUBCASE("Testing createCheck VII") {
-    game.getBoard().setPiece(knight, White, {B, 1});
-    game.getBoard().setPiece(bishop, Black, {H, 7});
-
-    CHECK(game.createCheck({B, 1}, {C, 3}) == true);
-    CHECK(game.createCheck({B, 1}, {A, 3}) == true);
+    game.getBoard().setPiece(knight, White, {1, 1});
+    game.getBoard().setPiece(bishop, Black, {7, 7});
+    CHECK(game.createCheck({1, 1}, {2, 3}) == true);
+    CHECK(game.createCheck({1, 1}, {0, 3}) == true);
   }
-
   SUBCASE("Testing createCheck VIII") {
-    game.getBoard().setPiece(pawn, White, {D, 4});
-    game.getBoard().setPiece(queen, Black, {D, 6});
-    game.getBoard().setPiece(rook, Black, {H, 7});
-
-    CHECK(game.createCheck({D, 4}, {D, 5}) == false);
-    CHECK(game.createCheck({D, 4}, {C, 4}) == true);
+    game.getBoard().setPiece(pawn, White, {3, 4});
+    game.getBoard().setPiece(queen, Black, {3, 6});
+    game.getBoard().setPiece(rook, Black, {7, 7});
+    CHECK(game.createCheck({3, 4}, {3, 5}) == false);
+    CHECK(game.createCheck({3, 4}, {2, 4}) == true);
   }
-
   SUBCASE("Testing createCheck IX") {
-    game.getBoard().setPiece(pawn, White, {E, 4});
-    CHECK(game.createCheck({E, 4}, {E, 4}) == false);  // nessun movimento
+    game.getBoard().setPiece(pawn, White, {4, 4});
+    CHECK(game.createCheck({4, 4}, {4, 4}) == false);
   }
 }
 
-TEST_CASE("Game::validMove") {
-  Game game("whiteName", "blackName");
+TEST_CASE("Game::validMove - General Rules") {
+  sf::RenderWindow window;
 
-  SUBCASE("1. Casella di partenza vuota → false") {
-    CHECK(game.validMove({E, 2}, {E, 4}) == false);
+  SUBCASE("Empty starting cell → false") {
+    Game game("white", "black", window);
+    CHECK(game.validMove({4, 2}, {4, 4}, game.getBoard()) == false);
   }
 
-  SUBCASE("2. Mossa su casella occupata da proprio pezzo → false") {
-    game.getBoard().setPiece(pawn, White, {E, 2});
-    game.getBoard().setPiece(pawn, White, {E, 4});
-    CHECK(game.validMove({E, 2}, {E, 4}) == false);
+  SUBCASE("Move to cell occupied by same color → false") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(pawn, White, {4, 2});
+    game.getBoard().setPiece(pawn, White, {4, 4});
+    CHECK(game.validMove({4, 2}, {4, 4}, game.getBoard()) == false);
   }
 
-  SUBCASE("3. Mossa non valida per il tipo di pezzo → false") {
-    game.getBoard().setPiece(rook, White, {E, 2});
-    CHECK(game.validMove({E, 2}, {F, 3}) == false);
+  SUBCASE("Invalid move for piece type → false") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(rook, White, {4, 2});
+    CHECK(game.validMove({4, 2}, {5, 3}, game.getBoard()) == false);
   }
 
-  SUBCASE("4. Percorso ostruito → false") {
-    game.getBoard().setPiece(rook, White, {E, 2});
-    game.getBoard().setPiece(pawn, White, {E, 3});
-    CHECK(game.validMove({E, 2}, {E, 4}) == false);
+  SUBCASE("Blocked path → false") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(rook, White, {4, 2});
+    game.getBoard().setPiece(pawn, White, {4, 3});
+    CHECK(game.validMove({4, 2}, {4, 4}, game.getBoard()) == false);
   }
 
-  SUBCASE("5. Pedone non può mangiare frontalmente → false") {
-    game.getBoard().setPiece(pawn, White, {E, 2});
-    game.getBoard().setPiece(pawn, Black, {E, 3});
-    CHECK(game.validMove({E, 2}, {E, 3}) == false);
+  SUBCASE("Move leaving king in check → false") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(king, White, {4, 1});
+    game.getBoard().setPiece(rook, Black, {4, 4});
+    game.getBoard().setPiece(pawn, White, {4, 2});
+    CHECK(game.validMove({4, 2}, {4, 3}, game.getBoard()) == false);
   }
 
-  SUBCASE("6. Mossa che lascia il re sotto scacco → false") {
-    game.getBoard().setPiece(king, White, {E, 1});
-    game.getBoard().setPiece(rook, Black, {E, 4});
-    game.getBoard().setPiece(pawn, White, {E, 2});
-    CHECK(game.validMove({E, 2}, {E, 3}) ==
-          false);  // Rimuove la protezione, re sotto scacco
-  }
-
-  SUBCASE("7. Mossa valida → true") {
-    game.getBoard().setPiece(rook, White, {E, 2});
-    game.getBoard().setPiece(king, White, {E, 4});
-    CHECK(game.validMove({E, 2}, {E, 3}) == true);
-  }
-
-  SUBCASE("Testing validMove 0") {
-    game.getBoard().setPiece(king, White, {E, 0});
-    game.getBoard().setPiece(pawn, White, {E, 4});
-    game.getBoard().setPiece(bishop, White, {B, 5});
-    game.getBoard().setPiece(pawn, Black, {D, 6});
-    game.getBoard().setPiece(king, Black, {E, 7});
-    game.setPlayerTurn_(Black);
-    CHECK(game.validMove({D, 6}, {D, 4}) == false);
-    game.getBoard().movePiece({D, 6}, {D, 4});
-    CHECK(game.validMove({E, 7}, {F, 7}) == false);
-    CHECK(game.validMove({E, 7}, {D, 6}) == false);
-  }
-  SUBCASE("Testing validMove I") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(rook, Black, {H, 3});
-    CHECK(game.validMove({D, 3}, {E, 3}) == false);
-    CHECK(game.validMove({D, 3}, {C, 3}) == false);
-    CHECK(game.validMove({D, 3}, {D, 4}) == true);
-    game.validMove({D, 3}, {D, 4});  // non valido, non si muove
-    CHECK(game.getBoard().selectPiece({D, 3})->getName() == king);
-  }
-
-  SUBCASE("Testing validMove II") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(rook, Black, {H, 3});
-    game.getBoard().setPiece(rook, White, {E, 3});
-    CHECK(game.validMove({E, 3}, {F, 3}) == true);
-    CHECK(game.validMove({E, 3}, {H, 3}) == true);
-    CHECK(game.validMove({E, 3}, {E, 2}) == false);
-    game.validMove({E, 3}, {D, 4});  // non valido, non si muove
-    CHECK(game.getBoard().selectPiece({E, 3})->getName() == rook);
-  }
-
-  SUBCASE("Testing validMove III") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(pawn, White, {E, 3});
-    game.getBoard().setPiece(rook, Black, {H, 3});
-
-    CHECK(game.validMove({E, 3}, {E, 4}) == false);
-    CHECK(game.validMove({E, 3}, {E, 5}) == false);
-    CHECK(game.validMove({E, 3}, {F, 4}) == false);
-    CHECK(game.validMove({E, 3}, {E, 2}) == false);
-  }
-
-  SUBCASE("Testing validMove IV") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(pawn, White, {D, 4});
-    game.getBoard().setPiece(queen, Black, {D, 6});
-
-    CHECK(game.validMove({D, 4}, {D, 5}) == true);
-    CHECK(game.validMove({D, 4}, {D, 6}) == false);
-    CHECK(game.validMove({D, 4}, {D, 2}) == false);
-  }
-
-  SUBCASE("Testing validMove V") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(rook, White, {A, 1});
-    CHECK(game.validMove({A, 1}, {A, 2}) == true);
-    CHECK(game.validMove({A, 1}, {A, 3}) == true);
-  }
-
-  SUBCASE("Testing validMove VI") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(bishop, White, {C, 2});
-    game.getBoard().setPiece(bishop, Black, {F, 5});
-
-    CHECK(game.validMove({C, 2}, {D, 1}) == false);  // scopre diagonale
-    CHECK(game.validMove({C, 2}, {E, 4}) ==
-          false);  // anche se minaccia non cambia
-  }
-
-  SUBCASE("Testing validMove VII") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(knight, White, {B, 1});
-    game.getBoard().setPiece(bishop, Black, {H, 7});
-
-    CHECK(game.validMove({B, 1}, {C, 3}) == false);
-    CHECK(game.validMove({B, 1}, {A, 3}) == false);
-  }
-
-  SUBCASE("Testing validMove VIII") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(pawn, White, {D, 4});
-    game.getBoard().setPiece(queen, Black, {D, 6});
-    game.getBoard().setPiece(rook, Black, {H, 7});
-
-    CHECK(game.validMove({D, 4}, {D, 5}) == true);
-    CHECK(game.validMove({D, 4}, {C, 4}) == false);
-  }
-
-  SUBCASE("Testing validMove IX") {
-    game.getBoard().setPiece(king, White, {D, 3});
-    game.getBoard().setPiece(pawn, White, {E, 4});
-    CHECK(game.validMove({E, 4}, {E, 4}) ==
-          false);  // nessun movimento tecnicamente vietato?
+  SUBCASE("Valid move → true") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(rook, White, {4, 2});
+    CHECK(game.validMove({4, 2}, {4, 3}, game.getBoard()) == true);
   }
 }
 
-TEST_SUITE("Test validMove") {
-  TEST_CASE("Basic Pawn Moves") {
-    Game game("Player1", "Player2");
-    game.getBoard().setPiece(pawn, White, {A, 1});
+TEST_CASE("Game::validMove - Pawn Specific Rules") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
 
-    SUBCASE("Valid single push") {
-      CHECK(game.validMove({A, 1}, {A, 2}) == true);
-    }
-
-    SUBCASE("Invalid backward move") {
-      CHECK(game.validMove({A, 1}, {A, 0}) == false);
-    }
+  SUBCASE("Pawn cannot capture frontally → false") {
+    game.getBoard().setPiece(pawn, White, {4, 2});
+    game.getBoard().setPiece(pawn, Black, {4, 3});
+    CHECK(game.validMove({4, 2}, {4, 3}, game.getBoard()) == false);
   }
 
-  TEST_CASE("Pawn Captures") {
-    Game game("Player1", "Player2");
-    game.getBoard().setPiece(pawn, White, {C, 2});
-    game.getBoard().setPiece(pawn, Black, {D, 3});
-
-    SUBCASE("Valid diagonal capture") {
-      CHECK(game.validMove({C, 2}, {D, 3}) == true);
-    }
-
-    SUBCASE("Invalid vertical capture") {
-      game.getBoard().setPiece(pawn, Black, {C, 3});
-      CHECK(game.validMove({C, 2}, {C, 3}) == false);
-    }
+  SUBCASE("Pawn valid single push → true") {
+    game.getBoard().setPiece(pawn, White, {0, 6});
+    CHECK(game.validMove({0, 6}, {0, 5}, game.getBoard()) == true);
   }
 
-  TEST_CASE("King Safety") {
-    Game game("Player1", "Player2");
-    game.getBoard().setPiece(king, White, {E, 1});
-    game.getBoard().setPiece(rook, Black, {E, 7});
-
-    SUBCASE("Blocked by check") {
-      CHECK(game.validMove({E, 1}, {E, 2}) == false);
-    }
+  SUBCASE("Pawn invalid backward move → false") {
+    game.getBoard().setPiece(pawn, White, {0, 6});
+    CHECK(game.validMove({0, 6}, {0, 7}, game.getBoard()) == false);
   }
 
-  TEST_CASE("Turn Validation") {
-    Game game("Player1", "Player2");
-    game.getBoard().setPiece(pawn, White, {A, 2});
-    game.getBoard().setPiece(pawn, Black, {A, 6});
+  SUBCASE("Pawn valid diagonal capture → true") {
+    game.getBoard().setPiece(pawn, White, {3, 4});
+    game.getBoard().setPiece(pawn, Black, {4, 3});
+    CHECK(game.validMove({3, 4}, {4, 3}, game.getBoard()) == true);
+  }
 
-    SUBCASE("White's turn") {
-      CHECK(game.validMove({A, 2}, {A, 3}) == true);
-      CHECK(game.validMove({A, 6}, {A, 5}) == false);
-    }
-
-    SUBCASE("Black's turn") {
-      game.setPlayerTurn_(Black);
-      CHECK(game.validMove({A, 6}, {A, 5}) == true);
-      CHECK(game.validMove({A, 2}, {A, 3}) == false);
-    }
+  SUBCASE("Pawn invalid vertical capture → false") {
+    game.getBoard().setPiece(pawn, White, {2, 2});
+    game.getBoard().setPiece(pawn, Black, {2, 3});
+    CHECK(game.validMove({2, 2}, {2, 3}, game.getBoard()) == false);
   }
 }
 
-*/
+TEST_CASE("Game::validMove - Check Scenarios") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  game.getBoard().setPiece(king, White, {3, 3});
+
+  SUBCASE("King cannot move into check") {
+    game.getBoard().setPiece(rook, Black, {7, 3});
+    CHECK(game.validMove({3, 3}, {4, 3}, game.getBoard()) == false);
+    CHECK(game.validMove({3, 3}, {2, 3}, game.getBoard()) == false);
+    CHECK(game.validMove({3, 3}, {3, 4}, game.getBoard()) == true);
+  }
+
+  SUBCASE("Piece blocks check → valid move") {
+    game.getBoard().setPiece(rook, Black, {7, 3});
+    game.getBoard().setPiece(rook, White, {4, 3});
+    CHECK(game.validMove({4, 3}, {5, 3}, game.getBoard()) == true);
+    CHECK(game.validMove({4, 3}, {7, 3}, game.getBoard()) == true);
+  }
+
+  SUBCASE("Moving pinned piece reveals check → invalid move") {
+    game.getBoard().setPiece(queen, Black, {3, 6});
+    game.getBoard().setPiece(pawn, White, {3, 5});
+    CHECK(game.validMove({3, 5}, {3, 4}, game.getBoard()) == true);
+    CHECK(game.validMove({3, 5}, {3, 6}, game.getBoard()) == false);
+  }
+}
+
+TEST_CASE("Game::validMove - Edge Cases") {
+  sf::RenderWindow window;
+
+  SUBCASE("Moving to same position → false") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(pawn, White, {4, 4});
+    CHECK(game.validMove({4, 4}, {4, 4}, game.getBoard()) == false);
+  }
+
+  SUBCASE("Turn validation - white's turn") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(pawn, White, {0, 6});
+    game.getBoard().setPiece(pawn, Black, {0, 2});
+    CHECK(game.validMove({0, 6}, {0, 5}, game.getBoard()) == true);
+    CHECK(game.validMove({0, 2}, {0, 3}, game.getBoard()) == false);
+  }
+
+  SUBCASE("Turn validation - black's turn") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(pawn, White, {0, 5});
+    game.getBoard().setPiece(pawn, Black, {0, 2});
+    game.switchTurn();
+    CHECK(game.validMove({0, 2}, {0, 3}, game.getBoard()) == true);
+    CHECK(game.validMove({0, 6}, {0, 5}, game.getBoard()) == false);
+  }
+}
+
+TEST_CASE("Game::validMove - Complex Scenarios") {
+  sf::RenderWindow window;
+
+  SUBCASE("Scenario 1 - Pawn blocks bishop attack") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(pawn, White, {4, 4});
+    game.getBoard().setPiece(bishop, White, {1, 5});
+    game.getBoard().setPiece(pawn, Black, {3, 6});
+    game.getBoard().setPiece(king, Black, {4, 7});
+    game.switchTurn();
+    CHECK(game.validMove({3, 6}, {3, 4}, game.getBoard()) == false);
+  }
+
+  SUBCASE("Scenario 2 - Knight movement with check") {
+    Game game("white", "black", window);
+    game.getBoard().setPiece(king, White, {3, 3});
+    game.getBoard().setPiece(knight, White, {1, 1});
+    game.getBoard().setPiece(bishop, Black, {7, 7});
+    CHECK(game.validMove({1, 1}, {2, 3}, game.getBoard()) == false);
+    CHECK(game.validMove({1, 1}, {0, 3}, game.getBoard()) == false);
+  }
+}
+
+// Test per arrocco
+TEST_CASE("Game::isCastlingValid - Valid Conditions") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  
+  SUBCASE("Kingside castling valid") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {7, 0});
+    CHECK(game.isCastlingValid({4, 0}, {6, 0}) == true);
+  }
+
+  SUBCASE("Queenside castling valid") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {0, 0});
+    CHECK(game.isCastlingValid({4, 0}, {2, 0}) == true);
+  }
+}
+
+TEST_CASE("Game::isCastlingValid - Invalid Conditions") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  
+  SUBCASE("King has moved") {
+    game.getBoard().setPiece(king, White, {4, 0})->setMoved(true);
+    game.getBoard().setPiece(rook, White, {7, 0});
+    CHECK(game.isCastlingValid({4, 0}, {6, 0}) == false);
+  }
+
+  SUBCASE("Rook has moved") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {7, 0})->setMoved(true);
+    CHECK(game.isCastlingValid({4, 0}, {6, 0}) == false);
+  }
+
+  SUBCASE("Path not clear") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {7, 0});
+    game.getBoard().setPiece(bishop, White, {5, 0});
+    CHECK(game.isCastlingValid({4, 0}, {6, 0}) == false);
+  }
+
+  SUBCASE("King in check during castling") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {7, 0});
+    game.getBoard().setPiece(rook, Black, {4, 7});
+    CHECK(game.isCastlingValid({4, 0}, {6, 0}) == false);
+  }
+}
+
+TEST_CASE("Game::executeCastling") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  
+  SUBCASE("Kingside castling execution") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {7, 0});
+    game.executeCastling({4, 0}, {6, 0});
+    CHECK(game.getBoard().selectPiece({6, 0})->getName() == king);
+    CHECK(game.getBoard().selectPiece({5, 0})->getName() == rook);
+  }
+
+  SUBCASE("Queenside castling execution") {
+    game.getBoard().setPiece(king, White, {4, 0});
+    game.getBoard().setPiece(rook, White, {0, 0});
+    game.executeCastling({4, 0}, {2, 0});
+    CHECK(game.getBoard().selectPiece({2, 0})->getName() == king);
+    CHECK(game.getBoard().selectPiece({3, 0})->getName() == rook);
+  }
+}
+
+// Test per en passant
+TEST_CASE("Game::setEnPassantTarget") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  
+  SUBCASE("Pawn double move sets en passant") {
+    game.getBoard().setPiece(pawn, White, {1, 1});
+    game.setEnPassantTarget({1, 1}, {1, 3});
+    CHECK(game.enPassantTarget_.c == 1);
+    CHECK(game.enPassantTarget_.r == 2);
+  }
+
+  SUBCASE("Non-pawn move resets en passant") {
+    game.getBoard().setPiece(rook, White, {0, 0});
+    game.setEnPassantTarget({0, 0}, {0, 5});
+    CHECK(game.enPassantTarget_.c == 8);
+    CHECK(game.enPassantTarget_.r == 8);
+  }
+}
+
+TEST_CASE("Game::isEnPassantValid") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  
+  SUBCASE("Valid en passant capture") {
+    game.getBoard().setPiece(pawn, White, {1, 3});
+    game.enPassantTarget_ = {2, 2};
+    CHECK(game.isEnPassantValid({1, 3}, {2, 2}) == true);
+  }
+
+  SUBCASE("Invalid target position") {
+    game.getBoard().setPiece(pawn, White, {1, 3});
+    game.enPassantTarget_ = {3, 2};
+    CHECK(game.isEnPassantValid({1, 3}, {2, 2}) == false);
+  }
+}
+
+TEST_CASE("Game::executeEnPassant") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  
+  SUBCASE("En passant execution removes correct pawn") {
+    game.getBoard().setPiece(pawn, White, {1, 3});
+    game.getBoard().setPiece(pawn, Black, {2, 3});
+    game.executeEnPassant({1, 3}, {2, 2});
+    CHECK(game.getBoard().selectPiece({2, 3}) == nullptr);
+    CHECK(game.getBoard().selectPiece({2, 2})->getName() == pawn);
+  }
+}
+
+// Test per promotion
+TEST_CASE("Game::executePromotion") {
+  sf::RenderWindow window;
+  Game game("white", "black", window);
+  
+  SUBCASE("Promotion to queen") {
+    game.getBoard().setPiece(pawn, White, {0, 1});
+    game.promoteTo(queen);
+    game.executePromotion({0, 1}, {0, 0});
+    CHECK(game.getBoard().selectPiece({0, 0})->getName() == queen);
+  }
+
+  SUBCASE("Promotion to rook") {
+    game.getBoard().setPiece(pawn, Black, {1, 6});
+    game.switchTurn();
+    game.promoteTo(rook);
+    game.executePromotion({1, 6}, {1, 7});
+    CHECK(game.getBoard().selectPiece({1, 7})->getName() == rook);
+  }
+}
 
 // TEST_CASE("Testing checkmate") {
 //   sf::RenderWindow window;

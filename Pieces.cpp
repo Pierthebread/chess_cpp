@@ -45,11 +45,10 @@ void Piece::drawPiece(sf::RenderWindow& window) {
 
 // LE CLASSI DERIVATE: I SINGOLI PEZZI
 
-// RE
-// Constructor
+// KING
+
 King::King(Color color) : Piece(king, color) { loadTexture(); };
 
-// le mosse del re
 bool King::validPieceMove(Point cell_from, Point cell_to) {
   assertInRange_Pieces(cell_from);
   assertInRange_Pieces(cell_to);

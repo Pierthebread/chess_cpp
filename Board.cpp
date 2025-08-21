@@ -1,9 +1,8 @@
 
 #include "Board.hpp"
 
-// Costruttore
 Board::Board(sf::RenderWindow& window)
-    : window_(window), whiteKingPos_({4, 7}), blackKingPos_({4, 0}) {
+    : window_(window) {
   for (auto& column : board) {
     for (auto& cell : column) {
       cell = nullptr;
@@ -17,7 +16,6 @@ Board::Board(sf::RenderWindow& window)
   cellBlack_.setFillColor(sf::Color(139, 69, 19));
 }
 
-// clona la board attuale
 Board Board::cloneBoard(const Board& other_board) {
   Board temporary_board(other_board.window_);
   for (std::size_t c = 0; c < 8; ++c) {
@@ -37,7 +35,6 @@ Board Board::cloneBoard(const Board& other_board) {
   return temporary_board;
 }
 
-// questa funzione mi permette di posizionare pezzi sulla scacchiera
 void Board::setPiece(Name type, Color color, Point p) {
   assertInRange_Board(p);
   switch (type) {
@@ -64,6 +61,7 @@ void Board::setPiece(Name type, Color color, Point p) {
     case Name::king:
       board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)] =
           std::make_unique<King>(color);
+      setKingPosition(color, p);
       break;
     default:
       break;
@@ -72,7 +70,6 @@ void Board::setPiece(Name type, Color color, Point p) {
       ->setPositionImage({p.c, p.r});
 }
 
-// posiziona tutti i pezzi sulla scacchiera
 void Board::setPieces() {
   for (int c = 0; c < 8; ++c) {
     setPiece(pawn, White, {c, 6});
@@ -96,8 +93,6 @@ void Board::setPieces() {
   setPiece(rook, White, {7, 7});
 }
 
-//////////// Creazione dell'interfaccia grafica
-// traduzione point - pixel per posizionare le celle
 void Piece::setPositionImage(Point p) {
   assertInRange_Pieces(p);
   sprite_.setPosition(static_cast<float>(p.c) * CELL_SIZE + 40.0f -
@@ -106,9 +101,8 @@ void Piece::setPositionImage(Point p) {
                           sprite_.getGlobalBounds().height / 2);
 }
 
-// disegna la scacchiera vuota sulla window
-void Board::drawBoard() {            // questa è la finestra grafica SFML
-  const float cellSize = CELL_SIZE;  // dimensione della casella
+void Board::drawBoard() {
+  const float cellSize = CELL_SIZE;
   for (int c = 0; c < 8; ++c) {
     for (int r = 0; r < 8; ++r) {
       sf::RectangleShape& cell = ((c + r) % 2 == 0) ? cellWhite_ : cellBlack_;
@@ -119,7 +113,6 @@ void Board::drawBoard() {            // questa è la finestra grafica SFML
   }
 }
 
-// disegna i pezzi sulla window
 void Board::drawPieces() {
   for (std::size_t c = 0; c < 8; ++c) {
     for (std::size_t r = 0; r < 8; ++r) {
@@ -130,7 +123,6 @@ void Board::drawPieces() {
   }
 }
 
-// posizione del re
 Point Board::getKingPosition(Color color) const {
   return (color == White) ? whiteKingPos_ : blackKingPos_;
 }
@@ -144,7 +136,6 @@ void Board::deletePiece(Point p) {
   board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)] = nullptr;
 }
 
-////////// Movimento dei pezzi
 Piece* Board::selectPiece(Point p) const {
   assertInRange_Board(p);
   if (p.c < 0 or p.c >= 8 or p.r < 0 or p.r >= 8) {
@@ -158,8 +149,6 @@ Piece* Board::selectPiece(Point p) const {
 }
 
 void Board::movePiece(Point from, Point to) {
-  // std::move sposta l'oggetto da from a to, distruggendo l'oggetto che
-  // conteneva in precedenza to.
   assertInRange_Board(from);
   assertInRange_Board(to);
   if (selectPiece(from)) {
@@ -180,8 +169,7 @@ void Board::movePiece(Point from, Point to) {
     throw std::runtime_error{"Selected cell is empty"};
   }
 }
-/////////
-/////////// Controllo della scacchiera (clearPath e kingPosition)
+
 bool Board::clearPath(Point from, Point to) const {
   assertInRange_Board(from);
   assertInRange_Board(to);
@@ -252,7 +240,6 @@ bool Board::isCastling(Point from, Point to) const {
   return false;
 }
 
-// riconosce se la mossa appena compiuta ha portato un pedone a promozione
 bool Board::isPromotion(Point from, Point to) const {
   assertInRange_Board(from);
   assertInRange_Board(to);
@@ -264,7 +251,6 @@ bool Board::isPromotion(Point from, Point to) const {
   return false;
 }
 
-// promuove il pedone a pezzo desiderato
 void Board::promote(Point p_pawn, Name piece, Color color) {
   assertInRange_Board(p_pawn);
   setPiece(piece, color, p_pawn);
