@@ -229,7 +229,7 @@ TEST_CASE("Testing getKingPosition") {
     Point black_king_pos{6, 6};
 
     CHECK(board.getKingPosition(White) == white_king_pos);
-    // CHECK(board.getKingPosition(Black) == black_king_pos);
+    CHECK(board.getKingPosition(Black) == black_king_pos);
   }
 };
 

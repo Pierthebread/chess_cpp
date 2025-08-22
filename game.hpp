@@ -23,7 +23,7 @@ class Game {
   Game(const std::string nameWhite, const std::string nameBlack,
        sf::RenderWindow&);
 
-  Board& getBoard();  
+  Board& getBoard();
   Color getPlayerTurn();
   bool getGameOver();
   const Player& getPlayer(Color);
@@ -37,12 +37,12 @@ class Game {
   void switchTurn();
 
   // funzioni per il movimento pezzi (IMPLEMENTARE TEST)
-  bool rightStarting(Point from);  
+  bool rightStarting(Point from);
   bool rightArrival(Point to);
   bool isChecking(Point p, Color color, const Board& board);
   bool isCellAttached(Point p, Color color, const Board& board);
   bool isCheck(Color color, const Board& board);  // color è sotto scacco?
-  bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?     
+  bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?
   bool validMove(Point from, Point to, const Board& board);
 
   // funzioni per promozione (IMPLEMENTARE TEST)
@@ -60,7 +60,6 @@ class Game {
   bool isEnPassantValid(Point from, Point to);  // questo enPassant si può fare?
   void executeEnPassant(Point from, Point to);  // esegue l'enPassant
 
-  
   void executeMove(Point from, Point to);
 
   // conclusione partita
