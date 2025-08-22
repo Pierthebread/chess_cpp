@@ -1,7 +1,7 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 #include "board.hpp"
-
+namespace chess {
 class Game {
  private:
   sf::RenderWindow& window_;
@@ -17,6 +17,7 @@ class Game {
 
   static inline void assertInRange_Game(Point p) {
     assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
+    (void)p;  // evito warning in build Release
   }
 
  public:
@@ -69,5 +70,6 @@ class Game {
   bool insufficientMaterial();  // il materiale è sufficiente?
   void checkGameOver();
 };
+}  // namespace chess
 
 #endif

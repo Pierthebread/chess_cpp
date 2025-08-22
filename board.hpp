@@ -6,7 +6,7 @@
 
 #include "pieces.hpp"
 #include "player.hpp"
-
+namespace chess {
 enum castleType { Long, Short };
 
 constexpr float CELL_SIZE = 80.0f;
@@ -20,8 +20,9 @@ class Board {
   Point blackKingPos_;
 
   static inline void assertInRange_Board(Point p) {
-  assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
-}
+    assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
+    (void)p;  // evito warning in build Release
+  }
 
  public:
   Board(sf::RenderWindow& window);
@@ -50,4 +51,5 @@ class Board {
   bool clearVerticalPath(Point from, Point to) const;
   bool clearDiagonalPath(Point from, Point to) const;
 };
+}  // namespace chess
 #endif

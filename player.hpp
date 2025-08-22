@@ -2,7 +2,7 @@
 #define PLAYER_HPP
 
 #include "pieces.hpp"
-
+namespace chess {
 class Player {
  private:
   std::string name_;
@@ -21,5 +21,5 @@ class Player {
   // metodi per modificare le variabili private
   void incrementMoves();
 };
-
+}  // namespace chess
 #endif

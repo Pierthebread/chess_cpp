@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <limits>
-
+namespace chess {
 Game::Game(std::string nameWhite, std::string nameBlack,
            sf::RenderWindow& window)
     : window_(window),
@@ -95,7 +95,7 @@ bool Game::validMove(Point from, Point to, const Board& board) {
   } else if (createCheck(from, to) == true) {
     return false;
   }
-  if (piece->getName() == pawn) {
+  if (piece && piece->getName() == pawn) {
     if (to.c == enPassantTarget_.c && to.r == enPassantTarget_.r) {
       return true;
     }
@@ -112,7 +112,10 @@ bool Game::validMove(Point from, Point to, const Board& board) {
 bool Game::isCheck(Color color, const Board& board) {
   assert(color == White || color == Black);
   Point king_pos = board.getKingPosition(color);
-  assert(board.selectPiece(king_pos)->getName() == king);
+  Piece* king_piece = board.selectPiece(king_pos);
+  if (!king_piece || king_piece->getName() != king) {
+    throw std::logic_error("Re mancante nella board");
+  }
   return isCellAttached(king_pos, color, board);
 }
 
@@ -130,24 +133,23 @@ bool Game::createCheck(Point from, Point to) {
 }
 
 bool Game::isCellAttached(Point p, Color color, const Board& board) {
-    assertInRange_Game(p);
-    assert(color == White || color == Black);
-    
-    std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
-    
-    return std::any_of(indices.begin(), indices.end(), [&](int c) {
-        return std::any_of(indices.begin(), indices.end(), [&](int r) {
-            Piece* piece = board.selectPiece({c, r});
-            if (!piece || piece->getColor() == color) return false;
-            
-            if (piece->getName() != pawn) {
-                return piece->validPieceMove({c, r}, p) && 
-                       board.clearPath({c, r}, p);
-            } else {
-                return piece->validPieceMove({c, r}, p) && (c != p.c);
-            }
-        });
+  assertInRange_Game(p);
+  assert(color == White || color == Black);
+
+  std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
+
+  return std::any_of(indices.begin(), indices.end(), [&](int c) {
+    return std::any_of(indices.begin(), indices.end(), [&](int r) {
+      Piece* piece = board.selectPiece({c, r});
+      if (!piece || piece->getColor() == color) return false;
+
+      if (piece->getName() != pawn) {
+        return piece->validPieceMove({c, r}, p) && board.clearPath({c, r}, p);
+      } else {
+        return piece->validPieceMove({c, r}, p) && (c != p.c);
+      }
     });
+  });
 }
 
 bool Game::isCastlingValid(Point from, Point to) {
@@ -181,20 +183,16 @@ void Game::executeCastling(Point from, Point to) {
   const int row = to.r;
   // Arrocco lungo (sinistra)
   if (to.c == 2) {
-    assert(board_.selectPiece({0, row})->getName() == rook);
     board_.movePiece(from, {2, row});      // move the king
     board_.movePiece({0, row}, {3, row});  // move the rook
     board_.selectPiece({3, row})->setMoved(true);
   }
   // Arrocco corto (destra)
   else if (to.c == 6) {
-    assert(board_.selectPiece(from)->getName() == king);
-    assert(board_.selectPiece({0, row})->getName() == rook);
     board_.movePiece(from, {6, row});      // move the king
     board_.movePiece({7, row}, {5, row});  // move the rook
     board_.selectPiece({5, row})->setMoved(true);
   }
-  assert(board_.selectPiece(to)->getName() == king);
   board_.selectPiece(to)->setMoved(true);
   board_.setKingPosition(board_.selectPiece(to)->getColor(), to);
 }
@@ -310,26 +308,26 @@ void Game::executeMove(Point from, Point to) {
 }
 
 bool Game::canMove(Color color) {
-    std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
-    
-    return std::any_of(indices.begin(), indices.end(), [&](int c) {
-        return std::any_of(indices.begin(), indices.end(), [&](int r) {
-            Point from{c, r};
-            Piece* piece = board_.selectPiece(from);
-            if (!piece || piece->getColor() != color) return false;
-            
-            return std::any_of(indices.begin(), indices.end(), [&](int to_c) {
-                return std::any_of(indices.begin(), indices.end(), [&](int to_r) {
-                    Point to{to_c, to_r};
-                    try {
-                        return validMove(from, to, board_);
-                    } catch (const std::runtime_error&) {
-                        return false;
-                    }
-                });
-            });
+  std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
+
+  return std::any_of(indices.begin(), indices.end(), [&](int c) {
+    return std::any_of(indices.begin(), indices.end(), [&](int r) {
+      Point from{c, r};
+      Piece* piece = board_.selectPiece(from);
+      if (!piece || piece->getColor() != color) return false;
+
+      return std::any_of(indices.begin(), indices.end(), [&](int to_c) {
+        return std::any_of(indices.begin(), indices.end(), [&](int to_r) {
+          Point to{to_c, to_r};
+          try {
+            return validMove(from, to, board_);
+          } catch (const std::runtime_error&) {
+            return false;
+          }
         });
+      });
     });
+  });
 }
 
 bool Game::isCheckmate(Color color) {
@@ -431,3 +429,4 @@ void Game::checkGameOver() {
 }
 
 bool Game::isFiftyMoves() { return getFiftyMovesCounter() == 50; }
+}  // namespace chess

@@ -1,11 +1,10 @@
 #include "pieces.hpp"
-
+namespace chess {
 bool operator==(Point lp, Point rp) {
   assert(lp.c >= 0 && lp.c < 8 && lp.r >= 0 && lp.r < 8);
   assert(rp.c >= 0 && rp.c < 8 && rp.r >= 0 && rp.r < 8);
   return lp.c == rp.c && lp.r == rp.r;
 }
-
 
 bool operator!=(Point lp, Point rp) {
   assert(lp.c >= 0 && lp.c < 8 && lp.r >= 0 && lp.r < 8);
@@ -208,3 +207,4 @@ void Pawn::loadTexture() {
   }
   sprite_.setTexture(texture_);
 }
+}  // namespace chess

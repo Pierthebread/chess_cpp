@@ -1,5 +1,5 @@
 #include "game.hpp"
-
+using namespace chess;
 int main() {
   try {
     /*
@@ -18,7 +18,7 @@ int main() {
     std::cout << name2 << " is black" << '\n';
     */
 
-    sf::RenderWindow window(sf::VideoMode(640, 640), "Chess" );
+    sf::RenderWindow window(sf::VideoMode(640, 640), "Chess");
     window.setFramerateLimit(60);
 
     Game game("name1", "name2", window);
@@ -34,8 +34,8 @@ int main() {
 
       while (window.pollEvent(event)) {
         if (event.type == sf::Event::Resized) {
-        window.setSize(sf::Vector2u(640, 640));
-    }
+          window.setSize(sf::Vector2u(640, 640));
+        }
         if (event.type == sf::Event::Closed) {
           window.close();
         }

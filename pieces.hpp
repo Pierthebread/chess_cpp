@@ -8,7 +8,7 @@
 #include <string>
 
 // la classe pezzo sarà usata come base
-
+namespace chess {
 enum Color { White, Black };
 enum Name { king, queen, bishop, knight, rook, pawn };
 
@@ -31,6 +31,7 @@ class Piece {
 
   static inline void assertInRange_Pieces(Point p) {
     assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
+    (void)p; //evito warning in build Release
   }
 
  public:
@@ -117,5 +118,5 @@ class Pawn : public Piece {
   bool validPieceMove(Point cell_from, Point cell_to) override;
   void loadTexture() override;
 };
-
+}  // namespace chess
 #endif

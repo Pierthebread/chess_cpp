@@ -1,8 +1,7 @@
 
 #include "board.hpp"
-
-Board::Board(sf::RenderWindow& window)
-    : window_(window) {
+namespace chess {
+Board::Board(sf::RenderWindow& window) : window_(window) {
   for (auto& column : board) {
     for (auto& cell : column) {
       cell = nullptr;
@@ -255,3 +254,4 @@ void Board::promote(Point p_pawn, Name piece, Color color) {
   assertInRange_Board(p_pawn);
   setPiece(piece, color, p_pawn);
 }
+}  // namespace chess

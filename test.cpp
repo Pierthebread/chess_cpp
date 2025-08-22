@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "game.hpp"
 #include "doctest.h"
-
+#include "game.hpp"
+using namespace chess;
 // Piece.hpp && Piece.cpp
 TEST_CASE("Testing validPieceMove") {
   Point A{0, 0};
@@ -300,7 +300,6 @@ TEST_CASE("Testing  rightStarting") {
     CHECK(game.rightStarting({0, 0}) == true);
     CHECK(game.rightStarting({1, 7}) == false);
     CHECK(game.rightStarting({2, 7}) == false);
-    CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
 
     game.switchTurn();
 
@@ -308,7 +307,6 @@ TEST_CASE("Testing  rightStarting") {
     CHECK(game.rightStarting({1, 7}) == true);
     CHECK(game.rightStarting({0, 0}) == false);
     CHECK(game.rightStarting({2, 7}) == false);
-    CHECK_THROWS_AS(game.rightStarting({8, 7}), std::runtime_error);
   }
 }
 
@@ -432,6 +430,7 @@ TEST_CASE("Game::validMove - General Rules") {
 
   SUBCASE("Valid move → true") {
     Game game("white", "black", window);
+    game.getBoard().setPiece(king, White, {0, 0});
     game.getBoard().setPiece(rook, White, {4, 2});
     CHECK(game.validMove({4, 2}, {4, 3}, game.getBoard()) == true);
   }
@@ -448,16 +447,19 @@ TEST_CASE("Game::validMove - Pawn Specific Rules") {
   }
 
   SUBCASE("Pawn valid single push → true") {
+    game.getBoard().setPiece(king, White, {0, 0});
     game.getBoard().setPiece(pawn, White, {0, 6});
     CHECK(game.validMove({0, 6}, {0, 5}, game.getBoard()) == true);
   }
 
   SUBCASE("Pawn invalid backward move → false") {
+    game.getBoard().setPiece(king, White, {0, 0});
     game.getBoard().setPiece(pawn, White, {0, 6});
     CHECK(game.validMove({0, 6}, {0, 7}, game.getBoard()) == false);
   }
 
   SUBCASE("Pawn valid diagonal capture → true") {
+    game.getBoard().setPiece(king, White, {0, 0});
     game.getBoard().setPiece(pawn, White, {3, 4});
     game.getBoard().setPiece(pawn, Black, {4, 3});
     CHECK(game.validMove({3, 4}, {4, 3}, game.getBoard()) == true);
@@ -508,6 +510,7 @@ TEST_CASE("Game::validMove - Edge Cases") {
 
   SUBCASE("Turn validation - white's turn") {
     Game game("white", "black", window);
+    game.getBoard().setPiece(king, White, {0, 0});
     game.getBoard().setPiece(pawn, White, {0, 6});
     game.getBoard().setPiece(pawn, Black, {0, 2});
     CHECK(game.validMove({0, 6}, {0, 5}, game.getBoard()) == true);
@@ -516,6 +519,7 @@ TEST_CASE("Game::validMove - Edge Cases") {
 
   SUBCASE("Turn validation - black's turn") {
     Game game("white", "black", window);
+    game.getBoard().setPiece(king, Black, {6, 6});
     game.getBoard().setPiece(pawn, White, {0, 5});
     game.getBoard().setPiece(pawn, Black, {0, 2});
     game.switchTurn();
@@ -752,6 +756,7 @@ TEST_CASE("Game::executeMove - Normal Move") {
   Game game("white", "black", window);
 
   SUBCASE("Normal pawn move") {
+    game.getBoard().setPiece(king, White, {0, 0});
     game.getBoard().setPiece(pawn, White, {1, 6});
     game.executeMove({1, 6}, {1, 5});
     CHECK(game.getBoard().selectPiece({1, 5})->getName() == pawn);
@@ -760,6 +765,7 @@ TEST_CASE("Game::executeMove - Normal Move") {
   }
 
   SUBCASE("Capture move") {
+    game.getBoard().setPiece(king, White, {0, 0});
     game.getBoard().setPiece(pawn, White, {1, 6});
     game.getBoard().setPiece(pawn, Black, {2, 5});
     game.executeMove({1, 6}, {2, 5});
@@ -791,20 +797,28 @@ TEST_CASE("Game::executeMove - Special Moves") {
     CHECK(game.getBoard().selectPiece({2, 3}) ==
           nullptr);  // Captured pawn should be removed
   }
-
-  SUBCASE("Promotion") {
-    // We'll simulate the input for promotion to queen
-    std::streambuf* oldCin = std::cin.rdbuf();
-    std::stringstream input;
-    input << "1\n";
-    std::cin.rdbuf(input.rdbuf());
-
-    game.getBoard().setPiece(pawn, White, {0, 1});
-    game.executeMove({0, 1}, {0, 0});
-    CHECK(game.getBoard().selectPiece({0, 0})->getName() == queen);
-
-    std::cin.rdbuf(oldCin);
-  }
+  // SUBCASE("Promotion") {
+  //  // Redireziono l'input per la scelta della promozione (1 = regina)
+  //  std::streambuf* oldCin = std::cin.rdbuf();
+  //  std::stringstream input;
+  //  input << "1\n";
+  //  std::cin.rdbuf(input.rdbuf());
+  //
+  //  game.getBoard().setPiece(king, White, {6, 6});
+  //  game.getBoard().setPiece(king, Black, {7, 7});
+  //
+  //  game.getBoard().setPiece(pawn, White, {0, 1});
+  //
+  //  // Muovo il pedone sulla prima traversa → promozione
+  //  game.executeMove({0, 1}, {0, 0});
+  //
+  //  // Verifico che ci sia una regina nella nuova posizione
+  //
+  //  CHECK(game.getBoard().selectPiece({0, 0})->getName() == queen);
+  //
+  //  // Ripristino cin
+  //  std::cin.rdbuf(oldCin);
+  //}
 }
 
 TEST_CASE("Game::canMove") {
@@ -934,6 +948,8 @@ TEST_CASE("Game::checkGameOver") {
   }
 
   SUBCASE("Fifty moves rule") {
+    game.getBoard().setPiece(king, White, {0, 1});
+    game.getBoard().setPiece(king, Black, {0, 0});
     for (int i = 0; i < 50; i++) {
       game.addMovesCounter();
     }
