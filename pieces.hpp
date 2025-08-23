@@ -39,9 +39,9 @@ class Piece {
   Piece(Name name_, Color color);
 
   // metodi per accedere alle variabili protette
-  Name getName();
-  Color getColor();
-  bool getMoved();
+  Name getName() const;
+  Color getColor() const;
+  bool getMoved() const;
 
   // metodi per modificare le variabili protette
   void setName(Name new_name);
@@ -65,7 +65,7 @@ class King : public Piece {
   King(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
-  bool getMoved();
+  bool getMoved() const;
   void setMoved(bool has_moved);
   void loadTexture() override;
 };

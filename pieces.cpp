@@ -20,15 +20,15 @@ Piece::Piece(Name name, Color color) : name_(name), color_(color) {
 }
 
 // metodi per accedere alle variabili protette
-Name Piece::getName() {
+Name Piece::getName() const {
   assert(name_ >= king && name_ <= pawn);
   return name_;
 }
-Color Piece::getColor() {
+Color Piece::getColor() const {
   assert(color_ == White || color_ == Black);
   return color_;
 }
-bool Piece::getMoved() { return moved_; };
+bool Piece::getMoved() const { return moved_; };
 
 // metodi per modificare le variabili protette
 void Piece::setName(Name new_name) { name_ = new_name; }
