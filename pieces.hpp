@@ -20,9 +20,9 @@ struct Point {
 bool operator==(Point lp, Point rp);
 bool operator!=(Point lp, Point rp);
 
-// LA CLASSE MADRE
+// CLASSE MADRE
 class Piece {
- protected:  // così potrà essere usato anche dalle classi derivate
+ protected:
   Name name_;
   Color color_;
   bool moved_{false};
@@ -31,7 +31,7 @@ class Piece {
 
   static inline void assertInRange_Pieces(Point p) {
     assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
-    (void)p; //evito warning in build Release
+    (void)p;  // evito warning in build Release
   }
 
  public:
@@ -62,7 +62,6 @@ class Piece {
 // RE
 class King : public Piece {
  public:
-  // Constructor
   King(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
@@ -74,7 +73,6 @@ class King : public Piece {
 // REGINA
 class Queen : public Piece {
  public:
-  // Constructor
   Queen(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
@@ -84,7 +82,6 @@ class Queen : public Piece {
 // CAVALLO
 class Knight : public Piece {
  public:
-  // Constructor
   Knight(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
@@ -94,7 +91,6 @@ class Knight : public Piece {
 // ALFIERE
 class Bishop : public Piece {
  public:
-  // Constructor
   Bishop(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;
@@ -104,7 +100,6 @@ class Bishop : public Piece {
 // TORRE
 class Rook : public Piece {
  public:
-  // Constructor
   Rook(Color color);
 
   bool validPieceMove(Point cell_from, Point cell_to) override;

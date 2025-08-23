@@ -24,12 +24,13 @@ class Game {
   Game(const std::string nameWhite, const std::string nameBlack,
        sf::RenderWindow&);
 
+  Color getPlayerTurn() const;
+  bool getGameOver() const;
+  const Player& getPlayer(Color) const;
+  int getFiftyMovesCounter() const;
+  Point getEnpassantTarget() const;
+
   Board& getBoard();
-  Color getPlayerTurn();
-  bool getGameOver();
-  const Player& getPlayer(Color);
-  int getFiftyMovesCounter();
-  Point getEnpassantTarget();
 
   void setGameOver(bool p);
   void setPlayerWinner(const Player& player);
@@ -37,37 +38,38 @@ class Game {
   void resetMovesCounter();
   void switchTurn();
 
-  // funzioni per il movimento pezzi (IMPLEMENTARE TEST)
-  bool rightStarting(Point from);
-  bool rightArrival(Point to);
-  bool isChecking(Point p, Color color, const Board& board);
-  bool isCellAttached(Point p, Color color, const Board& board);
-  bool isCheck(Color color, const Board& board);  // color è sotto scacco?
-  bool createCheck(Point from, Point to);  // questa mossa genera uno scacco?
-  bool validMove(Point from, Point to, const Board& board);
+  // funzioni per il movimento pezzi
+  bool rightStarting(Point from) const;
+  bool rightArrival(Point to) const;
+  bool isChecking(Point p, Color color, const Board& board) const;
+  bool isCellAttached(Point p, Color color, const Board& board) const;
+  bool isCheck(Color color, const Board& board) const;  // color è sotto scacco?
+  bool createCheck(Point from,
+                   Point to) const;  // questa mossa genera uno scacco?
+  bool validMove(Point from, Point to, const Board& board) const;
 
-  // funzioni per promozione (IMPLEMENTARE TEST)
+  // funzioni per promozione
   Name pieceToPromote();
   void executePromotion(Point from, Point to);
 
-  // funzioni per arrocco (IMPLEMENTARE TEST)
-  bool isCastling(Point to);
-  bool isCastlingValid(Point from, Point to);
+  // funzioni per arrocco
+  bool isCastlingValid(Point from, Point to) const;
   void executeCastling(Point from, Point to);
 
-  // funzioni per enPassant (IMPLEMENTARE TEST)
+  // funzioni per enPassant
   void setEnPassantTarget(Point from,
                           Point to);  // pedone si muove di due caselle
-  bool isEnPassantValid(Point from, Point to);  // questo enPassant si può fare?
+  bool isEnPassantValid(Point from,
+                        Point to) const;        // questo enPassant si può fare?
   void executeEnPassant(Point from, Point to);  // esegue l'enPassant
 
   void executeMove(Point from, Point to);
 
   // conclusione partita
-  bool canMove(Color color);      // ci sono mosse disponibili per color?
-  bool isCheckmate(Color color);  // color è in scacco matto? (!color vince)
-  bool isFiftyMoves();          // 50 mosse senza cattura o movimento di pedone?
-  bool insufficientMaterial();  // il materiale è sufficiente?
+  bool canMove(Color color) const;      // ci sono mosse disponibili per color?
+  bool isCheckmate(Color color) const;  // color è in scacco matto?
+  bool isFiftyMoves() const;  // 50 mosse senza cattura o movimento di pedone?
+  bool insufficientMaterial() const;  // il materiale è sufficiente?
   void checkGameOver();
 };
 }  // namespace chess

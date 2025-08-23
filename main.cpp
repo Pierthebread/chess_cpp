@@ -2,26 +2,30 @@
 using namespace chess;
 int main() {
   try {
-    /*
     std::string name1;
     std::string name2;
 
     std::cout << "Player 1 name: " << '\n';
-    std::getline(std::cin, name1);
+    if (!std::getline(std::cin, name1) || name1.empty()) {
+      std::cerr << "Errore: nome del Player 1 non valido.\n";
+      std::exit(EXIT_FAILURE);
+    }
     Player whitePlayer(name1, Color::White);
 
     std::cout << "Player 2 name: " << '\n';
-    std::getline(std::cin, name2);
+    if (!std::getline(std::cin, name2) || name2.empty()) {
+      std::cerr << "Errore: nome del Player 2 non valido.\n";
+      std::exit(EXIT_FAILURE);
+    }
     Player blackPlayer(name2, Color::Black);
 
-    std::cout << name1 << " is white" << '\n';
-    std::cout << name2 << " is black" << '\n';
-    */
+    std::cout << "Player White: " << whitePlayer.getName() << '\n';
+    std::cout << "Player Black: " << blackPlayer.getName() << '\n';
 
     sf::RenderWindow window(sf::VideoMode(640, 640), "Chess");
     window.setFramerateLimit(60);
 
-    Game game("name1", "name2", window);
+    Game game(name1, name2, window);
     Board& board = game.getBoard();
     board.setPieces();
 

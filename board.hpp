@@ -26,7 +26,7 @@ class Board {
 
  public:
   Board(sf::RenderWindow& window);
-  Board cloneBoard(const Board& other_board);
+  Board cloneBoard(const Board& other_board) const;
 
   void setPiece(Name, Color, Point);
   void setPieces();

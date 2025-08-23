@@ -15,7 +15,7 @@ Board::Board(sf::RenderWindow& window) : window_(window) {
   cellBlack_.setFillColor(sf::Color(139, 69, 19));
 }
 
-Board Board::cloneBoard(const Board& other_board) {
+Board Board::cloneBoard(const Board& other_board) const {
   Board temporary_board(other_board.window_);
   for (std::size_t c = 0; c < 8; ++c) {
     for (std::size_t r = 0; r < 8; ++r) {
@@ -254,4 +254,5 @@ void Board::promote(Point p_pawn, Name piece, Color color) {
   assertInRange_Board(p_pawn);
   setPiece(piece, color, p_pawn);
 }
+
 }  // namespace chess

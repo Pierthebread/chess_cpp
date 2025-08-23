@@ -5,9 +5,9 @@ Player::Player(const std::string& name, Color color)
 
 const std::string& Player::getName() { return name_; }
 
-Color Player::getColor() { return color_; }
+Color Player::getColor() const { return color_; }
 
-int Player::getMoves() { return moves_; }
+int Player::getMoves() const { return moves_; }
 
 void Player::incrementMoves() { ++moves_; }
 }  // namespace chess

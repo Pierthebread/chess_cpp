@@ -2,7 +2,7 @@
 #include "doctest.h"
 #include "game.hpp"
 using namespace chess;
-// Piece.hpp && Piece.cpp
+// Test piece
 TEST_CASE("Testing validPieceMove") {
   Point A{0, 0};
   Point B{3, 3};
@@ -60,7 +60,7 @@ TEST_CASE("Testing validPieceMove") {
   }
 }
 
-// Test Board.hpp && Board.cpp
+// Test board
 TEST_CASE("Testing board") {
   sf::RenderWindow window;
   Board board(window);
@@ -288,7 +288,7 @@ TEST_CASE("Testing isCastling") {
   }
 };
 
-// test Game
+// test game
 TEST_CASE("Testing  rightStarting") {
   sf::RenderWindow window;
   Game game(std::string("White"), std::string("Black"), window);
@@ -675,7 +675,6 @@ TEST_CASE("Game::pieceToPromote") {
   sf::RenderWindow window;
   Game game("white", "black", window);
 
-  // Save old cin buffer
   std::streambuf* oldCin = std::cin.rdbuf();
 
   SUBCASE("Select queen") {
@@ -713,7 +712,6 @@ TEST_CASE("Game::pieceToPromote") {
     CHECK(game.pieceToPromote() == bishop);
   }
 
-  // Restore cin
   std::cin.rdbuf(oldCin);
 }
 
@@ -721,7 +719,6 @@ TEST_CASE("Game::executePromotion") {
   sf::RenderWindow window;
   Game game("white", "black", window);
 
-  // Save old cin buffer
   std::streambuf* oldCin = std::cin.rdbuf();
 
   SUBCASE("Promotion to queen") {
@@ -746,7 +743,6 @@ TEST_CASE("Game::executePromotion") {
     CHECK(game.getBoard().selectPiece({1, 6}) == nullptr);
   }
 
-  // Restore cin
   std::cin.rdbuf(oldCin);
 }
 
@@ -790,35 +786,26 @@ TEST_CASE("Game::executeMove - Special Moves") {
   SUBCASE("En passant") {
     game.getBoard().setPiece(pawn, White, {1, 3});
     game.getBoard().setPiece(pawn, Black, {2, 3});
-    game.setEnPassantTarget({2, 1},
-                            {2, 3});  // Simulate previous double pawn move
+    game.setEnPassantTarget({2, 1}, {2, 3});
     game.executeMove({1, 3}, {2, 2});
     CHECK(game.getBoard().selectPiece({2, 2})->getName() == pawn);
-    CHECK(game.getBoard().selectPiece({2, 3}) ==
-          nullptr);  // Captured pawn should be removed
+    CHECK(game.getBoard().selectPiece({2, 3}) == nullptr);
   }
-  // SUBCASE("Promotion") {
-  //  // Redireziono l'input per la scelta della promozione (1 = regina)
-  //  std::streambuf* oldCin = std::cin.rdbuf();
-  //  std::stringstream input;
-  //  input << "1\n";
-  //  std::cin.rdbuf(input.rdbuf());
-  //
-  //  game.getBoard().setPiece(king, White, {6, 6});
-  //  game.getBoard().setPiece(king, Black, {7, 7});
-  //
-  //  game.getBoard().setPiece(pawn, White, {0, 1});
-  //
-  //  // Muovo il pedone sulla prima traversa → promozione
-  //  game.executeMove({0, 1}, {0, 0});
-  //
-  //  // Verifico che ci sia una regina nella nuova posizione
-  //
-  //  CHECK(game.getBoard().selectPiece({0, 0})->getName() == queen);
-  //
-  //  // Ripristino cin
-  //  std::cin.rdbuf(oldCin);
-  //}
+  SUBCASE("Promotion") {
+    std::streambuf* oldCin = std::cin.rdbuf();
+    std::stringstream input;
+    input << "1\n";
+    std::cin.rdbuf(input.rdbuf());
+
+    game.getBoard().setPieces();
+    game.getBoard().setPiece(pawn, White, {0, 1});
+
+    game.executeMove({0, 1}, {1, 0});
+
+    CHECK(game.getBoard().selectPiece({1, 0})->getName() == queen);
+
+    std::cin.rdbuf(oldCin);
+  }
 }
 
 TEST_CASE("Game::canMove") {
@@ -834,7 +821,7 @@ TEST_CASE("Game::canMove") {
     game.getBoard().setPiece(king, White, {4, 0});
     game.getBoard().setPiece(rook, White, {4, 4});
     game.getBoard().setPiece(rook, Black, {4, 7});
-    CHECK(game.canMove(White) == true);  // King can still move
+    CHECK(game.canMove(White) == true);
   }
 
   SUBCASE("Checkmate - no moves") {
@@ -897,17 +884,17 @@ TEST_CASE("Game::insufficientMaterial") {
 
   SUBCASE("King and bishop vs king and bishop (same color)") {
     game.getBoard().setPiece(king, White, {4, 0});
-    game.getBoard().setPiece(bishop, White, {2, 2});  // Light square
+    game.getBoard().setPiece(bishop, White, {2, 2});
     game.getBoard().setPiece(king, Black, {4, 7});
-    game.getBoard().setPiece(bishop, Black, {3, 3});  // Light square
+    game.getBoard().setPiece(bishop, Black, {3, 3});
     CHECK(game.insufficientMaterial() == true);
   }
 
   SUBCASE("King and bishop vs king and bishop (different color)") {
     game.getBoard().setPiece(king, White, {4, 0});
-    game.getBoard().setPiece(bishop, White, {2, 2});  // Light square
+    game.getBoard().setPiece(bishop, White, {2, 2});
     game.getBoard().setPiece(king, Black, {4, 7});
-    game.getBoard().setPiece(bishop, Black, {2, 3});  // Dark square
+    game.getBoard().setPiece(bishop, Black, {2, 3});
     CHECK(game.insufficientMaterial() == false);
   }
 

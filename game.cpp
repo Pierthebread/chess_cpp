@@ -26,20 +26,22 @@ Board& Game::getBoard() {
   assert(!gameOver_);
   return board_;
 }
-bool Game::getGameOver() { return gameOver_; }
-Color Game::getPlayerTurn() {
+
+bool Game::getGameOver() const { return gameOver_; }
+
+Color Game::getPlayerTurn() const {
   assert(!gameOver_);
   return playerTurn_;
 }
-const Player& Game::getPlayer(Color color) {
+const Player& Game::getPlayer(Color color) const {
   assert(color == White || color == Black);
   return (color == White) ? whitePlayer_ : blackPlayer_;
 }
-int Game::getFiftyMovesCounter() {
+int Game::getFiftyMovesCounter() const {
   assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
   return fifty_movescounter_;
 }
-Point Game::getEnpassantTarget() { return enPassantTarget_; }
+Point Game::getEnpassantTarget() const { return enPassantTarget_; }
 
 void Game::switchTurn() {
   assert(!gameOver_);
@@ -55,7 +57,7 @@ void Game::resetMovesCounter() {
   fifty_movescounter_ = 0;
 }
 
-bool Game::rightStarting(Point from) {
+bool Game::rightStarting(Point from) const {
   assertInRange_Game(from);
   Piece* piece_from = board_.selectPiece(from);
   if (!piece_from) {
@@ -67,7 +69,7 @@ bool Game::rightStarting(Point from) {
   return true;
 }
 
-bool Game::rightArrival(Point to) {
+bool Game::rightArrival(Point to) const {
   assertInRange_Game(to);
   Piece* piece_to = board_.selectPiece(to);
   if (!piece_to) {
@@ -79,7 +81,7 @@ bool Game::rightArrival(Point to) {
   return false;
 }
 
-bool Game::validMove(Point from, Point to, const Board& board) {
+bool Game::validMove(Point from, Point to, const Board& board) const {
   assertInRange_Game(from);
   assertInRange_Game(to);
   Piece* piece = board.selectPiece(from);
@@ -109,7 +111,7 @@ bool Game::validMove(Point from, Point to, const Board& board) {
   return true;
 }
 
-bool Game::isCheck(Color color, const Board& board) {
+bool Game::isCheck(Color color, const Board& board) const {
   assert(color == White || color == Black);
   Point king_pos = board.getKingPosition(color);
   Piece* king_piece = board.selectPiece(king_pos);
@@ -119,7 +121,7 @@ bool Game::isCheck(Color color, const Board& board) {
   return isCellAttached(king_pos, color, board);
 }
 
-bool Game::createCheck(Point from, Point to) {
+bool Game::createCheck(Point from, Point to) const {
   assertInRange_Game(from);
   assertInRange_Game(to);
   Piece* piece = board_.selectPiece(from);
@@ -132,7 +134,7 @@ bool Game::createCheck(Point from, Point to) {
   return createCheck;
 }
 
-bool Game::isCellAttached(Point p, Color color, const Board& board) {
+bool Game::isCellAttached(Point p, Color color, const Board& board) const {
   assertInRange_Game(p);
   assert(color == White || color == Black);
 
@@ -152,7 +154,7 @@ bool Game::isCellAttached(Point p, Color color, const Board& board) {
   });
 }
 
-bool Game::isCastlingValid(Point from, Point to) {
+bool Game::isCastlingValid(Point from, Point to) const {
   assertInRange_Game(to);
   assertInRange_Game(from);
   int rook_c = (to.c == 2) ? 0 : 7;
@@ -206,7 +208,7 @@ void Game::setEnPassantTarget(Point from, Point to) {
   }
 }
 
-bool Game::isEnPassantValid(Point from, Point to) {
+bool Game::isEnPassantValid(Point from, Point to) const {
   return (to.c == enPassantTarget_.c && to.r == enPassantTarget_.r &&
           !board_.selectPiece(to) &&
           board_.selectPiece(from)->validPieceMove(from, to));
@@ -307,7 +309,7 @@ void Game::executeMove(Point from, Point to) {
   }
 }
 
-bool Game::canMove(Color color) {
+bool Game::canMove(Color color) const {
   std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
 
   return std::any_of(indices.begin(), indices.end(), [&](int c) {
@@ -330,11 +332,11 @@ bool Game::canMove(Color color) {
   });
 }
 
-bool Game::isCheckmate(Color color) {
+bool Game::isCheckmate(Color color) const {
   return (isCheck(color, board_) && !canMove(color));
 }
 
-bool Game::insufficientMaterial() {
+bool Game::insufficientMaterial() const {
   int whitePieces = 0, blackPieces = 0;
   int whiteKnights = 0, blackKnights = 0;
   bool whiteHasBishop = false, blackHasBishop = false;
@@ -428,5 +430,6 @@ void Game::checkGameOver() {
   }
 }
 
-bool Game::isFiftyMoves() { return getFiftyMovesCounter() == 50; }
+bool Game::isFiftyMoves() const { return getFiftyMovesCounter() == 50; }
+
 }  // namespace chess

@@ -69,10 +69,8 @@ void King::loadTexture() {
 }
 
 // REGINA
-// Constructor
 Queen::Queen(Color color) : Piece(queen, color) { loadTexture(); };
 
-// le mosse della regina
 bool Queen::validPieceMove(Point cell_from, Point cell_to) {
   assertInRange_Pieces(cell_from);
   assertInRange_Pieces(cell_to);
@@ -100,11 +98,11 @@ void Queen::loadTexture() {
   }
   sprite_.setTexture(texture_);
 }
+
 // CAVALLO
-// Constructor
+
 Knight::Knight(Color color) : Piece(knight, color) { loadTexture(); };
 
-// le mosse del cavallo
 bool Knight::validPieceMove(Point cell_from, Point cell_to) {
   assertInRange_Pieces(cell_from);
   assertInRange_Pieces(cell_to);
@@ -126,10 +124,8 @@ void Knight::loadTexture() {
 }
 
 // ALFIERE
-// Constructor
 Bishop::Bishop(Color color) : Piece(bishop, color) { loadTexture(); };
 
-// le mosse dell'alfiere
 bool Bishop::validPieceMove(Point cell_from, Point cell_to) {
   assertInRange_Pieces(cell_from);
   assertInRange_Pieces(cell_to);
@@ -151,10 +147,8 @@ void Bishop::loadTexture() {
 }
 
 // TORRE
-// Constructor
 Rook::Rook(Color color) : Piece(rook, color) { loadTexture(); };
 
-// le mosse della torre
 bool Rook::validPieceMove(Point cell_from, Point cell_to) {
   assertInRange_Pieces(cell_from);
   assertInRange_Pieces(cell_to);
@@ -173,10 +167,8 @@ void Rook::loadTexture() {
 }
 
 // PEDONE
-// Costructor
 Pawn::Pawn(Color color) : Piece(pawn, color) { loadTexture(); };
 
-// le mosse del pedone
 bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
   assertInRange_Pieces(cell_from);
   assertInRange_Pieces(cell_to);
