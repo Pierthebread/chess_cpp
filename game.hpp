@@ -9,68 +9,64 @@ class Game {
   Player whitePlayer_;
   Player blackPlayer_;
   Color playerTurn_;
-  Point enPassantTarget_;  // Point su casella di Enpassant
+  Point enPassantTarget_;  // Point on enPassant cell
   bool gameOver_;
   int fifty_movescounter_;
   std::vector<Name> white_pieces_;
   std::vector<Name> black_pieces_;
 
-  static inline void assertInRange_Game(Point p) {
-    assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
-    (void)p;  // evito warning in build Release
-  }
-
  public:
   Game(const std::string nameWhite, const std::string nameBlack,
        sf::RenderWindow&);
 
-  Color getPlayerTurn() const;
-  bool getGameOver() const;
-  const Player& getPlayer(Color) const;
-  int getFiftyMovesCounter() const;
-  Point getEnpassantTarget() const;
+  bool getGameOver() const noexcept;
+  Color getPlayerTurn() const noexcept;
 
   Board& getBoard();
 
-  void setGameOver(bool p);
-  void setPlayerWinner(const Player& player);
-  void addMovesCounter();
-  void resetMovesCounter();
   void switchTurn();
 
-  // funzioni per il movimento pezzi
+  // functions for moving pieces
   bool rightStarting(Point from) const;
   bool rightArrival(Point to) const;
-  bool isChecking(Point p, Color color, const Board& board) const;
-  bool isCellAttached(Point p, Color color, const Board& board) const;
-  bool isCheck(Color color, const Board& board) const;  // color è sotto scacco?
-  bool createCheck(Point from,
-                   Point to) const;  // questa mossa genera uno scacco?
-  bool validMove(Point from, Point to, const Board& board) const;
+  bool createCheck(Point from, Point to) const;
+  bool validMove(Point from, Point to) const;
 
-  // funzioni per promozione
+  // promotion functions
   Name pieceToPromote();
   void executePromotion(Point from, Point to);
 
-  // funzioni per arrocco
+  // castling functions
   bool isCastlingValid(Point from, Point to) const;
   void executeCastling(Point from, Point to);
 
-  // funzioni per enPassant
+  // enPassant functions
   void setEnPassantTarget(Point from,
-                          Point to);  // pedone si muove di due caselle
-  bool isEnPassantValid(Point from,
-                        Point to) const;        // questo enPassant si può fare?
-  void executeEnPassant(Point from, Point to);  // esegue l'enPassant
+                          Point to);  // when the pawn moves two squares
+  bool isEnPassantValid(Point from, Point to) const;
+  void executeEnPassant(Point from, Point to);
 
   void executeMove(Point from, Point to);
-
-  // conclusione partita
-  bool canMove(Color color) const;      // ci sono mosse disponibili per color?
-  bool isCheckmate(Color color) const;  // color è in scacco matto?
-  bool isFiftyMoves() const;  // 50 mosse senza cattura o movimento di pedone?
-  bool insufficientMaterial() const;  // il materiale è sufficiente?
   void checkGameOver();
+
+ private:
+  const Player& getPlayer(Color) const noexcept;
+  int getFiftyMovesCounter() const noexcept;
+  Point getEnpassantTarget() const noexcept;
+
+  void setGameOver(bool p);
+  void addMovesCounter();
+  void resetMovesCounter();
+
+  // functions for moving pieces
+  bool isChecking(Point p, Color color, const Board& board) const;
+  bool isCellAttached(Point p, Color color, const Board& board) const;
+  bool isCheck(Color color, const Board& board) const;  // color è sotto scacco?
+
+  // endgame
+  bool canMove(Color color) const;  // are there moves available per color?
+  bool isFiftyMoves() const;        // 50 moves without a capture or pawn move?
+  bool insufficientMaterial() const;  // is there enough material?
 };
 }  // namespace chess
 

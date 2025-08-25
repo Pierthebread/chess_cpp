@@ -10,6 +10,7 @@ Game::Game(std::string nameWhite, std::string nameBlack,
       whitePlayer_(nameWhite, White),
       blackPlayer_(nameBlack, Black),
       playerTurn_{White},
+      enPassantTarget_{8, 8},
       gameOver_(false),
       fifty_movescounter_(0) {
   if (nameWhite.empty() || nameBlack.empty()) {
@@ -27,21 +28,21 @@ Board& Game::getBoard() {
   return board_;
 }
 
-bool Game::getGameOver() const { return gameOver_; }
+bool Game::getGameOver() const noexcept { return gameOver_; }
 
-Color Game::getPlayerTurn() const {
+Color Game::getPlayerTurn() const noexcept {
   assert(!gameOver_);
   return playerTurn_;
 }
-const Player& Game::getPlayer(Color color) const {
+const Player& Game::getPlayer(Color color) const noexcept {
   assert(color == White || color == Black);
   return (color == White) ? whitePlayer_ : blackPlayer_;
 }
-int Game::getFiftyMovesCounter() const {
+int Game::getFiftyMovesCounter() const noexcept {
   assert(fifty_movescounter_ >= 0 && fifty_movescounter_ <= 50);
   return fifty_movescounter_;
 }
-Point Game::getEnpassantTarget() const { return enPassantTarget_; }
+Point Game::getEnpassantTarget() const noexcept { return enPassantTarget_; }
 
 void Game::switchTurn() {
   assert(!gameOver_);
@@ -58,7 +59,7 @@ void Game::resetMovesCounter() {
 }
 
 bool Game::rightStarting(Point from) const {
-  assertInRange_Game(from);
+  assertInRange(from);
   Piece* piece_from = board_.selectPiece(from);
   if (!piece_from) {
     return false;
@@ -70,7 +71,7 @@ bool Game::rightStarting(Point from) const {
 }
 
 bool Game::rightArrival(Point to) const {
-  assertInRange_Game(to);
+  assertInRange(to);
   Piece* piece_to = board_.selectPiece(to);
   if (!piece_to) {
     return true;
@@ -81,10 +82,10 @@ bool Game::rightArrival(Point to) const {
   return false;
 }
 
-bool Game::validMove(Point from, Point to, const Board& board) const {
-  assertInRange_Game(from);
-  assertInRange_Game(to);
-  Piece* piece = board.selectPiece(from);
+bool Game::validMove(Point from, Point to) const {
+  assertInRange(from);
+  assertInRange(to);
+  Piece* piece = board_.selectPiece(from);
 
   if (!rightArrival(to)) {
     return false;
@@ -92,7 +93,7 @@ bool Game::validMove(Point from, Point to, const Board& board) const {
     return false;
   } else if (!piece->validPieceMove(from, to)) {
     return false;
-  } else if (!board.clearPath(from, to)) {
+  } else if (!board_.clearPath(from, to)) {
     return false;
   } else if (createCheck(from, to) == true) {
     return false;
@@ -101,10 +102,10 @@ bool Game::validMove(Point from, Point to, const Board& board) const {
     if (to.c == enPassantTarget_.c && to.r == enPassantTarget_.r) {
       return true;
     }
-    if (from.c == to.c && board.selectPiece(to)) {
+    if (from.c == to.c && board_.selectPiece(to)) {
       return false;
     }
-    if (from.c != to.c && !board.selectPiece(to)) {
+    if (from.c != to.c && !board_.selectPiece(to)) {
       return false;
     }
   }
@@ -122,8 +123,8 @@ bool Game::isCheck(Color color, const Board& board) const {
 }
 
 bool Game::createCheck(Point from, Point to) const {
-  assertInRange_Game(from);
-  assertInRange_Game(to);
+  assertInRange(from);
+  assertInRange(to);
   Piece* piece = board_.selectPiece(from);
   if (!piece) {
     return false;
@@ -135,28 +136,33 @@ bool Game::createCheck(Point from, Point to) const {
 }
 
 bool Game::isCellAttached(Point p, Color color, const Board& board) const {
-  assertInRange_Game(p);
+  assertInRange(p);
   assert(color == White || color == Black);
 
-  std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
-
-  return std::any_of(indices.begin(), indices.end(), [&](int c) {
-    return std::any_of(indices.begin(), indices.end(), [&](int r) {
+  for (int c = 0; c < 8; ++c) {
+    for (int r = 0; r < 8; ++r) {
       Piece* piece = board.selectPiece({c, r});
-      if (!piece || piece->getColor() == color) return false;
-
-      if (piece->getName() != pawn) {
-        return piece->validPieceMove({c, r}, p) && board.clearPath({c, r}, p);
-      } else {
-        return piece->validPieceMove({c, r}, p) && (c != p.c);
+      if (!piece || piece->getColor() == color) {
+        continue;
       }
-    });
-  });
+      if (piece->getName() != pawn) {
+        if (piece->validPieceMove({c, r}, p) && board.clearPath({c, r}, p)) {
+          return true;
+        }
+      } else {  // pawn
+        if (piece->validPieceMove({c, r}, p) && (c != p.c)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 bool Game::isCastlingValid(Point from, Point to) const {
-  assertInRange_Game(to);
-  assertInRange_Game(from);
+  assertInRange(to);
+  assertInRange(from);
   int rook_c = (to.c == 2) ? 0 : 7;
   Piece* rook_pos = board_.selectPiece({rook_c, to.r});
 
@@ -170,7 +176,7 @@ bool Game::isCastlingValid(Point from, Point to) const {
   int step = (to.c < from.c) ? -1 : 1;
   for (int x = from.c; x != to.c + step; x += step) {
     Point checkCell{x, from.r};
-    assertInRange_Game(checkCell);
+    assertInRange(checkCell);
     if (isCellAttached(checkCell, rook_pos->getColor(), board_)) {
       return false;
     }
@@ -179,8 +185,8 @@ bool Game::isCastlingValid(Point from, Point to) const {
 }
 
 void Game::executeCastling(Point from, Point to) {
-  assertInRange_Game(to);
-  assertInRange_Game(from);
+  assertInRange(to);
+  assertInRange(from);
   assert(board_.isCastling(from, to));
   const int row = to.r;
   // Arrocco lungo (sinistra)
@@ -230,15 +236,15 @@ Name Game::pieceToPromote() {
   int i{0};
   while (i < 1 || i > 4) {
     std::cout << " Select the piece " << '\n'
+              << "Enter a number from 1 to 4" << '\n'
               << "1. Queen " << '\n'
               << "2. Bishop " << '\n'
               << "3. Knight " << '\n'
               << "4. Rook" << '\n';
     ;
     std::cin >> i;
-    if (std::cin.fail()) {  // bool che verifica tipo input == tipo richiesto
-                            // (es. qualcuno scrive una lettera piuttosto che
-                            // un numero)
+    if (std::cin.fail()) {  // bool that checks input type == required type
+                            // (ex. someone writes a char rather than a int)
       std::cin.clear();
       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       std::cout << "Input non valido !!! " << '\n' << "Riprova " << '\n';
@@ -277,7 +283,7 @@ void Game::executeMove(Point from, Point to) {
 
   bool moveExecuted{false};
 
-  // ARROCCO
+  // CASTLING
   if (board_.isCastling(from, to) && isCastlingValid(from, to)) {
     executeCastling(from, to);
     moveExecuted = true;
@@ -288,8 +294,8 @@ void Game::executeMove(Point from, Point to) {
     executeEnPassant(from, to);
     moveExecuted = true;
   }
-  // MOSSA NORMALE e PROMOZIONE
-  else if (validMove(from, to, board_)) {
+  // NORMAL MOVE & PROMOTION
+  else if (validMove(from, to)) {
     if (board_.isPromotion(from, to)) {
       executePromotion(from, to);
       moveExecuted = true;
@@ -310,30 +316,27 @@ void Game::executeMove(Point from, Point to) {
 }
 
 bool Game::canMove(Color color) const {
-  std::array<int, 8> indices = {0, 1, 2, 3, 4, 5, 6, 7};
-
-  return std::any_of(indices.begin(), indices.end(), [&](int c) {
-    return std::any_of(indices.begin(), indices.end(), [&](int r) {
+  for (int c = 0; c < 8; ++c) {
+    for (int r = 0; r < 8; ++r) {
       Point from{c, r};
       Piece* piece = board_.selectPiece(from);
-      if (!piece || piece->getColor() != color) return false;
-
-      return std::any_of(indices.begin(), indices.end(), [&](int to_c) {
-        return std::any_of(indices.begin(), indices.end(), [&](int to_r) {
+      if (!piece || piece->getColor() != color) {
+        continue;
+      }
+      for (int to_c = 0; to_c < 8; ++to_c) {
+        for (int to_r = 0; to_r < 8; ++to_r) {
           Point to{to_c, to_r};
           try {
-            return validMove(from, to, board_);
+            if (validMove(from, to)) {
+              return true;
+            }
           } catch (const std::runtime_error&) {
-            return false;
           }
-        });
-      });
-    });
-  });
-}
-
-bool Game::isCheckmate(Color color) const {
-  return (isCheck(color, board_) && !canMove(color));
+        }
+      }
+    }
+  }
+  return false;
 }
 
 bool Game::insufficientMaterial() const {
@@ -346,12 +349,12 @@ bool Game::insufficientMaterial() const {
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
       Piece* piece = board_.selectPiece({i, j});
-      if (!piece) continue;  // Casella vuota
+      if (!piece) continue;  // empty cell
 
       Color color = piece->getColor();
       Name name = piece->getName();
 
-      // Se c'è una donna, torre o pedone, il materiale è sufficiente
+      // If there is a queen, rook or pawn, the material is sufficient
       if (name == queen || name == rook || name == pawn) {
         return false;
       }
@@ -362,7 +365,7 @@ bool Game::insufficientMaterial() const {
           whiteKnights++;
         else if (name == bishop) {
           whiteHasBishop = true;
-          // Controlla se l'alfiere è su casella chiara o scura
+          // Check if the bishop is on a light or dark square
           if ((i + j) % 2 == 0)
             whiteHasDarkSquaredBishop = true;
           else
@@ -383,12 +386,12 @@ bool Game::insufficientMaterial() const {
     }
   }
 
-  // Caso 1: Solo i due re → patta
+  // Case 1: Only the 2 king → stlemate
   if (whitePieces == 1 && blackPieces == 1) {
     return true;
   }
 
-  // Caso 2: Re + cavallo/alfiere vs Re → patta
+  // Case 2: King + Knight/Bishop vs King → stalemate
   if ((whitePieces == 1 && blackPieces == 2 &&
        (blackKnights == 1 || blackHasBishop)) ||
       (blackPieces == 1 && whitePieces == 2 &&
@@ -396,8 +399,8 @@ bool Game::insufficientMaterial() const {
     return true;
   }
 
-  // Caso 3: Re + alfiere vs Re + alfiere (stesso colore degli alfieri) →
-  // patta
+  // Case 3: King + Bishop vs King + Bishop (stesso colore degli alfieri) →
+  // stalemate
   if (whitePieces == 2 && blackPieces == 2 && whiteHasBishop &&
       blackHasBishop) {
     if ((whiteHasLightSquaredBishop && blackHasLightSquaredBishop) ||

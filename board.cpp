@@ -35,7 +35,7 @@ Board Board::cloneBoard(const Board& other_board) const {
 }
 
 void Board::setPiece(Name type, Color color, Point p) {
-  assertInRange_Board(p);
+  assertInRange(p);
   switch (type) {
     case Name::queen:
       board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)] =
@@ -93,7 +93,7 @@ void Board::setPieces() {
 }
 
 void Piece::setPositionImage(Point p) {
-  assertInRange_Pieces(p);
+  assertInRange(p);
   sprite_.setPosition(static_cast<float>(p.c) * CELL_SIZE + 40.0f -
                           sprite_.getGlobalBounds().width / 2,
                       static_cast<float>(p.r) * CELL_SIZE + 40.0f -
@@ -122,7 +122,7 @@ void Board::drawPieces() {
   }
 }
 
-Point Board::getKingPosition(Color color) const {
+Point Board::getKingPosition(Color color) const noexcept {
   return (color == White) ? whiteKingPos_ : blackKingPos_;
 }
 
@@ -131,12 +131,11 @@ void Board::setKingPosition(Color color, Point p) {
 }
 
 void Board::deletePiece(Point p) {
-  assertInRange_Board(p);
+  assertInRange(p);
   board[static_cast<std::size_t>(p.c)][static_cast<std::size_t>(p.r)] = nullptr;
 }
 
 Piece* Board::selectPiece(Point p) const {
-  assertInRange_Board(p);
   if (p.c < 0 or p.c >= 8 or p.r < 0 or p.r >= 8) {
     throw std::runtime_error{"Point out of board"};
   } else if (board[static_cast<std::size_t>(p.c)]
@@ -148,8 +147,8 @@ Piece* Board::selectPiece(Point p) const {
 }
 
 void Board::movePiece(Point from, Point to) {
-  assertInRange_Board(from);
-  assertInRange_Board(to);
+  assertInRange(from);
+  assertInRange(to);
   if (selectPiece(from)) {
     selectPiece(from)->setPositionImage({to.c, to.r});
     board[static_cast<std::size_t>(to.c)][static_cast<std::size_t>(to.r)] =
@@ -170,8 +169,8 @@ void Board::movePiece(Point from, Point to) {
 }
 
 bool Board::clearPath(Point from, Point to) const {
-  assertInRange_Board(from);
-  assertInRange_Board(to);
+  assertInRange(from);
+  assertInRange(to);
   if (from.r == to.r) {
     return clearHorizontalPath(from, to);
   } else if (from.c == to.c) {
@@ -183,8 +182,8 @@ bool Board::clearPath(Point from, Point to) const {
 }
 
 bool Board::clearHorizontalPath(Point from, Point to) const {
-  assertInRange_Board(from);
-  assertInRange_Board(to);
+  assertInRange(from);
+  assertInRange(to);
   assert(from.r == to.r);
   int x = (to.c - from.c > 0) ? +1 : -1;
   for (int column = from.c + x; column != to.c; column += x) {
@@ -197,8 +196,8 @@ bool Board::clearHorizontalPath(Point from, Point to) const {
 }
 
 bool Board::clearVerticalPath(Point from, Point to) const {
-  assertInRange_Board(from);
-  assertInRange_Board(to);
+  assertInRange(from);
+  assertInRange(to);
   assert(from.c == to.c);
   int y = (to.r - from.r > 0) ? +1 : -1;
   for (int row = from.r + y; row != to.r; row += y) {
@@ -211,8 +210,8 @@ bool Board::clearVerticalPath(Point from, Point to) const {
 }
 
 bool Board::clearDiagonalPath(Point from, Point to) const {
-  assertInRange_Board(from);
-  assertInRange_Board(to);
+  assertInRange(from);
+  assertInRange(to);
   assert(abs(from.r - to.r) == abs(from.c - to.c));
   int x = (to.c - from.c > 0) ? +1 : -1;
   int y = (to.r - from.r > 0) ? +1 : -1;
@@ -230,8 +229,8 @@ bool Board::clearDiagonalPath(Point from, Point to) const {
 }
 
 bool Board::isCastling(Point from, Point to) const {
-  assertInRange_Board(from);
-  assertInRange_Board(to);
+  assertInRange(from);
+  assertInRange(to);
   Piece* king = selectPiece(from);
   if (king && !king->getMoved()) {
     return (abs(to.c - from.c) == 2);
@@ -240,8 +239,8 @@ bool Board::isCastling(Point from, Point to) const {
 }
 
 bool Board::isPromotion(Point from, Point to) const {
-  assertInRange_Board(from);
-  assertInRange_Board(to);
+  assertInRange(from);
+  assertInRange(to);
   Piece* piece = selectPiece(from);
   if (piece && piece->getName() == pawn) {
     return ((piece->getColor() == White && to.r == 0) ||
@@ -251,7 +250,7 @@ bool Board::isPromotion(Point from, Point to) const {
 }
 
 void Board::promote(Point p_pawn, Name piece, Color color) {
-  assertInRange_Board(p_pawn);
+  assertInRange(p_pawn);
   setPiece(piece, color, p_pawn);
 }
 

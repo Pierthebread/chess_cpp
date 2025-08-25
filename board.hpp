@@ -19,11 +19,6 @@ class Board {
   Point whiteKingPos_;
   Point blackKingPos_;
 
-  static inline void assertInRange_Board(Point p) {
-    assert(p.c >= 0 && p.c < 8 && p.r >= 0 && p.r < 8);
-    (void)p;  // evito warning in build Release
-  }
-
  public:
   Board(sf::RenderWindow& window);
   Board cloneBoard(const Board& other_board) const;
@@ -32,11 +27,10 @@ class Board {
   void setPieces();
   void deletePiece(Point);
 
-  void loadTextures();
   void drawPieces();
   void drawBoard();
 
-  Point getKingPosition(Color) const;
+  Point getKingPosition(Color) const noexcept;
   void setKingPosition(Color, Point);
 
   Piece* selectPiece(Point) const;
@@ -47,6 +41,10 @@ class Board {
   bool isCastling(Point from, Point to) const;
 
   bool clearPath(Point from, Point to) const;
+
+ private:
+  void loadTextures();
+
   bool clearHorizontalPath(Point from, Point to) const;
   bool clearVerticalPath(Point from, Point to) const;
   bool clearDiagonalPath(Point from, Point to) const;

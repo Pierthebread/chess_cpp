@@ -12,9 +12,9 @@ class Player {
  public:
   Player(const std::string& name, Color color);
 
-  const std::string& getName();
-  Color getColor() const;
-  int getMoves() const;
+  const std::string& getName() const noexcept;
+  Color getColor() const noexcept;
+  int getMoves() const noexcept;
 
   void incrementMoves();
 };

@@ -12,25 +12,21 @@ bool operator!=(Point lp, Point rp) {
   return lp.c != rp.c || lp.r != rp.r;
 }
 
-// LA CLASSE MADRE
-// Costructor
 Piece::Piece(Name name, Color color) : name_(name), color_(color) {
   assert(name >= king && name <= pawn && "Nome pezzo invalido");
   assert(color == White || color == Black);
 }
 
-// metodi per accedere alle variabili protette
-Name Piece::getName() const {
+Name Piece::getName() const noexcept {
   assert(name_ >= king && name_ <= pawn);
   return name_;
 }
-Color Piece::getColor() const {
+Color Piece::getColor() const noexcept {
   assert(color_ == White || color_ == Black);
   return color_;
 }
-bool Piece::getMoved() const { return moved_; };
+bool Piece::getMoved() const noexcept { return moved_; };
 
-// metodi per modificare le variabili protette
 void Piece::setName(Name new_name) { name_ = new_name; }
 void Piece::setColor(Color new_color) { color_ = new_color; }
 void Piece::setMoved(bool has_moved) { moved_ = has_moved; };
@@ -42,15 +38,13 @@ void Piece::drawPiece(sf::RenderWindow& window) {
   window.draw(sprite_);
 }
 
-// LE CLASSI DERIVATE: I SINGOLI PEZZI
-
-// KING
+// King
 
 King::King(Color color) : Piece(king, color) { loadTexture(); };
 
 bool King::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange_Pieces(cell_from);
-  assertInRange_Pieces(cell_to);
+  assertInRange(cell_from);
+  assertInRange(cell_to);
 
   int delta_column{abs(cell_from.c - cell_to.c)};
   int delta_row{abs(cell_from.r - cell_to.r)};
@@ -68,17 +62,15 @@ void King::loadTexture() {
   sprite_.setTexture(texture_);
 }
 
-// REGINA
+// Queen
 Queen::Queen(Color color) : Piece(queen, color) { loadTexture(); };
 
 bool Queen::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange_Pieces(cell_from);
-  assertInRange_Pieces(cell_to);
+  assertInRange(cell_from);
+  assertInRange(cell_to);
 
-  int delta_column{
-      abs(cell_from.c - cell_to.c)};  // per muoversi in diagonale colonna
-  int delta_row{
-      abs(cell_from.r - cell_to.r)};  // per muoversi in diagonale riga
+  int delta_column{abs(cell_from.c - cell_to.c)};  // to move diagonally column
+  int delta_row{abs(cell_from.r - cell_to.r)};     // to move diagonally row
 
   if (delta_column == delta_row) {
     return true;
@@ -99,13 +91,13 @@ void Queen::loadTexture() {
   sprite_.setTexture(texture_);
 }
 
-// CAVALLO
+// Knight
 
 Knight::Knight(Color color) : Piece(knight, color) { loadTexture(); };
 
 bool Knight::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange_Pieces(cell_from);
-  assertInRange_Pieces(cell_to);
+  assertInRange(cell_from);
+  assertInRange(cell_to);
 
   int delta_column{abs(cell_from.c - cell_to.c)};
   int delta_row{abs(cell_from.r - cell_to.r)};
@@ -123,12 +115,12 @@ void Knight::loadTexture() {
   sprite_.setTexture(texture_);
 }
 
-// ALFIERE
+// Bishop
 Bishop::Bishop(Color color) : Piece(bishop, color) { loadTexture(); };
 
 bool Bishop::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange_Pieces(cell_from);
-  assertInRange_Pieces(cell_to);
+  assertInRange(cell_from);
+  assertInRange(cell_to);
 
   int delta_column{abs(cell_from.c - cell_to.c)};
   int delta_row{abs(cell_from.r - cell_to.r)};
@@ -146,12 +138,12 @@ void Bishop::loadTexture() {
   sprite_.setTexture(texture_);
 }
 
-// TORRE
+// Rook
 Rook::Rook(Color color) : Piece(rook, color) { loadTexture(); };
 
 bool Rook::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange_Pieces(cell_from);
-  assertInRange_Pieces(cell_to);
+  assertInRange(cell_from);
+  assertInRange(cell_to);
 
   return cell_from.r == cell_to.r || cell_from.c == cell_to.c;
 };
@@ -166,22 +158,20 @@ void Rook::loadTexture() {
   sprite_.setTexture(texture_);
 }
 
-// PEDONE
+// Pawn
 Pawn::Pawn(Color color) : Piece(pawn, color) { loadTexture(); };
 
 bool Pawn::validPieceMove(Point cell_from, Point cell_to) {
-  assertInRange_Pieces(cell_from);
-  assertInRange_Pieces(cell_to);
+  assertInRange(cell_from);
+  assertInRange(cell_to);
 
   int direction = (color_ == White) ? +1 : -1;
 
-  // mossa doppia
   if (cell_from.c == cell_to.c && moved_ == false &&
       cell_from.r == cell_to.r + 2 * direction) {
     return true;
   }
 
-  // solo mossa e mangiare
   if (abs(cell_from.c - cell_to.c) <= 1 &&
       cell_from.r == cell_to.r + direction) {
     return true;
